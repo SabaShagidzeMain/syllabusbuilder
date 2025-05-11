@@ -1,18 +1,19 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LogScreen from "./Components/LogScreen/LogScreen";
+import MainPage from "./Components/MainPage/MainPage";
+import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <>
-      <div>
-        <LogScreen />
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LogScreen />} />
+        <Route path="/main" element={<MainPage />} />
+      </Routes>
+    </Router>
   );
 }
 
