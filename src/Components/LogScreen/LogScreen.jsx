@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import "./style.css";
 import { supabase } from "../../utility/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const LogScreen = () => {
   const [activeRole, setActiveRole] = useState("professor");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -18,7 +20,7 @@ const LogScreen = () => {
       setErrorMsg(error.message);
     } else {
       setErrorMsg("");
-      alert("Login successful!");
+      navigate("/main");
     }
   };
 
