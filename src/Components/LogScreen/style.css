@@ -104,3 +104,42 @@
   padding: 0;
   box-shadow: 0 0.4rem 0.4rem #0000002d;
 }
+
+@media (max-width: 768px) {
+  .logScreen {
+    width: 100%;
+    gap: 2rem;
+  }
+  .input-wrapper {
+    width: 100%;
+  }
+  .input-inner {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .text-input {
+    width: 80%;
+  }
+  .button-wrapper {
+    width: 100%;
+    height: fit-content;
+  }
+  .button-wrapper button {
+    padding: 0;
+    height: 4.5rem;
+    font-size: 1.5rem;
+  }
+  .log-wrapper {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+  .log-button {
+    margin: 0;
+  }
+  .input-name {
+    font-size: 1.1rem;
+  }
+}
