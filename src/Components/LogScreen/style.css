@@ -109,6 +109,7 @@
   .logScreen {
     width: 100%;
     gap: 2rem;
+    height: 33rem;
   }
   .input-wrapper {
     width: 100%;
