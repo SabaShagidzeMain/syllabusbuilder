@@ -10,6 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 25rem;
 }
 
 .landing-left-wrapper {
@@ -87,4 +88,56 @@ p {
 .userbtn {
   background-color: #fff;
   border: 2px solid #b9b9b9;
+}
+
+@media (max-width: 1215px) {
+  .landingtop-wrapper {
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: flex-start;
+    height: 25rem;
+    gap: 1rem;
+  }
+
+  .overlay {
+    height: 25rem;
+  }
+
+  .landing-left-wrapper {
+    width: 15rem;
+    padding: 0;
+  }
+
+  .toplogo {
+    width: 12rem;
+  }
+
+  .landing-right-wrapper {
+    width: 95%;
+    justify-content: flex-start;
+  }
+
+  .landing-left-inner {
+    padding: 1rem;
+    height: 10rem;
+    width: 15rem;
+  }
+
+  .topuser {
+    width: 8rem;
+  }
+
+  .landing-right-inner {
+    padding: 1rem;
+    height: 11rem;
+    border-radius: 0 20px 20px 0;
+  }
+
+  .user-info {
+    gap: 0.2rem;
+  }
+
+  button {
+    display: none;
+  }
 }

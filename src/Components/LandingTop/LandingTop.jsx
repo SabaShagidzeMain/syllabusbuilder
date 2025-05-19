@@ -51,7 +51,6 @@ const LandingTop = () => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        height: "25rem",
         width: "100%",
       }}
     >
