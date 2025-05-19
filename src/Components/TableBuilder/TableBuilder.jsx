@@ -2,7 +2,7 @@ import React from "react";
 import "./style.css";
 
 export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
-  const [addedTables, setAddedTables] = React.useState([]); // array of { id, name, cells }
+  const [addedTables, setAddedTables] = React.useState([]); // { id, name, cells }
   const [currentTableId, setCurrentTableId] = React.useState(null);
   const [currentTableCells, setCurrentTableCells] = React.useState([]);
 
@@ -24,18 +24,15 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
         ["", "", ""],
       ],
     },
-    // more predefined tables
+    // add more predefined tables as needed
   ];
 
-  // When admin picks a table from predefined list
   function onSelectPredefinedTable(id) {
     setCurrentTableId(id);
     const table = predefinedTables.find((t) => t.id === id);
-    // Deep clone cells so edits don't mutate original
     setCurrentTableCells(table.cells.map((row) => [...row]));
   }
 
-  // Handle edits in the left panel
   function onEditCell(row, col, value) {
     setCurrentTableCells((prev) => {
       const newCells = prev.map((r) => [...r]);
@@ -44,26 +41,23 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
     });
   }
 
-  // Add currently edited table to syllabus list or update existing
   function onAddOrUpdateTable() {
+    if (!currentTableId) return;
+    const name = predefinedTables.find((t) => t.id === currentTableId).name;
     setAddedTables((prev) => {
       const exists = prev.findIndex((t) => t.id === currentTableId);
       if (exists >= 0) {
         const updated = [...prev];
         updated[exists] = {
           id: currentTableId,
-          name: predefinedTables.find((t) => t.id === currentTableId).name,
+          name,
           cells: currentTableCells,
         };
         return updated;
       } else {
         return [
           ...prev,
-          {
-            id: currentTableId,
-            name: predefinedTables.find((t) => t.id === currentTableId).name,
-            cells: currentTableCells,
-          },
+          { id: currentTableId, name, cells: currentTableCells },
         ];
       }
     });
@@ -71,10 +65,14 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
     setCurrentTableCells([]);
   }
 
+  function onRemoveTable(id) {
+    setAddedTables((prev) => prev.filter((t) => t.id !== id));
+  }
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal">
+    <div className="modal" onClick={onClose}>
       <div className="modal-inner">
         <div
           className="modal-left"
@@ -85,6 +83,7 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
           }}
         >
           <button onClick={() => setCurrentTableId(null)}>Add Table</button>
+
           {!currentTableId && (
             <div>
               <h4>Select a table to add:</h4>
@@ -98,13 +97,22 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
               ))}
             </div>
           )}
+
           {currentTableId && (
             <div>
               <h4>
                 Editing:{" "}
                 {predefinedTables.find((t) => t.id === currentTableId).name}
               </h4>
-              <table border="1" cellPadding="5">
+              <table
+                border="1"
+                cellPadding="5"
+                style={{
+                  width: "100%",
+                  tableLayout: "fixed",
+                  marginBottom: 10,
+                }}
+              >
                 <tbody>
                   {currentTableCells.map((row, rIdx) => (
                     <tr key={rIdx}>
@@ -116,6 +124,7 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
                             onChange={(e) =>
                               onEditCell(rIdx, cIdx, e.target.value)
                             }
+                            style={{ width: "100%", boxSizing: "border-box" }}
                           />
                         </td>
                       ))}
@@ -133,12 +142,41 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
           )}
         </div>
 
-        <div className="modal-right" style={{ width: "50%", padding: "10px" }}>
+        <div
+          className="modal-right"
+          style={{ width: "50%", padding: "10px", overflowY: "auto" }}
+        >
           <h3>Tables in Syllabus</h3>
           {addedTables.length === 0 && <p>No tables added yet.</p>}
           {addedTables.map((table) => (
             <div key={table.id} style={{ marginBottom: "20px" }}>
-              <table border="1" cellPadding="5" className="table">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <strong>{table.name}</strong>
+                <button
+                  onClick={() => onRemoveTable(table.id)}
+                  style={{
+                    background: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+              <table
+                border="1"
+                cellPadding="5"
+                className="table"
+                style={{ width: "100%", tableLayout: "fixed", marginTop: 5 }}
+              >
                 <tbody>
                   {table.cells.map((row, rIdx) => (
                     <tr key={rIdx}>
