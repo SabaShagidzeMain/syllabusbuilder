@@ -1,0 +1,10 @@
+.openbtn {
+  background-color: #449df6;
+  color: #fff;
+  font-weight: bold;
+}
+
+.botwrapper {
+  display: flex;
+  padding: 2rem;
+}

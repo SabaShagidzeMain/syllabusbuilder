@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder"; // Adjust path & name if needed
+import "./style.css";
 
 const LandingBot = () => {
   const [showBuilder, setShowBuilder] = useState(false);
@@ -15,8 +16,10 @@ const LandingBot = () => {
   };
 
   return (
-    <div>
-      <button onClick={() => setShowBuilder(true)}>Create New Template</button>
+    <div className="botwrapper">
+      <button className="openbtn" onClick={() => setShowBuilder(true)}>
+        Create New
+      </button>
 
       <SyllabusBuilderModal
         isOpen={showBuilder}
