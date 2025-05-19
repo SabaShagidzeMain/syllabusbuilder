@@ -10,7 +10,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LogScreen />} />
+        <Route path="/login" element={<LogScreen />} />
         <Route path="/main" element={<MainPage />} />
       </Routes>
     </Router>

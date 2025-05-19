@@ -3,9 +3,20 @@ import "./style.css";
 import backgroundImage from "../../assets/alte/altebck.png";
 import { supabase } from "../../utility/supabaseClient";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LandingTop = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Logout Failed: ", error.message);
+    } else {
+      navigate("/login");
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -75,7 +86,9 @@ const LandingTop = () => {
             )}
             <div className="btn-wrapper">
               <button className="userbtn">Edit Profile</button>
-              <button className="userbtn">Log Out</button>
+              <button className="userbtn" onClick={handleLogout}>
+                Log Out
+              </button>
             </div>
           </div>
           <img src="src/assets/alte/userlogo.png" alt="" className="topuser" />
