@@ -75,71 +75,83 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
 
   return (
     <div className="modal">
-      <div
-        className="modal-left"
-        style={{ width: "50%", padding: "10px", borderRight: "1px solid #ccc" }}
-      >
-        <button onClick={() => setCurrentTableId(null)}>Add Table</button>
-        {!currentTableId && (
-          <div>
-            <h4>Select a table to add:</h4>
-            {predefinedTables.map((t) => (
-              <button key={t.id} onClick={() => onSelectPredefinedTable(t.id)}>
-                {t.name}
+      <div className="modal-inner">
+        <div
+          className="modal-left"
+          style={{
+            width: "50%",
+            padding: "10px",
+            borderRight: "1px solid #ccc",
+          }}
+        >
+          <button onClick={() => setCurrentTableId(null)}>Add Table</button>
+          {!currentTableId && (
+            <div>
+              <h4>Select a table to add:</h4>
+              {predefinedTables.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => onSelectPredefinedTable(t.id)}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          )}
+          {currentTableId && (
+            <div>
+              <h4>
+                Editing:{" "}
+                {predefinedTables.find((t) => t.id === currentTableId).name}
+              </h4>
+              <table border="1" cellPadding="5">
+                <tbody>
+                  {currentTableCells.map((row, rIdx) => (
+                    <tr key={rIdx}>
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx}>
+                          <input
+                            type="text"
+                            value={cell}
+                            onChange={(e) =>
+                              onEditCell(rIdx, cIdx, e.target.value)
+                            }
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                onClick={onAddOrUpdateTable}
+                style={{ marginTop: "10px" }}
+              >
+                Add / Update Table in Syllabus
               </button>
-            ))}
-          </div>
-        )}
-        {currentTableId && (
-          <div>
-            <h4>
-              Editing:{" "}
-              {predefinedTables.find((t) => t.id === currentTableId).name}
-            </h4>
-            <table border="1" cellPadding="5">
-              <tbody>
-                {currentTableCells.map((row, rIdx) => (
-                  <tr key={rIdx}>
-                    {row.map((cell, cIdx) => (
-                      <td key={cIdx}>
-                        <input
-                          type="text"
-                          value={cell}
-                          onChange={(e) =>
-                            onEditCell(rIdx, cIdx, e.target.value)
-                          }
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <button onClick={onAddOrUpdateTable} style={{ marginTop: "10px" }}>
-              Add / Update Table in Syllabus
-            </button>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
 
-      <div className="modal-right" style={{ width: "50%", padding: "10px" }}>
-        <h3>Tables in Syllabus</h3>
-        {addedTables.length === 0 && <p>No tables added yet.</p>}
-        {addedTables.map((table) => (
-          <div key={table.id} style={{ marginBottom: "20px" }}>
-            <table border="1" cellPadding="5" className="table">
-              <tbody>
-                {table.cells.map((row, rIdx) => (
-                  <tr key={rIdx}>
-                    {row.map((cell, cIdx) => (
-                      <td key={cIdx}>{cell || <em>[empty]</em>}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+        <div className="modal-right" style={{ width: "50%", padding: "10px" }}>
+          <h3>Tables in Syllabus</h3>
+          {addedTables.length === 0 && <p>No tables added yet.</p>}
+          {addedTables.map((table) => (
+            <div key={table.id} style={{ marginBottom: "20px" }}>
+              <table border="1" cellPadding="5" className="table">
+                <tbody>
+                  {table.cells.map((row, rIdx) => (
+                    <tr key={rIdx}>
+                      {row.map((cell, cIdx) => (
+                        <td key={cIdx}>{cell || <em>[empty]</em>}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

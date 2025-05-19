@@ -6,13 +6,32 @@
   z-index: 1000;
   width: 100%;
   height: 100%;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+button {
+  background-color: #fff;
 }
 
 .modal-right {
   display: flex;
   flex-direction: column;
+  border-radius: 20px;
+}
+
+.modal-left {
+  border-radius: 20px;
 }
 
 .table {
   width: 100%;
+}
+
+.modal-inner {
+  display: flex;
+  width: 90%;
+  height: 90%;
+  border-radius: 20px;
 }
