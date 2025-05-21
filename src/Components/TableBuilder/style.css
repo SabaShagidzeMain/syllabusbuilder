@@ -23,6 +23,7 @@ button {
 
 .modal-left {
   border-radius: 20px;
+  overflow: auto;
 }
 
 .table {
@@ -91,6 +92,7 @@ input {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 98%;
 }
 
 .syllabus-input {
@@ -109,7 +111,7 @@ input {
 }
 
 .title-cell {
-  width: 30%;
+  width: 20%;
   background-color: #124046;
   color: #fff;
   padding: 0 0.5rem;
@@ -122,4 +124,20 @@ input {
 .secondary-cell input {
   background-color: #9bd3d9;
   color: black;
+}
+
+h3 {
+  margin: 0 0 1.5rem 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.title-cell input {
+  border: none;
+  height: 1rem;
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
