@@ -1,7 +1,22 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import "./style.css";
 
 export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
+  const modalRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
   const isAdmin = true;
 
   const predefinedTables = [
@@ -39,7 +54,7 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
     },
   ];
 
-  const [sections, setSections] = React.useState([]);
+  const [sections, setSections] = useState([]);
 
   const addSection = () => {
     setSections((prev) => [
@@ -69,7 +84,7 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
 
   return (
     <div className="modal">
-      <div className="modal-inner" style={{ display: "flex" }}>
+      <div className="modal-inner" ref={modalRef} style={{ display: "flex" }}>
         {/* Left Panel */}
         <div
           className="modal-left"
@@ -83,10 +98,9 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
             Add Section
           </button>
           {sections.map((section) => (
-            <div className="card-wrapper ">
+            <div className="card-wrapper" key={section.id}>
               <div
                 className="section-wrapper"
-                key={section.id}
                 style={{
                   marginTop: "15px",
                   border: "1px solid #ddd",
@@ -184,16 +198,17 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
                       <tr key={rIdx}>
                         {row.map((cell, cIdx) => (
                           <td
+                            key={cIdx}
                             colSpan={
                               cell.isFullWidth
                                 ? section.cells[1]?.length || 1
                                 : 1
                             }
-                            key={cIdx}
                             className={`table-cell ${
                               cell.isTitle ? "title-cell" : ""
-                            } ${cell.isFullwidth ? "wide-cell" : ""}
-                            ${cell.isSecondary ? "secondary-cell" : ""}`}
+                            } ${cell.isFullWidth ? "wide-cell" : ""} ${
+                              cell.isSecondary ? "secondary-cell" : ""
+                            }`}
                           >
                             {cell.isTitle && isAdmin ? (
                               <input
