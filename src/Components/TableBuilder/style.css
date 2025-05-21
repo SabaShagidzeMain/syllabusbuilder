@@ -35,3 +35,91 @@ button {
   height: 90%;
   border-radius: 20px;
 }
+
+.component-title {
+  font-size: 18px;
+}
+
+.component-selector {
+  width: 400px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 16px;
+  appearance: none;
+  padding-left: 1rem;
+
+  background-image: url(../../assets/general/drparrow.png);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.input-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  align-items: center;
+}
+
+.title-input {
+  width: 400px;
+  height: 40px;
+  border-radius: 10px;
+  margin: 0;
+}
+
+input {
+  margin: 0 !important;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.button-container button {
+  background-color: #449df6;
+  color: #fff;
+}
+
+.blue-button {
+  background-color: #449df6;
+  color: #fff;
+}
+
+.section-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.syllabus-input {
+  border: none;
+  width: 100%;
+  height: 100%;
+  background-color: #124046;
+  color: #fff;
+  font-size: 16px;
+}
+
+.table-cell {
+  width: 50%;
+  height: 1.5rem;
+  font-size: 16px;
+}
+
+.title-cell {
+  width: 30%;
+  background-color: #124046;
+  color: #fff;
+  padding: 0 0.5rem;
+}
+
+.secondary-cell {
+  background-color: #9bd3d9;
+}
+
+.secondary-cell input {
+  background-color: #9bd3d9;
+  color: black;
+}
