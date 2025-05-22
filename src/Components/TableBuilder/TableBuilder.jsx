@@ -11,21 +11,42 @@ export default function SyllabusBuilderModal({
   const modalRef = useRef();
 
   const handleSave = async () => {
-    const { data, error } = await supabase
-      .from("syllabus_forms") // ✅ correct table name
-      .insert([
-        {
-          title: "Syllabus Draft", // or use a state variable for dynamic titles
-          content: sections, // this will be stored as JSON
-        },
-      ]);
+    let result;
+    if (initialData?.id) {
+      // 🔁 Update existing syllabus
+      const { data, error } = await supabase
+        .from("syllabus_forms")
+        .update({
+          content: sections,
+          title: initialData.title || "Updated Draft",
+        })
+        .eq("id", initialData.id)
+        .select();
+
+      result = { data, error };
+    } else {
+      // ➕ Insert new syllabus
+      const { data, error } = await supabase
+        .from("syllabus_forms")
+        .insert([
+          {
+            title: "Syllabus Draft",
+            content: sections,
+          },
+        ])
+        .select();
+
+      result = { data, error };
+    }
+
+    const { data, error } = result;
 
     if (error) {
-      console.error("Error saving to Supabase:", error.message);
+      console.error("Supabase error:", error.message);
     } else {
       console.log("Saved successfully!", data);
       onClose();
-      if (onSave) onSave(); // callback to parent if needed
+      if (onSave) onSave(data?.[0]); // ✅ Pass updated/created row back
     }
   };
 

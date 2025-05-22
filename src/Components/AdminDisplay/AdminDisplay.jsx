@@ -7,6 +7,7 @@ const AdminDisplay = () => {
   const [syllabuses, setSyllabuses] = useState([]);
   const [selectedSyllabus, setSelectedSyllabus] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchSyllabuses = async () => {
@@ -31,23 +32,22 @@ const AdminDisplay = () => {
     setSelectedSyllabus(null);
   };
 
-  const handleModalSave = async (updatedData) => {
+  const handleModalSave = (updatedData) => {
+    if (!updatedData) return;
+
     const { id, title, content } = updatedData;
 
-    const { error } = await supabase
-      .from("syllabus_forms")
-      .update({ title, content })
-      .eq("id", id);
+    setSyllabuses((prev) => {
+      const existing = prev.find((s) => s.id === id);
+      if (existing) {
+        return prev.map((s) => (s.id === id ? updatedData : s));
+      } else {
+        return [...prev, updatedData];
+      }
+    });
 
-    if (error) console.error("Error updating syllabus:", error.message);
-    else {
-      // Refetch or update state
-      setSyllabuses((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, title, content } : s))
-      );
-    }
-
-    handleModalClose();
+    setIsModalOpen(false);
+    setSelectedSyllabus(null);
   };
 
   return (
