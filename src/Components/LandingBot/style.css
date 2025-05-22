@@ -8,3 +8,8 @@
   display: flex;
   padding: 2rem;
 }
+
+.adminView {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder"; // Adjust path & name if needed
 import "./style.css";
+import AdminDisplay from "../AdminDisplay/AdminDisplay";
 
 const LandingBot = () => {
   const [showBuilder, setShowBuilder] = useState(false);
@@ -17,15 +18,17 @@ const LandingBot = () => {
 
   return (
     <div className="botwrapper">
-      <button className="openbtn" onClick={() => setShowBuilder(true)}>
-        Create New
-      </button>
-
-      <SyllabusBuilderModal
-        isOpen={showBuilder}
-        onClose={handleClose}
-        onSave={handleSave}
-      />
+      <div className="adminView">
+        <button className="openbtn" onClick={() => setShowBuilder(true)}>
+          Create New
+        </button>
+        <SyllabusBuilderModal
+          isOpen={showBuilder}
+          onClose={handleClose}
+          onSave={handleSave}
+        />
+        <AdminDisplay />
+      </div>
     </div>
   );
 };

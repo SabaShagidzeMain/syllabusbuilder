@@ -1,8 +1,33 @@
 import React, { useRef, useEffect, useState } from "react";
+import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
 
-export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
+export default function SyllabusBuilderModal({
+  isOpen,
+  onClose,
+  onSave,
+  initialData,
+}) {
   const modalRef = useRef();
+
+  const handleSave = async () => {
+    const { data, error } = await supabase
+      .from("syllabus_forms") // ✅ correct table name
+      .insert([
+        {
+          title: "Syllabus Draft", // or use a state variable for dynamic titles
+          content: sections, // this will be stored as JSON
+        },
+      ]);
+
+    if (error) {
+      console.error("Error saving to Supabase:", error.message);
+    } else {
+      console.log("Saved successfully!", data);
+      onClose();
+      if (onSave) onSave(); // callback to parent if needed
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,6 +80,12 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
   ];
 
   const [sections, setSections] = useState([]);
+
+  useEffect(() => {
+    if (initialData) {
+      setSections(initialData.content || []);
+    }
+  }, [initialData]);
 
   const addSection = () => {
     setSections((prev) => [
@@ -237,6 +268,11 @@ export default function SyllabusBuilderModal({ isOpen, onClose, onSave }) {
               )}
             </div>
           ))}
+        </div>
+        <div className="close-button-wrapper">
+          <button className="blue-button" onClick={handleSave}>
+            Save Syllabus
+          </button>
         </div>
       </div>
     </div>
