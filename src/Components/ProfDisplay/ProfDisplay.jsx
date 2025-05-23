@@ -55,41 +55,64 @@ const ProfDisplay = () => {
   }, []);
 
   const handleSave = async (editedContent) => {
-    if (!selectedSyllabus || !userId) return;
+    console.log("handleSave called");
+    console.log("selectedSyllabus:", selectedSyllabus);
+    console.log("userId:", userId);
 
-    if (mode === "create") {
-      const { data, error } = await supabase.from("prof_forms").insert([
-        {
-          title: selectedSyllabus.title,
-          content: editedContent,
-          origin_id: selectedSyllabus.id,
-          user_id: userId,
-        },
-      ]);
-
-      if (error) return console.error("Insert error:", error.message);
-      setProfForms((prev) => [
-        ...prev,
-        ...(Array.isArray(data) ? data : [data]),
-      ]);
-    } else {
-      const { error } = await supabase
-        .from("prof_forms")
-        .update({ content: editedContent })
-        .eq("id", selectedSyllabus.id);
-
-      if (error) return console.error("Update error:", error.message);
-
-      setProfForms((prev) =>
-        prev.map((f) =>
-          f.id === selectedSyllabus.id ? { ...f, content: editedContent } : f
-        )
-      );
+    if (!selectedSyllabus) {
+      console.error("Error: selectedSyllabus is null!");
+      return;
+    }
+    if (!userId) {
+      console.error("Error: userId is null!");
+      return;
     }
 
-    setIsModalOpen(false);
-    setSelectedSyllabus(null);
-    setMode("view");
+    const formPayload = {
+      title: selectedSyllabus.title,
+      content: editedContent,
+      origin_id: selectedSyllabus.origin_id || selectedSyllabus.id,
+      user_id: userId,
+      university,
+    };
+
+    console.log("formPayload:", formPayload);
+
+    try {
+      if (mode === "create") {
+        const { data, error } = await supabase
+          .from("prof_forms")
+          .insert([formPayload]);
+        if (error) {
+          console.error("Insert error:", error.message);
+          return;
+        }
+        setProfForms((prev) => [
+          ...prev,
+          ...(Array.isArray(data) ? data : [data]),
+        ]);
+      } else {
+        const { error } = await supabase
+          .from("prof_forms")
+          .update(formPayload)
+          .eq("id", selectedSyllabus.id);
+        if (error) {
+          console.error("Update error:", error.message);
+          return;
+        }
+        setProfForms((prev) =>
+          prev.map((f) =>
+            f.id === selectedSyllabus.id ? { ...f, ...formPayload } : f
+          )
+        );
+      }
+
+      setIsModalOpen(false);
+      setSelectedSyllabus(null);
+      setMode("view");
+    } catch (e) {
+      console.error("Exception in handleSave:", e);
+    }
   };
 
   return (
@@ -137,24 +160,28 @@ const ProfDisplay = () => {
       {/* Render already created forms */}
       <h3>Your Submitted Forms</h3>
       <div className="syllabus-grid">
-        {profForms.map((form) => (
-          <div
-            key={form.id}
-            className="syllabus-card"
-            onClick={() => {
-              setSelectedSyllabus(form);
-              setIsModalOpen(true);
-              setMode("view");
-            }}
-          >
-            <img
-              src="src/assets/alte/altelogo.jpg"
-              className="form-image"
-              alt="form logo"
-            />
-            <h4>{form.title}</h4>
-          </div>
-        ))}
+        {profForms.map((form) => {
+          console.log("Rendering form:", form);
+          return (
+            <div
+              key={form.id}
+              className="syllabus-card"
+              onClick={() => {
+                console.log("Selected form clicked:", form);
+                setSelectedSyllabus(form);
+                setIsModalOpen(true);
+                setMode("view");
+              }}
+            >
+              <img
+                src="src/assets/alte/altelogo.jpg"
+                className="form-image"
+                alt="form logo"
+              />
+              <h4>{form.title}</h4>
+            </div>
+          );
+        })}
       </div>
 
       {isModalOpen && selectedSyllabus && (
