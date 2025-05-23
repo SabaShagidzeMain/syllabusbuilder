@@ -26,16 +26,11 @@ export default function ProfessorFillModal({
     }
   }, [syllabus]);
 
+  // Update value of input cell in state
   const updateCellValue = (sectionIndex, rowIndex, colIndex, value) => {
     const updatedSections = [...sections];
     updatedSections[sectionIndex].cells[rowIndex][colIndex].value = value;
     setSections(updatedSections);
-  };
-
-  const handleSave = () => {
-    if (onSave) {
-      onSave(sections); // Send filled content to parent
-    }
   };
 
   if (!isOpen) return null;
@@ -44,59 +39,86 @@ export default function ProfessorFillModal({
     <div className="modal">
       <div
         className="modal-inner"
+        id="prof-modal-inner"
         ref={modalRef}
         style={{ padding: 20, maxHeight: "80vh", overflowY: "auto" }}
       >
         <h2>Fill in Syllabus: {syllabus.title}</h2>
 
-        {sections.map((section, sectionIndex) => (
-          <div key={section.id || sectionIndex} style={{ marginBottom: 20 }}>
-            <table
-              className="syllabus-table"
-              border="1"
-              style={{ width: "100%" }}
-            >
-              <tbody>
-                {section.cells.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {row.map((cell, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`table-cell ${
-                          cell.isTitle ? "title-cell" : ""
-                        } 
-                          ${cell.isFullWidth ? "wide-cell" : ""} 
-                          ${cell.isSecondary ? "secondary-cell" : ""}`}
-                        colSpan={cell.isFullWidth ? row.length : 1}
-                      >
-                        {cell.isTitle ? (
-                          <div>{cell.value || <em>(Title)</em>}</div>
-                        ) : (
-                          <input
-                            type="text"
-                            className="syllabus-input"
-                            placeholder="Enter text"
-                            value={cell.value || ""}
-                            onChange={(e) =>
-                              updateCellValue(
-                                sectionIndex,
-                                rowIndex,
-                                colIndex,
-                                e.target.value
-                              )
-                            }
-                          />
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+        {sections.map((section, sectionIndex) => {
+          // Flatten all cells with coordinates
+          const cellMap = [];
 
-        <button className="close-button" onClick={handleSave}>
+          section.cells.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+              cellMap.push({ ...cell, rowIndex, colIndex });
+            });
+          });
+
+          // Get all title cells
+          const titleCells = cellMap.filter((cell) => cell.isTitle && cell.tag);
+
+          return (
+            <div
+              key={section.id || sectionIndex}
+              style={{ marginBottom: 20 }}
+              className="form-container"
+            >
+              {titleCells.map((titleCell, i) => {
+                // Find all inputs linked to this title
+                const linkedInputs = cellMap.filter(
+                  (cell) => cell.tag === `for-${titleCell.tag}`
+                );
+
+                return (
+                  <div
+                    key={titleCell.tag || i}
+                    style={{ marginBottom: 16 }}
+                    className="form-in-wrapper"
+                  >
+                    <h4 className="prof-inp-title">
+                      {titleCell.value || "(Title)"}
+                    </h4>
+
+                    {linkedInputs.length > 0 ? (
+                      linkedInputs.map((inputCell, j) => (
+                        <input
+                          key={`${inputCell.tag}-${j}`}
+                          type="text"
+                          className="prof-input-field"
+                          value={inputCell.value || ""}
+                          placeholder="Enter value"
+                          onChange={(e) =>
+                            updateCellValue(
+                              sectionIndex,
+                              inputCell.rowIndex,
+                              inputCell.colIndex,
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            marginTop: 4,
+                            marginBottom: 8,
+                            padding: "6px 8px",
+                            fontSize: 16,
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <em style={{ color: "#666" }}>
+                        No input fields linked to this title.
+                      </em>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+
+        <button className="close-button" onClick={() => onSave(sections)}>
           Save Responses
         </button>
       </div>

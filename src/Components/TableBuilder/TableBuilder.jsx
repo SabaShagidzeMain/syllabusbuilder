@@ -93,17 +93,35 @@ export default function SyllabusBuilderModal({
       id: "2",
       name: "2x2 Table",
       cells: [
-        [{ value: "", isTitle: true }, { value: "" }],
-        [{ value: "", isTitle: true }, { value: "" }],
+        [
+          { value: "", isTitle: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
+        ],
+        [
+          { value: "", isTitle: true, tag: "title-2" },
+          { value: "", tag: "for-title-2" },
+        ],
       ],
     },
     {
       id: "3",
       name: "3x3 Table",
       cells: [
-        [{ value: "", isTitle: true }, { value: "" }, { value: "" }],
-        [{ value: "", isTitle: true }, { value: "" }, { value: "" }],
-        [{ value: "", isTitle: false }, { value: "" }, { value: "" }],
+        [
+          { value: "", isTitle: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
+          { value: "", tag: "for-title-1" },
+        ],
+        [
+          { value: "", isTitle: true, tag: "title-2" },
+          { value: "", tag: "for-title-2" },
+          { value: "", tag: "for-title-2" },
+        ],
+        [
+          { value: "", isTitle: true, tag: "title-3" },
+          { value: "", tag: "for-title-3" },
+          { value: "", tag: "for-title-3" },
+        ],
       ],
     },
     {
@@ -111,9 +129,18 @@ export default function SyllabusBuilderModal({
       name: "title top - 3x3 Table",
       cells: [
         [{ value: "", isTitle: true, isFullWidth: true }],
-        [{ value: "", isTitle: true, isSecondary: true }, { value: "" }],
-        [{ value: "", isTitle: true, isSecondary: true }, { value: "" }],
-        [{ value: "", isTitle: true, isSecondary: true }, { value: "" }],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-2" },
+          { value: "", tag: "for-title-2" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
+          { value: "", tag: "for-title-3" },
+        ],
       ],
     },
   ];

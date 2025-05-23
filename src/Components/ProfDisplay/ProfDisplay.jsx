@@ -109,24 +109,28 @@ const ProfDisplay = () => {
 
       {/* Dropdown for new form */}
       {isModalOpen && mode === "create" && !selectedSyllabus && (
-        <div className="dropdown-modal">
-          <h3>Select a Syllabus Template</h3>
-          <select
-            onChange={(e) => {
-              const selected = syllabuses.find((s) => s.id === e.target.value);
-              setSelectedSyllabus(selected);
-            }}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              -- Choose Syllabus --
-            </option>
-            {syllabuses.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title}
+        <div className="modal-backdrop">
+          <div className="dropdown-modal">
+            <h3>Select a Syllabus Template</h3>
+            <select
+              onChange={(e) => {
+                const selected = syllabuses.find(
+                  (s) => s.id === e.target.value
+                );
+                setSelectedSyllabus(selected);
+              }}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                -- Choose Syllabus --
               </option>
-            ))}
-          </select>
+              {syllabuses.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
