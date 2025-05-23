@@ -10,6 +10,20 @@ export default function SyllabusBuilderModal({
 }) {
   const modalRef = useRef();
 
+  const isAdmin = true;
+
+  const [formTitle, setFormTitle] = useState("Syllabus Draft");
+  const [sections, setSections] = useState([]);
+
+  useEffect(() => {
+    if (initialData) {
+      setSections(initialData.content || []);
+      setFormTitle(initialData.title || "Syllabus Draft");
+    } else {
+      setFormTitle("Syllabus Draft");
+    }
+  }, [initialData]);
+
   const handleSave = async () => {
     let result;
 
@@ -19,7 +33,7 @@ export default function SyllabusBuilderModal({
         .from("syllabus_forms")
         .update({
           content: sections,
-          title: initialData.title || "Updated Draft",
+          title: formTitle || initialData.title || "Updated Draft",
         })
         .eq("id", initialData.id)
         .select();
@@ -34,7 +48,7 @@ export default function SyllabusBuilderModal({
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("university")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .single();
 
       if (profileError || !profileData) {
@@ -48,9 +62,9 @@ export default function SyllabusBuilderModal({
         .from("syllabus_forms")
         .insert([
           {
-            title: "Syllabus Draft",
+            title: formTitle || "Syllabus Draft",
             content: sections,
-            university, // ✅ Store university on new syllabus
+            university,
           },
         ])
         .select();
@@ -65,24 +79,9 @@ export default function SyllabusBuilderModal({
     } else {
       console.log("Saved successfully!", data);
       onClose();
-      if (onSave) onSave(data?.[0]); // ✅ Pass updated/created row back
+      if (onSave) onSave(data?.[0]);
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [onClose]);
-
-  const isAdmin = true;
 
   const predefinedTables = [
     {
@@ -119,14 +118,6 @@ export default function SyllabusBuilderModal({
     },
   ];
 
-  const [sections, setSections] = useState([]);
-
-  useEffect(() => {
-    if (initialData) {
-      setSections(initialData.content || []);
-    }
-  }, [initialData]);
-
   const addSection = () => {
     setSections((prev) => [
       ...prev,
@@ -151,6 +142,19 @@ export default function SyllabusBuilderModal({
     setSections((prev) => prev.filter((s) => s.id !== id));
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -165,9 +169,26 @@ export default function SyllabusBuilderModal({
             borderRight: "1px solid #ccc",
           }}
         >
+          {isAdmin && !initialData?.id && (
+            <div
+              className="title-input-container"
+              style={{ paddingBottom: 10 }}
+            >
+              <label className="component-title">Form Title: </label>
+              <input
+                type="text"
+                className="title-input"
+                value={formTitle}
+                onChange={(e) => setFormTitle(e.target.value)}
+                placeholder="Enter form title"
+              />
+            </div>
+          )}
+
           <button onClick={addSection} className="blue-button">
             Add Section
           </button>
+
           {sections.map((section) => (
             <div className="card-wrapper" key={section.id}>
               <div
@@ -204,7 +225,6 @@ export default function SyllabusBuilderModal({
                   </select>
                 </div>
 
-                {/* Admin Title Cell Inputs */}
                 {section.cells.length > 0 && isAdmin && (
                   <div style={{ marginTop: "10px" }}>
                     {section.cells.map((row, rIdx) =>

@@ -1,3 +1,10 @@
+.syllabus-grid {
+  display: flex;
+  gap: 2rem;
+  overflow: auto;
+  padding: 1rem 0;
+}
+
 .syllabus-card {
   width: 20rem;
   height: 16rem;
