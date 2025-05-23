@@ -12,6 +12,7 @@ export default function SyllabusBuilderModal({
 
   const handleSave = async () => {
     let result;
+
     if (initialData?.id) {
       // 🔁 Update existing syllabus
       const { data, error } = await supabase
@@ -25,13 +26,31 @@ export default function SyllabusBuilderModal({
 
       result = { data, error };
     } else {
-      // ➕ Insert new syllabus
+      // ➕ Insert new syllabus with university
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("university")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError || !profileData) {
+        console.error("Error fetching university:", profileError?.message);
+        return;
+      }
+
+      const university = profileData.university;
+
       const { data, error } = await supabase
         .from("syllabus_forms")
         .insert([
           {
             title: "Syllabus Draft",
             content: sections,
+            university, // ✅ Store university on new syllabus
           },
         ])
         .select();

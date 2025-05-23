@@ -52,7 +52,6 @@ const AdminDisplay = () => {
 
   return (
     <div className="admin-display">
-      <h2>Saved Syllabuses</h2>
       <div className="syllabus-grid">
         {syllabuses.length === 0 ? (
           <p>No syllabuses found.</p>
@@ -63,19 +62,8 @@ const AdminDisplay = () => {
               className="syllabus-card"
               onClick={() => handleEdit(item)}
             >
+              <img src="" alt="" />
               <h3>{item.title}</h3>
-              <p>{item.content?.length} section(s)</p>
-              <div className="preview-table">
-                {item.content?.[0]?.cells?.slice(0, 2).map((row, rIdx) => (
-                  <div key={rIdx} className="preview-row">
-                    {row.map((cell, cIdx) => (
-                      <span key={cIdx} className="preview-cell">
-                        {cell.value || "-"}
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
             </div>
           ))
         )}
