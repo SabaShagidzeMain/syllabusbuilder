@@ -12,6 +12,20 @@ const ProfDisplay = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState("view"); // "create" or "view"
 
+  // Helper function to fetch prof forms fresh from DB
+  const fetchProfForms = async (userId) => {
+    if (!userId) return [];
+    const { data, error } = await supabase
+      .from("prof_forms")
+      .select("*")
+      .eq("user_id", userId);
+    if (error) {
+      console.error("Error fetching prof forms:", error.message);
+      return [];
+    }
+    return data || [];
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const {
@@ -28,8 +42,10 @@ const ProfDisplay = () => {
         .eq("user_id", user.id)
         .single();
 
-      if (profileError)
-        return console.error("Profile error:", profileError.message);
+      if (profileError) {
+        console.error("Profile error:", profileError.message);
+        return;
+      }
       setUniversity(profile.university);
 
       const { data: syllabusData, error: syllabusError } = await supabase
@@ -37,18 +53,14 @@ const ProfDisplay = () => {
         .select("*")
         .eq("university", profile.university);
 
-      if (syllabusError)
-        return console.error("Syllabus fetch error:", syllabusError.message);
+      if (syllabusError) {
+        console.error("Syllabus fetch error:", syllabusError.message);
+        return;
+      }
       setSyllabuses(syllabusData);
 
-      const { data: profData, error: profError } = await supabase
-        .from("prof_forms")
-        .select("*")
-        .eq("user_id", user.id);
-
-      if (profError)
-        return console.error("Prof forms fetch error:", profError.message);
-      setProfForms(profData || []);
+      const profData = await fetchProfForms(user.id);
+      setProfForms(profData);
     };
 
     fetchData();
@@ -87,10 +99,6 @@ const ProfDisplay = () => {
           console.error("Insert error:", error.message);
           return;
         }
-        setProfForms((prev) => [
-          ...prev,
-          ...(Array.isArray(data) ? data : [data]),
-        ]);
       } else {
         const { error } = await supabase
           .from("prof_forms")
@@ -100,12 +108,11 @@ const ProfDisplay = () => {
           console.error("Update error:", error.message);
           return;
         }
-        setProfForms((prev) =>
-          prev.map((f) =>
-            f.id === selectedSyllabus.id ? { ...f, ...formPayload } : f
-          )
-        );
       }
+
+      // Refetch the profForms list to keep state fresh
+      const updatedForms = await fetchProfForms(userId);
+      setProfForms(updatedForms);
 
       setIsModalOpen(false);
       setSelectedSyllabus(null);
@@ -138,7 +145,7 @@ const ProfDisplay = () => {
             <select
               onChange={(e) => {
                 const selected = syllabuses.find(
-                  (s) => s.id === e.target.value
+                  (s) => String(s.id) === e.target.value
                 );
                 setSelectedSyllabus(selected);
               }}
@@ -160,30 +167,28 @@ const ProfDisplay = () => {
       {/* Render already created forms */}
       <h3>Your Submitted Forms</h3>
       <div className="syllabus-grid">
-        {profForms.map((form) => {
-          console.log("Rendering form:", form);
-          return (
-            <div
-              key={form.id}
-              className="syllabus-card"
-              onClick={() => {
-                console.log("Selected form clicked:", form);
-                setSelectedSyllabus(form);
-                setIsModalOpen(true);
-                setMode("view");
-              }}
-            >
-              <img
-                src="src/assets/alte/altelogo.jpg"
-                className="form-image"
-                alt="form logo"
-              />
-              <h4>{form.title}</h4>
-            </div>
-          );
-        })}
+        {profForms.map((form) => (
+          <div
+            key={form.id}
+            className="syllabus-card"
+            onClick={() => {
+              console.log("Selected form clicked:", form);
+              setSelectedSyllabus(form);
+              setIsModalOpen(true);
+              setMode("view");
+            }}
+          >
+            <img
+              src="src/assets/alte/altelogo.jpg"
+              className="form-image"
+              alt="form logo"
+            />
+            <h4>{form.title || "Untitled Form"}</h4>
+          </div>
+        ))}
       </div>
 
+      {/* Modal for viewing/editing form */}
       {isModalOpen && selectedSyllabus && (
         <ProfessorFillModal
           isOpen={isModalOpen}
