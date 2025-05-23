@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
 
-export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
+export default function ProfessorFillModal({
+  isOpen,
+  onClose,
+  syllabus,
+  onSave,
+}) {
   const modalRef = useRef();
   const [sections, setSections] = useState([]);
 
@@ -22,24 +26,16 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
     }
   }, [syllabus]);
 
-  const handleSave = async () => {
-    const { data, error } = await supabase
-      .from("syllabus_forms")
-      .update({ content: sections })
-      .eq("id", syllabus.id);
-
-    if (error) {
-      console.error("Error updating:", error.message);
-    } else {
-      console.log("Updated successfully");
-      onClose();
-    }
-  };
-
   const updateCellValue = (sectionIndex, rowIndex, colIndex, value) => {
     const updatedSections = [...sections];
     updatedSections[sectionIndex].cells[rowIndex][colIndex].value = value;
     setSections(updatedSections);
+  };
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave(sections); // Send filled content to parent
+    }
   };
 
   if (!isOpen) return null;
@@ -54,7 +50,7 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
         <h2>Fill in Syllabus: {syllabus.title}</h2>
 
         {sections.map((section, sectionIndex) => (
-          <div key={section.id} style={{ marginBottom: 20 }}>
+          <div key={section.id || sectionIndex} style={{ marginBottom: 20 }}>
             <table
               className="syllabus-table"
               border="1"
@@ -68,9 +64,9 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
                         key={colIndex}
                         className={`table-cell ${
                           cell.isTitle ? "title-cell" : ""
-                        } ${cell.isFullWidth ? "wide-cell" : ""} ${
-                          cell.isSecondary ? "secondary-cell" : ""
-                        }`}
+                        } 
+                          ${cell.isFullWidth ? "wide-cell" : ""} 
+                          ${cell.isSecondary ? "secondary-cell" : ""}`}
                         colSpan={cell.isFullWidth ? row.length : 1}
                       >
                         {cell.isTitle ? (
@@ -79,7 +75,8 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
                           <input
                             type="text"
                             className="syllabus-input"
-                            value={cell.value}
+                            placeholder="Enter text"
+                            value={cell.value || ""}
                             onChange={(e) =>
                               updateCellValue(
                                 sectionIndex,
@@ -98,6 +95,7 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
             </table>
           </div>
         ))}
+
         <button className="close-button" onClick={handleSave}>
           Save Responses
         </button>
