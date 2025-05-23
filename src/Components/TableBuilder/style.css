@@ -141,3 +141,16 @@ table {
   outline: none;
   box-shadow: none;
 }
+
+.close-button-wrapper {
+  height: fit-content;
+  width: fit-content;
+}
+
+.close-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-right: 6rem;
+  margin-bottom: 4rem;
+}

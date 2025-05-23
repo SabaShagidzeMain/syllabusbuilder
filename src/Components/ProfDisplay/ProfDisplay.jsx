@@ -60,8 +60,12 @@ const profDisplay = () => {
               setIsModalOpen(true);
             }}
           >
+            <img
+              src="src/assets/alte/altelogo.jpg"
+              className="form-image"
+              alt=""
+            />
             <h3>{s.title}</h3>
-            <p>{s.content?.length || 0} sections</p>
           </div>
         ))}
       </div>

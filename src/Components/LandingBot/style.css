@@ -2,6 +2,7 @@
   background-color: #449df6;
   color: #fff;
   font-weight: bold;
+  width: 12rem;
 }
 
 .botwrapper {
@@ -10,6 +11,4 @@
 }
 
 .adminView {
-  display: flex;
-  flex-direction: column;
 }

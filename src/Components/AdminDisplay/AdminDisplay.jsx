@@ -62,8 +62,12 @@ const AdminDisplay = () => {
               className="syllabus-card"
               onClick={() => handleEdit(item)}
             >
-              <img src="" alt="" />
-              <h3>{item.title}</h3>
+              <img
+                src="src/assets/alte/altelogo.jpg"
+                alt=""
+                className="form-image"
+              />
+              <h3 className="form-title">{item.title}</h3>
             </div>
           ))
         )}

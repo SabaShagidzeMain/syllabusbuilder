@@ -98,12 +98,9 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus }) {
             </table>
           </div>
         ))}
-
-        <div style={{ textAlign: "right", marginTop: 20 }}>
-          <button className="blue-button" onClick={handleSave}>
-            Save Responses
-          </button>
-        </div>
+        <button className="close-button" onClick={handleSave}>
+          Save Responses
+        </button>
       </div>
     </div>
   );

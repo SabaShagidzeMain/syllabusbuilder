@@ -309,11 +309,9 @@ export default function SyllabusBuilderModal({
             </div>
           ))}
         </div>
-        <div className="close-button-wrapper">
-          <button className="blue-button" onClick={handleSave}>
-            Save Syllabus
-          </button>
-        </div>
+        <button className="close-button blue-button" onClick={handleSave}>
+          Save
+        </button>
       </div>
     </div>
   );
