@@ -154,6 +154,17 @@ export default function ProfessorFillModal({
         <button className="close-button" onClick={() => onSave(sections)}>
           Save Responses
         </button>
+        <button
+          onClick={() => {
+            if (!syllabus?.id) {
+              alert("No syllabus selected");
+              return;
+            }
+            window.open(`/export-preview/${syllabus.id}`, "_blank");
+          }}
+        >
+          Preview Export
+        </button>
       </div>
     </div>
   );

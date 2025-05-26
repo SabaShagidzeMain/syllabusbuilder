@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
 import ProfessorFillModal from "../professorFillModal/professorFillModal";
 import "./style.css";
+import jsPDF from "jspdf";
 
 const ProfDisplay = () => {
   const [userId, setUserId] = useState(null);
@@ -10,7 +11,43 @@ const ProfDisplay = () => {
   const [profForms, setProfForms] = useState([]);
   const [selectedSyllabus, setSelectedSyllabus] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [mode, setMode] = useState("view"); // "create" or "view"
+  const [mode, setMode] = useState("view");
+
+  // Pdf download function
+  const downloadSyllabusAsPDF = (form) => {
+    if (!form.content || !Array.isArray(form.content)) return;
+
+    const doc = new jsPDF();
+    let y = 10;
+
+    doc.setFontSize(16);
+    doc.text(form.title || "Syllabus", 10, y);
+    y += 10;
+
+    form.content.forEach((section, idx) => {
+      const title = section.title || `Section ${idx + 1}`;
+      doc.setFontSize(14);
+      doc.text(`${title}:`, 10, y);
+      y += 8;
+
+      (section.cells || []).forEach((cell) => {
+        doc.setFontSize(12);
+        const label = cell.label || "Label";
+        const value = cell.value || "—";
+        doc.text(`- ${label}: ${value}`, 12, y);
+        y += 7;
+
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+
+      y += 5;
+    });
+
+    doc.save(`${form.title || "syllabus"}.pdf`);
+  };
 
   // Helper function to fetch prof forms fresh from DB
   const fetchProfForms = async (userId) => {
@@ -183,7 +220,15 @@ const ProfDisplay = () => {
               className="form-image"
               alt="form logo"
             />
-            <h4>{form.title || "Untitled Form"}</h4>
+            <div className="card-bot-wrapper">
+              <h4>{form.title || "Untitled Form"}</h4>
+              <button
+                className="pdf-btn"
+                onClick={() => downloadSyllabusAsPDF(form)}
+              >
+                Download PDF
+              </button>
+            </div>
           </div>
         ))}
       </div>

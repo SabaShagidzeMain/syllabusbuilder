@@ -35,3 +35,12 @@
   appearance: none; /* Remove default arrow in some browsers */
   background-color: #fff;
 }
+
+.card-bot-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pdf-btn {
+  border: 1px solid black;
+}
