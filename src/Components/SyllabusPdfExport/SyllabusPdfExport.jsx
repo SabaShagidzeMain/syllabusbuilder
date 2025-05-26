@@ -4,6 +4,9 @@ import { supabase } from "../../utility/supabaseClient";
 import html2pdf from "html2pdf.js";
 import "./style.css";
 
+import banner from "../../assets/alte/banner.png";
+
+
 export default function SyllabusPdfExport() {
   const { syllabusId } = useParams();
   const [formTitle, setFormTitle] = useState("");
@@ -79,43 +82,52 @@ export default function SyllabusPdfExport() {
       </button>
 
       {/* Only this part will be exported */}
-      <div ref={exportRef} className="export-page">
-        <h1 style={{ textAlign: "center", marginBottom: 40 }}>{formTitle}</h1>
+      <div ref={exportRef} className="export-wrapper">
+        {/* ✅ First Page */}
+        <div className="first-page">
+          <img src={banner} alt="" className="banner-img" />
+          <h1 className="form-title">{formTitle}</h1>
+        </div>
 
-        {sections.map((section, sIdx) => (
-          <div key={sIdx} style={{ marginBottom: 30 }}>
-            {section.cells.length > 0 && (
-              <table
-                className="syllabus-table"
-                style={{ width: "100%", borderCollapse: "collapse" }}
-              >
-                <tbody>
-                  {section.cells.map((row, rIdx) => (
-                    <tr key={rIdx}>
-                      {row.map((cell, cIdx) => (
-                        <td
-                          key={cIdx}
-                          colSpan={
-                            cell.isFullWidth ? section.cells[1]?.length || 1 : 1
-                          }
-                          className={`table-cell ${
-                            cell.isTitle ? "title-cell" : ""
-                          } ${cell.isFullWidth ? "wide-cell" : ""} ${
-                            cell.isSecondary ? "secondary-cell" : ""
-                          }`}
-                        //   style={{ padding: "8px", border: "1px solid #000" }}
-                        >
-                          {cell.value || <em>&nbsp;</em>}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        ))}
+        {/* ✅ Second Page (tables start here) */}
+        <div
+          className="second-page export-wrapper-2"
+          style={{ pageBreakBefore: "always", padding: "40px" }}
+        >
+          {sections.map((section, sIdx) => (
+            <div key={sIdx} style={{ marginBottom: 30 }}>
+              {section.cells.length > 0 && (
+                <table
+                  className="syllabus-table"
+                  style={{ width: "100%", borderCollapse: "collapse" }}
+                >
+                  <tbody>
+                    {section.cells.map((row, rIdx) => (
+                      <tr key={rIdx}>
+                        {row.map((cell, cIdx) => (
+                          <td
+                            key={cIdx}
+                            colSpan={
+                              cell.isFullWidth ? section.cells[1]?.length || 1 : 1
+                            }
+                            className={`table-cell ${cell.isTitle ? "title-cell" : ""
+                              } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
+                              }`}
+                            style={{ padding: "8px", border: "1px solid #000" }}
+                          >
+                            {cell.value || <em>&nbsp;</em>}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
+
     </div>
   );
 }

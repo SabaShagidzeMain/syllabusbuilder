@@ -67,7 +67,7 @@ const AdminDisplay = () => {
                 alt=""
                 className="form-image"
               />
-              <h3 className="form-title">{item.title}</h3>
+              <h3 className="ft1">{item.title}</h3>
             </div>
           ))
         )}

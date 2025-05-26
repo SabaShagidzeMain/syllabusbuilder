@@ -1,5 +1,6 @@
 .syllabus-grid {
   display: flex;
+  width: 100%;
   gap: 2rem;
   overflow: auto;
   padding: 1rem 0;
@@ -7,7 +8,7 @@
 
 .syllabus-card {
   width: 20rem;
-  height: 16rem;
+  height: 12rem;
   border-radius: 5px;
   box-shadow: 0rem 0.5rem 0.5rem rgb(170, 170, 170);
   cursor: pointer;
@@ -19,7 +20,7 @@
   border-radius: 5px 5px 0 0;
 }
 
-.form-title {
+.ft1 {
   font-size: 15px;
   margin: 0.2rem;
 }

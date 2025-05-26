@@ -101,20 +101,34 @@ input {
   height: 100%;
   background-color: #124046;
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .table-cell {
-  width: 50%;
+  width: 12rem  ;
   height: 1.5rem;
-  font-size: 16px;
+  font-size: 12px;
+}
+
+.table-cell input {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.wide-cell input {
+  text-align: center;
 }
 
 .title-cell {
-  width: 20%;
+  width: 30%;
   background-color: #124046;
   color: #fff;
   padding: 0 0.5rem;
+}
+
+.syllabus-input-2 {
+  width: 100%;
+  border: none;
 }
 
 .secondary-cell {

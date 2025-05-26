@@ -1,8 +1,25 @@
-.export-page {
+.banner-img {
+  width: 100%;
+  height: auto;
+}
+
+.form-title {
+  margin: 20rem 0;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.export-wrapper-2 {
   padding: 2rem;
 }
 
 .table-cell {
   height: 0.2rem;
-  border: 1px solid #000;   
+  border: 1px solid #000;
+}
+
+@media print {
+  .second-page {
+    page-break-before: always;
+  }
 }

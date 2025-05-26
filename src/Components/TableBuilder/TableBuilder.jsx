@@ -86,8 +86,15 @@ export default function SyllabusBuilderModal({
   const predefinedTables = [
     {
       id: "1",
-      name: "1x1 Table",
-      cells: [[{ value: "", isTitle: true }]],
+      name: "1x2 Table",
+      cells: [
+        [
+          { value: "", isTitle: true, tag: "title-1" },
+        ],
+        [
+          { value: "", tag: "for-title-1" },
+        ],
+      ],
     },
     {
       id: "2",
@@ -140,6 +147,171 @@ export default function SyllabusBuilderModal({
         [
           { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
           { value: "", tag: "for-title-3" },
+        ],
+      ],
+    },
+    {
+      id: "5",
+      name: "4x2 Table",
+      cells: [
+        [
+          { value: "", isTitle: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
+        ],
+        [
+          { value: "", isTitle: true, tag: "title-2" },
+          { value: "", tag: "for-title-2" },
+        ],
+      ],
+    },
+    {
+      id: "6",
+      name: "title top - 3x8 Table",
+      cells: [
+        [{ value: "", isTitle: true, isFullWidth: true }],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-2" },
+          { value: "", tag: "for-title-2" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
+          { value: "", tag: "for-title-3" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-4" },
+          { value: "", tag: "for-title-4" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-5" },
+          { value: "", tag: "for-title-5" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-6" },
+          { value: "", tag: "for-title-6" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-7" },
+          { value: "", tag: "for-title-7" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
+          { value: "", tag: "for-title-8" },
+        ],
+      ],
+    },
+    {
+      id: "7",
+      name: "title top - Calendar Table",
+      cells: [
+        [{ value: "", isTitle: true, isFullWidth: true }],
+        [
+          { value: "", isTitle: true, isSecondary: true, },
+          { value: "", isTitle: true, isSecondary: true, },
+          { value: "", isTitle: true, isSecondary: true, },
+          { value: "", isTitle: true, isSecondary: true, },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
+          { value: "", tag: "for-title-1" },
+          { value: "", tag: "for-title-1" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-2" },
+          { value: "", tag: "for-title-2" },
+          { value: "", tag: "for-title-2" },
+          { value: "", tag: "for-title-2" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
+          { value: "", tag: "for-title-3" },
+          { value: "", tag: "for-title-3" },
+          { value: "", tag: "for-title-3" },
+        ],
+        [{ value: "", isTitle: true, isSecondary: true, tag: "title-4" },
+        { value: "", tag: "for-title-4" },
+        { value: "", tag: "for-title-4" },
+        { value: "", tag: "for-title-4" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-5" },
+          { value: "", tag: "for-title-5" },
+          { value: "", tag: "for-title-5" },
+          { value: "", tag: "for-title-5" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-6" },
+          { value: "", tag: "for-title-6" },
+          { value: "", tag: "for-title-6" },
+          { value: "", tag: "for-title-6" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-7" },
+          { value: "", tag: "for-title-7" },
+          { value: "", tag: "for-title-7" },
+          { value: "", tag: "for-title-7" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
+          { value: "", tag: "for-title-8" },
+          { value: "", tag: "for-title-8" },
+          { value: "", tag: "for-title-8" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
+          { value: "", tag: "for-title-9" },
+          { value: "", tag: "for-title-9" },
+          { value: "", tag: "for-title-9" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-10" },
+          { value: "", tag: "for-title-10" },
+          { value: "", tag: "for-title-10" },
+          { value: "", tag: "for-title-10" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
+          { value: "", tag: "for-title-11" },
+          { value: "", tag: "for-title-11" },
+          { value: "", tag: "for-title-11" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-12" },
+          { value: "", tag: "for-title-12" },
+          { value: "", tag: "for-title-12" },
+          { value: "", tag: "for-title-12" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-13" },
+          { value: "", tag: "for-title-13" },
+          { value: "", tag: "for-title-13" },
+          { value: "", tag: "for-title-13" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-14" },
+          { value: "", tag: "for-title-14" },
+          { value: "", tag: "for-title-14" },
+          { value: "", tag: "for-title-14" },
+        ],
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-15" },
+          { value: "", tag: "for-title-15" },
+          { value: "", tag: "for-title-15" },
+          { value: "", tag: "for-title-15" },
+        ],
+      ],
+    },
+    {
+      id: "8",
+      name: "2x1 Table",
+      cells: [
+        [
+          { value: "", isTitle: true, tag: "title-1" },
+          { value: "", tag: "for-title-1" },
         ],
       ],
     },
@@ -322,11 +494,9 @@ export default function SyllabusBuilderModal({
                                 ? section.cells[1]?.length || 1
                                 : 1
                             }
-                            className={`table-cell ${
-                              cell.isTitle ? "title-cell" : ""
-                            } ${cell.isFullWidth ? "wide-cell" : ""} ${
-                              cell.isSecondary ? "secondary-cell" : ""
-                            }`}
+                            className={`table-cell ${cell.isTitle ? "title-cell" : ""
+                              } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
+                              }`}
                           >
                             {cell.isTitle && isAdmin ? (
                               <input
@@ -344,7 +514,7 @@ export default function SyllabusBuilderModal({
                                 }}
                               />
                             ) : (
-                              <div>{cell.value || <em></em>}</div>
+                              <div>{cell.value || <input className="syllabus-input-2" />}</div>
                             )}
                           </td>
                         ))}
