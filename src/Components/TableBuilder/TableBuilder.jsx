@@ -88,12 +88,8 @@ export default function SyllabusBuilderModal({
       id: "1",
       name: "1x2 Table",
       cells: [
-        [
-          { value: "", isTitle: true, tag: "title-1" },
-        ],
-        [
-          { value: "", tag: "for-title-1" },
-        ],
+        [{ value: "", isTitle: true, isFullWidth: true, tag: "title-1" }],
+        [{ value: "", tag: "for-title-1" }],
       ],
     },
     {
@@ -209,10 +205,10 @@ export default function SyllabusBuilderModal({
       cells: [
         [{ value: "", isTitle: true, isFullWidth: true }],
         [
-          { value: "", isTitle: true, isSecondary: true, },
-          { value: "", isTitle: true, isSecondary: true, },
-          { value: "", isTitle: true, isSecondary: true, },
-          { value: "", isTitle: true, isSecondary: true, },
+          { value: "", isTitle: true, isSecondary: true },
+          { value: "", isTitle: true, isSecondary: true },
+          { value: "", isTitle: true, isSecondary: true },
+          { value: "", isTitle: true, isSecondary: true },
         ],
         [
           { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
@@ -232,10 +228,11 @@ export default function SyllabusBuilderModal({
           { value: "", tag: "for-title-3" },
           { value: "", tag: "for-title-3" },
         ],
-        [{ value: "", isTitle: true, isSecondary: true, tag: "title-4" },
-        { value: "", tag: "for-title-4" },
-        { value: "", tag: "for-title-4" },
-        { value: "", tag: "for-title-4" },
+        [
+          { value: "", isTitle: true, isSecondary: true, tag: "title-4" },
+          { value: "", tag: "for-title-4" },
+          { value: "", tag: "for-title-4" },
+          { value: "", tag: "for-title-4" },
         ],
         [
           { value: "", isTitle: true, isSecondary: true, tag: "title-5" },
@@ -494,9 +491,11 @@ export default function SyllabusBuilderModal({
                                 ? section.cells[1]?.length || 1
                                 : 1
                             }
-                            className={`table-cell ${cell.isTitle ? "title-cell" : ""
-                              } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
-                              }`}
+                            className={`table-cell ${
+                              cell.isTitle ? "title-cell" : ""
+                            } ${cell.isFullWidth ? "wide-cell" : ""} ${
+                              cell.isSecondary ? "secondary-cell" : ""
+                            }`}
                           >
                             {cell.isTitle && isAdmin ? (
                               <input
@@ -514,7 +513,11 @@ export default function SyllabusBuilderModal({
                                 }}
                               />
                             ) : (
-                              <div>{cell.value || <input className="syllabus-input-2" />}</div>
+                              <div>
+                                {cell.value || (
+                                  <input className="syllabus-input-2" />
+                                )}
+                              </div>
                             )}
                           </td>
                         ))}
