@@ -161,8 +161,6 @@ const ProfDisplay = () => {
 
   return (
     <div>
-      <h2>Professor View</h2>
-
       <button
         className="openbtn"
         onClick={() => {
@@ -202,8 +200,7 @@ const ProfDisplay = () => {
       )}
 
       {/* Render already created forms */}
-      <h3>Your Submitted Forms</h3>
-      <div className="syllabus-grid">
+      <div className="card-wrapper">
         {profForms.map((form) => (
           <div
             key={form.id}
@@ -222,12 +219,48 @@ const ProfDisplay = () => {
             />
             <div className="card-bot-wrapper">
               <h4>{form.title || "Untitled Form"}</h4>
-              <button
-                className="pdf-btn"
-                onClick={() => downloadSyllabusAsPDF(form)}
-              >
-                Download PDF
-              </button>
+              <div className="card-btn-wrapper">
+                <button
+                  className="pdf-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!form?.id) {
+                      alert("No syllabus selected");
+                      return;
+                    }
+                    window.open(`/export-preview/${form.id}`, "_blank");
+                  }}
+                >
+                  Export
+                </button>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+
+                    const confirmDelete = confirm(
+                      "Are you sure you want to delete this form?"
+                    );
+                    if (!confirmDelete) return;
+
+                    const { error } = await supabase
+                      .from("prof_forms") // replace with your actual table name
+                      .delete()
+                      .eq("id", form.id);
+
+                    if (error) {
+                      console.error("Error deleting form:", error.message);
+                      alert("Failed to delete form.");
+                    } else {
+                      setProfForms((prev) =>
+                        prev.filter((f) => f.id !== form.id)
+                      );
+                    }
+                  }}
+                  className="pdf-btn"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         ))}

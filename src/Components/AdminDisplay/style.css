@@ -1,17 +1,17 @@
-.syllabus-grid {
-  display: flex;
-  width: 100%;
-  gap: 2rem;
-  overflow: auto;
-  padding: 1rem 0;
+
+
+.syllabus-card h4 {
+  margin: 0;
+  font-size: 1rem;
 }
 
 .syllabus-card {
-  width: 20rem;
-  height: 12rem;
+  width: 24%;
+  height: 18rem;
   border-radius: 5px;
   box-shadow: 0rem 0.5rem 0.5rem rgb(170, 170, 170);
   cursor: pointer;
+  margin: 2rem 0;
 }
 
 .form-image {

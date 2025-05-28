@@ -52,7 +52,7 @@ const AdminDisplay = () => {
 
   return (
     <div className="admin-display">
-      <div className="syllabus-grid">
+      <div className="card-wrapper">
         {syllabuses.length === 0 ? (
           <p>No syllabuses found.</p>
         ) : (

@@ -1,5 +1,5 @@
 .footer {
-  height: 5rem;
+  height: 2rem !important;
   box-shadow: 0 -0.4rem 0.4rem #0000002d;
   display: flex;
   justify-content: flex-end;
@@ -9,6 +9,7 @@
 
 .footer-text {
   color: #696969;
+  margin: 0;
 }
 
 @media (max-width: 768px) {

@@ -21,6 +21,13 @@
   text-align: center;
 }
 
+.card-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 1rem;
+}
+
 .dropdown-modal h3 {
   margin-bottom: 15px;
 }
@@ -39,8 +46,23 @@
 .card-bot-wrapper {
   display: flex;
   justify-content: space-between;
+  padding: 0.5rem;
+  border-radius: 5px;
 }
 
 .pdf-btn {
   border: 1px solid black;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  font-size: 0.7rem;
+  padding: 0.4rem;
+}
+
+.card-btn-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
