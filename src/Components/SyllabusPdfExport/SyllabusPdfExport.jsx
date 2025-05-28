@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "../../utility/supabaseClient";
-import html2pdf from "html2pdf.js";
-import "./style.css";
-
+import { useReactToPrint } from "react-to-print";
 import banner from "../../assets/alte/banner.png";
-
+import "./style.css";
 
 export default function SyllabusPdfExport() {
   const { syllabusId } = useParams();
@@ -14,7 +12,7 @@ export default function SyllabusPdfExport() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const exportRef = useRef(); // <<--- Ref to the exportable content
+  const contentRef = useRef(null);
 
   useEffect(() => {
     async function fetchSyllabus() {
@@ -43,26 +41,12 @@ export default function SyllabusPdfExport() {
     }
   }, [syllabusId]);
 
-  const handleDownload = () => {
-    if (!exportRef.current) return;
-
-    const options = {
-      margin: 0,
-      filename: `${formTitle || "syllabus"}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait",
-      },
-    };
-
-    html2pdf().set(options).from(exportRef.current).save();
-  };
+  // This is the key difference: pass contentRef instead of content callback
+  const handlePrint = useReactToPrint({
+    contentRef,
+    documentTitle: formTitle || "syllabus",
+    onAfterPrint: () => console.log("Print done"),
+  });
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
@@ -70,7 +54,7 @@ export default function SyllabusPdfExport() {
   return (
     <div style={{ padding: 40 }}>
       <button
-        onClick={handleDownload}
+        onClick={handlePrint}
         style={{
           marginBottom: 20,
           padding: "10px 16px",
@@ -81,53 +65,45 @@ export default function SyllabusPdfExport() {
         Download PDF
       </button>
 
-      {/* Only this part will be exported */}
-      <div ref={exportRef} className="export-wrapper">
-        {/* ✅ First Page */}
+      <div ref={contentRef} className="export-wrapper">
         <div className="first-page">
           <img src={banner} alt="" className="banner-img" />
-          <h1 className="form-title">{formTitle}</h1>
+          <div className="title-container">
+            <h1 className="form-title">{formTitle}</h1>
+          </div>
         </div>
 
-        {/* ✅ Second Page (tables start here) */}
-        <div
-          className="second-page export-wrapper-2"
-          style={{ pageBreakBefore: "always", padding: "40px" }}
-        >
-          {sections.map((section, sIdx) => (
-            <div key={sIdx} style={{ marginBottom: 30 }}>
-              {section.cells.length > 0 && (
-                <table
-                  className="syllabus-table"
-                  style={{ width: "100%", borderCollapse: "collapse" }}
-                >
-                  <tbody>
-                    {section.cells.map((row, rIdx) => (
-                      <tr key={rIdx}>
-                        {row.map((cell, cIdx) => (
-                          <td
-                            key={cIdx}
-                            colSpan={
-                              cell.isFullWidth ? section.cells[1]?.length || 1 : 1
-                            }
-                            className={`table-cell ${cell.isTitle ? "title-cell" : ""
-                              } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
-                              }`}
-                            style={{ padding: "8px", border: "1px solid #000" }}
-                          >
-                            {cell.value || <em>&nbsp;</em>}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          ))}
+        {/* Following pages with tables */}
+        <div className="other-pages">
+          {sections.map((section, sIdx) =>
+            section.cells.length > 0 ? (
+              <table className="syllabus-table" key={sIdx}>
+                <tbody>
+                  {section.cells.map((row, rIdx) => (
+                    <tr key={rIdx}>
+                      {row.map((cell, cIdx) => (
+                        <td
+                          key={cIdx}
+                          colSpan={
+                            cell.isFullWidth ? section.cells[1]?.length || 1 : 1
+                          }
+                          className={`table-cell ${
+                            cell.isTitle ? "title-cell" : ""
+                          } ${cell.isFullWidth ? "wide-cell" : ""} ${
+                            cell.isSecondary ? "secondary-cell" : ""
+                          }`}
+                        >
+                          {cell.value || <em>&nbsp;</em>}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : null
+          )}
         </div>
       </div>
-
     </div>
   );
 }

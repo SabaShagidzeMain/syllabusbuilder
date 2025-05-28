@@ -1,25 +1,83 @@
-.banner-img {
+/* === First Page === */
+.first-page {
+  height: 297mm;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  page-break-after: always;
+}
+
+.first-page img {
   width: 100%;
   height: auto;
+  object-fit: cover;
+}
+
+.title-container {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
 }
 
 .form-title {
-  margin: 20rem 0;
+  font-size: 2.5rem;
   text-align: center;
-  font-size: 2rem;
+  margin-top: 2rem;
 }
 
-.export-wrapper-2 {
-  padding: 2rem;
+/* === Tables === */
+.syllabus-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  /* Don't break in middle of rows */
+  break-inside: avoid; /* modern */
+  page-break-inside: avoid; /* fallback */
+  margin-bottom: 10mm; /* LESS spacing between tables */
 }
 
 .table-cell {
-  height: 0.2rem;
   border: 1px solid #000;
+  padding: 8px;
+}
+
+.title-cell {
+  font-weight: bold;
+}
+
+.wide-cell {
+  width: 100%;
+}
+
+/* Consistent layout for all content after the first page */
+.other-pages {
+  padding: 20mm 15mm 15mm 15mm;
+  box-sizing: border-box;
+}
+
+/* Ensure top padding prints after page breaks */
+.other-pages > *:first-child {
+  margin-top: 0 !important;
+  padding-top: 20mm;
 }
 
 @media print {
-  .second-page {
-    page-break-before: always;
+  .other-pages {
+    break-before: auto;
+    page-break-before: auto;
+  }
+
+  .syllabus-table {
+    break-inside: avoid;
+    page-break-inside: auto;
+  }
+
+  .syllabus-table + .syllabus-table {
+    margin-top: 10mm; /* spacing between tables */
   }
 }
