@@ -174,8 +174,8 @@ const ProfDisplay = () => {
 
       {/* Dropdown for new form */}
       {isModalOpen && mode === "create" && !selectedSyllabus && (
-        <div className="modal-backdrop">
-          <div className="dropdown-modal">
+        <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
+          <div className="dropdown-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Select a Syllabus Template</h3>
             <select
               onChange={(e) => {
