@@ -74,6 +74,7 @@ export default function SyllabusPdfExport() {
         </div>
 
         {/* Following pages with tables */}
+
         <div className="other-pages">
           {sections.map((section, sIdx) =>
             section.cells.length > 0 ? (

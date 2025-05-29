@@ -15,7 +15,9 @@ const Header = () => {
   return (
     <div className="header">
       <div className="header-left">
-        <h1 className="header-h">Structura</h1>
+        <a href="/">
+          <h1 className="header-h">Structura</h1>
+        </a>
 
         <div
           className={`hamburger-wrapper ${menuOpen ? "open" : ""}`}
@@ -30,7 +32,7 @@ const Header = () => {
       <div className={`header-right ${menuOpen ? "open" : ""}`}>
         <ul className="header-list">
           <li className="header-list-item">
-            <a href="#">Home</a>
+            <a href="/">Home</a>
           </li>
           <li className="header-list-item">
             <a href="#">Help</a>
