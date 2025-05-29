@@ -1,0 +1,68 @@
+.modal-backdrop {
+  position: fixed; /* fixed so it covers the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex; /* to center content */
+  justify-content: center; /* horizontally center */
+  align-items: center; /* vertically center */
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
+  z-index: 1000; /* on top of other content */
+}
+
+.dropdown-modal {
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.card-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 1rem;
+}
+
+.dropdown-modal h3 {
+  margin-bottom: 15px;
+}
+
+.dropdown-modal select {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  appearance: none; /* Remove default arrow in some browsers */
+  background-color: #fff;
+}
+
+.card-bot-wrapper {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+.pdf-btn {
+  border: 1px solid black;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  font-size: 0.7rem;
+  padding: 0.4rem;
+}
+
+.card-btn-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}

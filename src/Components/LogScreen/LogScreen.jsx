@@ -66,7 +66,7 @@ const LogScreen = () => {
     }
 
     // Step 4: All good
-    navigate("/main");
+    navigate("/");
   };
 
   return (

@@ -1,0 +1,143 @@
+.overlay {
+  width: 100%;
+  height: 20rem;
+  z-index: 60;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.landingtop-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 20rem;
+}
+
+.landing-left-wrapper {
+  z-index: 100;
+  background: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-left-inner {
+  height: 13rem;
+  width: 30rem;
+  border-radius: 0 20px 20px 0;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding: 2rem;
+}
+
+.landing-right-wrapper {
+  z-index: 100;
+  background: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-right-inner {
+  display: flex;
+  height: 15rem;
+  width: 45rem;
+  border-radius: 20px 0 0 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+}
+
+.toplogo {
+  width: 20rem;
+}
+
+.topuser {
+  width: 12rem;
+}
+
+.rolename {
+  font-weight: bold;
+  font-size: 16px;
+  color: #696969;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 1.5rem;
+}
+
+p {
+  margin: 0;
+}
+
+.username {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.btn-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.userbtn {
+  background-color: #fff;
+  border: 2px solid #b9b9b9;
+}
+
+@media (max-width: 1215px) {
+  .landingtop-wrapper {
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: flex-start;
+    height: 25rem;
+    gap: 1rem;
+  }
+
+  .overlay {
+    height: 25rem;
+  }
+
+  .landing-left-wrapper {
+    width: 15rem;
+    padding: 0;
+  }
+
+  .toplogo {
+    width: 12rem;
+  }
+
+  .landing-right-wrapper {
+    width: 95%;
+    justify-content: flex-start;
+  }
+
+  .landing-left-inner {
+    padding: 1rem;
+    height: 10rem;
+    width: 15rem;
+  }
+
+  .topuser {
+    width: 8rem;
+  }
+
+  .landing-right-inner {
+    padding: 1rem;
+    height: 11rem;
+    border-radius: 0 20px 20px 0;
+  }
+
+  .user-info {
+    gap: 0.2rem;
+  }
+
+  button {
+    display: none;
+  }
+}

@@ -1,0 +1,19 @@
+.openbtn {
+  background-color: #449df6;
+  color: #fff;
+  font-weight: bold;
+  width: 12rem;
+}
+
+.botwrapper {
+  display: flex;
+  padding: 2rem;
+  width: 100%;
+}
+
+.adminView {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}

@@ -1,0 +1,26 @@
+
+
+.syllabus-card h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.syllabus-card {
+  width: 24%;
+  height: 18rem;
+  border-radius: 5px;
+  box-shadow: 0rem 0.5rem 0.5rem rgb(170, 170, 170);
+  cursor: pointer;
+  margin: 2rem 0;
+}
+
+.form-image {
+  width: 100%;
+  height: 70%;
+  border-radius: 5px 5px 0 0;
+}
+
+.ft1 {
+  font-size: 15px;
+  margin: 0.2rem;
+}
