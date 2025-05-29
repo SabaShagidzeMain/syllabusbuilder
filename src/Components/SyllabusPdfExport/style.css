@@ -1,3 +1,11 @@
+.dwnld-btn {
+  width: 100%;
+  background-color: #449df6;
+  color: #fff;
+  margin-bottom: 2rem;
+  box-shadow: 2px 2px 2px #c2c2c2;
+}
+
 /* === First Page === */
 .first-page {
   height: 297mm;
@@ -88,6 +96,6 @@
   margin: 5mm;
 }
 
-@page:first{
+@page:first {
   margin: 0;
-};
+}

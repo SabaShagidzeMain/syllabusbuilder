@@ -53,20 +53,12 @@ export default function SyllabusPdfExport() {
 
   return (
     <div style={{ padding: 40 }}>
-      <button
-        onClick={handlePrint}
-        style={{
-          marginBottom: 20,
-          padding: "10px 16px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
+      <button onClick={handlePrint} className="dwnld-btn">
         Download PDF
       </button>
 
       <div ref={contentRef} className="export-wrapper">
-        <div className="first-page">
+        <div className="first-page page">
           <img src={banner} alt="" className="banner-img" />
           <div className="title-container">
             <h1 className="form-title">{formTitle}</h1>
@@ -74,8 +66,7 @@ export default function SyllabusPdfExport() {
         </div>
 
         {/* Following pages with tables */}
-
-        <div className="other-pages">
+        <div className="other-pages page">
           {sections.map((section, sIdx) =>
             section.cells.length > 0 ? (
               <table className="syllabus-table" key={sIdx}>
