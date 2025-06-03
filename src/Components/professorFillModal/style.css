@@ -1,26 +1,249 @@
-.form-container {
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
-.form-in-wrapper {
+.modal-inner {
+  background: white;
+  width: 90%;
+  height: 90%;
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.modal-left,
+.modal-right {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.blue-button {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.title-cell {
+  font-weight: bold;
+}
+
+.modal {
+  position: fixed; /* BLOCKS scroll and overlays everything */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  overflow: hidden; /* Prevent scroll inside modal */
+}
+
+span {
+  text-decoration: none !important;
+  background-color: none !important;
+}
+
+button {
+  background-color: #fff;
+}
+
+.modal-right {
   display: flex;
   flex-direction: column;
+  border-radius: 20px;
+}
+
+.modal-left {
+  border-radius: 20px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+}
+
+.modal-inner {
+  display: flex;
+  width: 90%;
+  height: 90%;
+  border-radius: 20px;
+}
+
+.component-title {
+  font-size: 18px;
+}
+
+.component-selector {
+  width: 400px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 16px;
+  appearance: none;
+  padding-left: 1rem;
+
+  background-image: url(../../assets/general/drparrow.png);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.input-container {
+  display: flex;
+  justify-content: flex-end;
   gap: 1rem;
+  align-items: center;
 }
 
-#prof-modal-inner {
-  display: flex;
-  flex-direction: column;
-}
-
-.prof-inp-title {
+.title-input {
+  width: 400px;
+  height: 40px;
+  border-radius: 10px;
   margin: 0;
 }
 
-.prof-input-field {
-  height: 3rem;
+.cell-span {
+  background: none;
+}
+
+input {
+  margin: 0 !important;
+  background-color: none !important;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-button {
+  margin-top: 1rem;
+}
+
+.add-btn-container {
+  width: 98%;
+}
+
+.button-container button {
+  background-color: #449df6;
+  color: #fff;
+}
+
+.blue-button {
+  background-color: #449df6;
+  color: #fff;
+}
+
+.section-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 98%;
+}
+
+.syllabus-input {
+  border: none;
+  width: 100%;
+  height: 100%;
+  background-color: #124046;
+  color: #fff;
+  font-size: 14px;
+}
+
+.table-cell {
+  width: 12rem;
+  height: 1.5rem;
+  font-size: 12px;
+}
+
+.table-cell input {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.wide-cell input {
+  text-align: center;
+}
+
+.title-cell {
+  width: 30%;
+  background-color: #124046;
+  color: #fff;
+  padding: 0 0.5rem;
+}
+
+.syllabus-input-2 {
+  width: 100%;
+  border: none;
+}
+
+.secondary-cell {
+  background-color: #9bd3d9;
+}
+
+.secondary-cell input {
+  background-color: #9bd3d9;
+  color: black;
+}
+
+h3 {
+  margin: 0 0 1.5rem 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.title-cell input {
+  border: none;
+  height: 1rem;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.close-button-wrapper {
+  height: fit-content;
+  width: fit-content;
+}
+
+.close-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-right: 7rem;
+  margin-bottom: 4rem;
+}
+
+.title-cell-display {
+  background-color: #007bffc0;
+  padding: 1rem;
   border-radius: 5px;
-  border: 1px solid gray    ;
+  margin: 0.5rem 0;
+  color: #fff;
+  font-weight: bold;
+}
+
+.prof-input-field {
+  padding: 1rem !important;
+}
+
+.row-wrapper {
+  margin: 0;
 }

@@ -79,6 +79,14 @@ input {
   justify-content: flex-end;
 }
 
+.add-button {
+  margin-top: 1rem;
+}
+
+.add-btn-container {
+  width: 98%;
+}
+
 .button-container button {
   background-color: #449df6;
   color: #fff;
