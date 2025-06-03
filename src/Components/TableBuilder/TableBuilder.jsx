@@ -644,6 +644,7 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
+                                style={{ color: "#fff" }}
                               />
                             ) : (
                               <div>
