@@ -80,6 +80,7 @@ input {
 
 .component-title-input {
   width: 20rem !important;
+  padding: 0.4rem;
 }
 
 .normal-cell textarea {

@@ -484,9 +484,12 @@ export default function SyllabusBuilderModal({
     };
   }, [onClose]);
 
-  function autoResize(e) {
-    e.target.style.height = "auto";
-    e.target.style.height = `${e.target.scrollHeight}px`;
+  function autoResize(e, syncId) {
+    const allMatching = document.querySelectorAll(`[data-sync-id='${syncId}']`);
+    allMatching.forEach((el) => {
+      el.style.height = "auto";
+      el.style.height = `${e.target.scrollHeight}px`;
+    });
   }
 
   if (!isOpen) return null;
@@ -509,11 +512,11 @@ export default function SyllabusBuilderModal({
                 className="title-input"
                 value={formTitle}
                 onChange={(e) => {
-                  autoResize(e);
+                  autoResize(e, "form-title");
                   setFormTitle(e.target.value);
                 }}
-                onInput={autoResize}
-                placeholder="Enter form title"
+                onInput={(e) => autoResize(e, "form-title")}
+                data-sync-id="form-title"
                 style={{
                   resize: "none",
                   overflow: "hidden",
@@ -582,10 +585,14 @@ export default function SyllabusBuilderModal({
                             <p className="component-title">Title: </p>
                             <label>
                               <textarea
+                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
                                 className="title-input component-title-input"
                                 value={cell.value}
                                 onChange={(e) => {
-                                  autoResize(e);
+                                  autoResize(
+                                    e,
+                                    `${section.id}-${rIdx}-${cIdx}`
+                                  );
                                   const newCells = section.cells.map((r) =>
                                     r.map((c) => ({ ...c }))
                                   );
@@ -594,7 +601,9 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
-                                onInput={autoResize}
+                                onInput={(e) =>
+                                  autoResize(e, `${section.id}-${rIdx}-${cIdx}`)
+                                }
                                 style={{
                                   resize: "none",
                                   overflow: "hidden",
@@ -663,12 +672,16 @@ export default function SyllabusBuilderModal({
                           >
                             {isAdmin ? (
                               <textarea
+                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
                                 className={`syllabus-input ${
                                   cell.isTitle ? "title-cell" : ""
                                 }`}
                                 value={cell.value}
                                 onChange={(e) => {
-                                  autoResize(e);
+                                  autoResize(
+                                    e,
+                                    `${section.id}-${rIdx}-${cIdx}`
+                                  );
                                   const newCells = section.cells.map((r) =>
                                     r.map((c) => ({ ...c }))
                                   );
@@ -677,7 +690,9 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
-                                onInput={autoResize}
+                                onInput={(e) =>
+                                  autoResize(e, `${section.id}-${rIdx}-${cIdx}`)
+                                }
                                 style={{
                                   resize: "none",
                                   overflow: "hidden",
