@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
-import ProfessorFillModal from "../professorFillModal/professorFillModal";
+import ProfessorFillModal from "../professorFillModal/ProfessorFillModal";
 import "./style.css";
 import jsPDF from "jspdf";
 

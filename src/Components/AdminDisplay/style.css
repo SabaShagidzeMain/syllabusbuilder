@@ -1,5 +1,3 @@
-
-
 .syllabus-card h4 {
   margin: 0;
   font-size: 1rem;
@@ -9,9 +7,14 @@
   width: 20%;
   height: 18rem;
   border-radius: 5px;
-  box-shadow: 0rem 0.5rem 0.5rem rgb(170, 170, 170);
+  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
   cursor: pointer;
   margin: 2rem 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.syllabus-card:hover {
+  transform: scale(1.03);
 }
 
 .form-image {
@@ -23,4 +26,14 @@
 .ft1 {
   font-size: 15px;
   margin: 0.2rem;
+}
+
+.dlt-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.dlt-btn:hover {
+  background-color: #449df6;
+  color: #fff;
+  border: none;
 }

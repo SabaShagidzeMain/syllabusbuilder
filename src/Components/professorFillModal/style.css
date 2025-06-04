@@ -169,12 +169,21 @@ input {
 .table-cell {
   width: 12rem;
   height: 1.5rem;
-  font-size: 12px;
+  font-size: 16px;
 }
 
 .table-cell input {
   font-size: 12px;
   font-weight: bold;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+.wide-cell {
+  text-align: center;
 }
 
 .wide-cell input {
@@ -242,6 +251,10 @@ table {
 
 .prof-input-field {
   padding: 1rem !important;
+}
+
+.table-cell input:focus {
+  border: none;
 }
 
 .row-wrapper {

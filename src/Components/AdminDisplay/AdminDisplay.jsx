@@ -67,7 +67,36 @@ const AdminDisplay = () => {
                 alt=""
                 className="form-image"
               />
-              <h3 className="ft1">{item.title}</h3>
+              <div className="card-bot-wrapper">
+                <h3 className="ft1">{item.title}</h3>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+
+                    const confirmDelete = confirm(
+                      "Are you sure you want to delete this form?"
+                    );
+                    if (!confirmDelete) return;
+
+                    const { error } = await supabase
+                      .from("syllabus_forms")
+                      .delete()
+                      .eq("id", item.id);
+
+                    if (error) {
+                      console.error("Error deleting form:", error.message);
+                      alert("Failed to delete form.");
+                    } else {
+                      setSyllabuses((prev) =>
+                        prev.filter((f) => f.id !== item.id)
+                      );
+                    }
+                  }}
+                  className="pdf-btn dlt-btn"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))
         )}

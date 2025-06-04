@@ -499,10 +499,7 @@ export default function SyllabusBuilderModal({
           }}
         >
           {isAdmin && !initialData?.id && (
-            <div
-              className="title-input-container"
-              style={{ paddingBottom: 10 }}
-            >
+            <div className="title-input-container">
               <label className="component-title">Form Title: </label>
               <input
                 type="text"
@@ -514,7 +511,7 @@ export default function SyllabusBuilderModal({
             </div>
           )}
           {sections.map((section) => (
-            <div className="card-wrapper" key={section.id}>
+            <div className="modal-card-wrapper" key={section.id}>
               <div
                 className="section-wrapper"
                 style={{
