@@ -27,6 +27,11 @@ button {
   overflow: auto;
 }
 
+td {
+  vertical-align: top !important; /* or middle if you want centering */
+  padding: 0 !important;
+}
+
 .table {
   width: 100%;
 }
@@ -69,19 +74,16 @@ button {
   align-items: center;
 }
 
-.title-input {
-  height: 40px;
-  border-radius: 10px;
-  margin: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
 input {
   margin: 0 !important;
+}
+
+.component-title-input {
+  width: 20rem !important;
+}
+
+.normal-cell textarea {
+  color: #000 !important;
 }
 
 .button-container {
@@ -146,11 +148,14 @@ input:focus {
   background-color: #124046;
   color: #fff;
   font-size: 14px;
+  padding: 0;
+  display: flex;
+  vertical-align: middle;
 }
 
 .table-cell {
   width: 12rem;
-  height: 1.5rem;
+  padding: 0.2rem !important;
   font-size: 16px;
 }
 
@@ -211,4 +216,10 @@ table {
   right: 0;
   margin-right: 7rem;
   margin-bottom: 4rem;
+}
+
+.textarea-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

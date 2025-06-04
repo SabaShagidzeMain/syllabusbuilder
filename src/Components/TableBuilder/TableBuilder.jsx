@@ -484,8 +484,12 @@ export default function SyllabusBuilderModal({
     };
   }, [onClose]);
 
-  if (!isOpen) return null;
+  function autoResize(e) {
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  }
 
+  if (!isOpen) return null;
   return (
     <div className="modal">
       <div className="modal-inner" ref={modalRef} style={{ display: "flex" }}>
@@ -501,12 +505,31 @@ export default function SyllabusBuilderModal({
           {isAdmin && !initialData?.id && (
             <div className="title-input-container">
               <label className="component-title">Form Title: </label>
-              <input
-                type="text"
+              <textarea
                 className="title-input"
                 value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
+                onChange={(e) => {
+                  autoResize(e);
+                  setFormTitle(e.target.value);
+                }}
+                onInput={autoResize}
                 placeholder="Enter form title"
+                style={{
+                  resize: "none",
+                  overflow: "hidden",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                  whiteSpace: "pre-wrap",
+                  width: "100%",
+                  height: "1.8em",
+                  padding: "0",
+                  lineHeight: "1.1",
+                  fontSize: "1rem",
+                  fontFamily: "inherit",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                  boxSizing: "border-box",
+                }}
               />
             </div>
           )}
@@ -558,11 +581,11 @@ export default function SyllabusBuilderModal({
                           >
                             <p className="component-title">Title: </p>
                             <label>
-                              <input
-                                className="title-input"
-                                type="text"
+                              <textarea
+                                className="title-input component-title-input"
                                 value={cell.value}
                                 onChange={(e) => {
+                                  autoResize(e);
                                   const newCells = section.cells.map((r) =>
                                     r.map((c) => ({ ...c }))
                                   );
@@ -571,7 +594,18 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
-                                style={{ marginLeft: 5 }}
+                                onInput={autoResize}
+                                style={{
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "none",
+                                  background: "none",
+                                }}
                               />
                             </label>
                           </div>
@@ -627,12 +661,14 @@ export default function SyllabusBuilderModal({
                               cell.isSecondary ? "secondary-cell" : ""
                             }`}
                           >
-                            {cell.isTitle && isAdmin ? (
-                              <input
-                                type="text"
-                                className="syllabus-input"
+                            {isAdmin ? (
+                              <textarea
+                                className={`syllabus-input ${
+                                  cell.isTitle ? "title-cell" : ""
+                                }`}
                                 value={cell.value}
                                 onChange={(e) => {
+                                  autoResize(e);
                                   const newCells = section.cells.map((r) =>
                                     r.map((c) => ({ ...c }))
                                   );
@@ -641,14 +677,25 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
-                                style={{ color: "#fff" }}
+                                onInput={autoResize}
+                                style={{
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "none",
+                                  background: "none",
+                                  color:
+                                    !cell.isTitle && !cell.isSecondary
+                                      ? "black"
+                                      : undefined,
+                                }}
                               />
                             ) : (
-                              <div>
-                                {cell.value || (
-                                  <input className="syllabus-input-2" />
-                                )}
-                              </div>
+                              <div className="normal-cell">{cell.value}</div>
                             )}
                           </td>
                         ))}
