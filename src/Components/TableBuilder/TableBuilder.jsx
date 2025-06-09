@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
+import { predefinedTables } from "../../utility/predefinedTables";
+import { updateSyllabusForm, fetchUniversityForCurrentUser, insertSyllabusForm } from "../../utility/supabaseHelpers";
 import "./style.css";
 
 export default function SyllabusBuilderModal({
@@ -28,48 +30,23 @@ export default function SyllabusBuilderModal({
     let result;
 
     if (initialData?.id) {
-      // 🔁 Update existing syllabus
-      const { data, error } = await supabase
-        .from("syllabus_forms")
-        .update({
-          content: sections,
-          title: formTitle || initialData.title || "Updated Draft",
-        })
-        .eq("id", initialData.id)
-        .select();
-
-      result = { data, error };
+      result = await updateSyllabusForm(
+        initialData.id,
+        sections,
+        formTitle || initialData.title || "Updated Draft"
+      );
     } else {
-      // ➕ Insert new syllabus with university
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("university")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profileError || !profileData) {
+      const { university, error: profileError } = await fetchUniversityForCurrentUser();
+      if (profileError || !university) {
         console.error("Error fetching university:", profileError?.message);
         return;
       }
 
-      const university = profileData.university;
-
-      const { data, error } = await supabase
-        .from("syllabus_forms")
-        .insert([
-          {
-            title: formTitle || "Syllabus Draft",
-            content: sections,
-            university,
-          },
-        ])
-        .select();
-
-      result = { data, error };
+      result = await insertSyllabusForm(
+        formTitle || "Syllabus Draft",
+        sections,
+        university
+      );
     }
 
     const { data, error } = result;
@@ -83,236 +60,6 @@ export default function SyllabusBuilderModal({
     }
   };
 
-  const predefinedTables = [
-    {
-      id: "1",
-      name: "1x2 Table",
-      cells: [
-        [{ value: "", isTitle: true, isFullWidth: true, tag: "title-1" }],
-        [{ value: "", tag: "for-title-1" }],
-      ],
-    },
-    {
-      id: "2",
-      name: "2x2 Table",
-      cells: [
-        [
-          { value: "", isTitle: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-        [
-          { value: "", isTitle: true, tag: "title-2" },
-          { value: "", tag: "for-title-2" },
-        ],
-      ],
-    },
-    {
-      id: "3",
-      name: "3x3 Table",
-      cells: [
-        [
-          { value: "", isTitle: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-        [
-          { value: "", isTitle: true, tag: "title-2" },
-          { value: "", tag: "for-title-2" },
-          { value: "", tag: "for-title-2" },
-        ],
-        [
-          { value: "", isTitle: true, tag: "title-3" },
-          { value: "", tag: "for-title-3" },
-          { value: "", tag: "for-title-3" },
-        ],
-      ],
-    },
-    {
-      id: "4",
-      name: "title top - 3x3 Table",
-      cells: [
-        [{ value: "", isTitle: true, isFullWidth: true }],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-2" },
-          { value: "", tag: "for-title-2" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
-          { value: "", tag: "for-title-3" },
-        ],
-      ],
-    },
-    {
-      id: "5",
-      name: "4x2 Table",
-      cells: [
-        [
-          { value: "", isTitle: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-        [
-          { value: "", isTitle: true, tag: "title-2" },
-          { value: "", tag: "for-title-2" },
-        ],
-      ],
-    },
-    {
-      id: "6",
-      name: "title top - 3x8 Table",
-      cells: [
-        [{ value: "", isTitle: true, isFullWidth: true }],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-2" },
-          { value: "", tag: "for-title-2" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
-          { value: "", tag: "for-title-3" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-4" },
-          { value: "", tag: "for-title-4" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-5" },
-          { value: "", tag: "for-title-5" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-6" },
-          { value: "", tag: "for-title-6" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-7" },
-          { value: "", tag: "for-title-7" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
-          { value: "", tag: "for-title-8" },
-        ],
-      ],
-    },
-    {
-      id: "7",
-      name: "title top - Calendar Table",
-      cells: [
-        [{ value: "", isTitle: true, isFullWidth: true }],
-        [
-          { value: "", isTitle: true, isSecondary: true },
-          { value: "", isTitle: true, isSecondary: true },
-          { value: "", isTitle: true, isSecondary: true },
-          { value: "", isTitle: true, isSecondary: true },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-          { value: "", tag: "for-title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-2" },
-          { value: "", tag: "for-title-2" },
-          { value: "", tag: "for-title-2" },
-          { value: "", tag: "for-title-2" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-3" },
-          { value: "", tag: "for-title-3" },
-          { value: "", tag: "for-title-3" },
-          { value: "", tag: "for-title-3" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-4" },
-          { value: "", tag: "for-title-4" },
-          { value: "", tag: "for-title-4" },
-          { value: "", tag: "for-title-4" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-5" },
-          { value: "", tag: "for-title-5" },
-          { value: "", tag: "for-title-5" },
-          { value: "", tag: "for-title-5" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-6" },
-          { value: "", tag: "for-title-6" },
-          { value: "", tag: "for-title-6" },
-          { value: "", tag: "for-title-6" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-7" },
-          { value: "", tag: "for-title-7" },
-          { value: "", tag: "for-title-7" },
-          { value: "", tag: "for-title-7" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
-          { value: "", tag: "for-title-8" },
-          { value: "", tag: "for-title-8" },
-          { value: "", tag: "for-title-8" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
-          { value: "", tag: "for-title-9" },
-          { value: "", tag: "for-title-9" },
-          { value: "", tag: "for-title-9" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-10" },
-          { value: "", tag: "for-title-10" },
-          { value: "", tag: "for-title-10" },
-          { value: "", tag: "for-title-10" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-8" },
-          { value: "", tag: "for-title-11" },
-          { value: "", tag: "for-title-11" },
-          { value: "", tag: "for-title-11" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-12" },
-          { value: "", tag: "for-title-12" },
-          { value: "", tag: "for-title-12" },
-          { value: "", tag: "for-title-12" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-13" },
-          { value: "", tag: "for-title-13" },
-          { value: "", tag: "for-title-13" },
-          { value: "", tag: "for-title-13" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-14" },
-          { value: "", tag: "for-title-14" },
-          { value: "", tag: "for-title-14" },
-          { value: "", tag: "for-title-14" },
-        ],
-        [
-          { value: "", isTitle: true, isSecondary: true, tag: "title-15" },
-          { value: "", tag: "for-title-15" },
-          { value: "", tag: "for-title-15" },
-          { value: "", tag: "for-title-15" },
-        ],
-      ],
-    },
-    {
-      id: "8",
-      name: "2x1 Table",
-      cells: [
-        [
-          { value: "", isTitle: true, tag: "title-1" },
-          { value: "", tag: "for-title-1" },
-        ],
-      ],
-    },
-  ];
 
   const addSection = () => {
     setSections((prev) => [
@@ -351,8 +98,15 @@ export default function SyllabusBuilderModal({
     };
   }, [onClose]);
 
-  if (!isOpen) return null;
+  function autoResize(e, syncId) {
+    const allMatching = document.querySelectorAll(`[data-sync-id='${syncId}']`);
+    allMatching.forEach((el) => {
+      el.style.height = "auto";
+      el.style.height = `${e.target.scrollHeight}px`;
+    });
+  }
 
+  if (!isOpen) return null;
   return (
     <div className="modal">
       <div className="modal-inner" ref={modalRef} style={{ display: "flex" }}>
@@ -366,27 +120,38 @@ export default function SyllabusBuilderModal({
           }}
         >
           {isAdmin && !initialData?.id && (
-            <div
-              className="title-input-container"
-              style={{ paddingBottom: 10 }}
-            >
+            <div className="title-input-container">
               <label className="component-title">Form Title: </label>
-              <input
-                type="text"
+              <textarea
                 className="title-input"
                 value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                placeholder="Enter form title"
+                onChange={(e) => {
+                  autoResize(e, "form-title");
+                  setFormTitle(e.target.value);
+                }}
+                onInput={(e) => autoResize(e, "form-title")}
+                data-sync-id="form-title"
+                style={{
+                  resize: "none",
+                  overflow: "hidden",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                  whiteSpace: "pre-wrap",
+                  width: "100%",
+                  height: "1.8em",
+                  padding: "0",
+                  lineHeight: "1.1",
+                  fontSize: "1rem",
+                  fontFamily: "inherit",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                  boxSizing: "border-box",
+                }}
               />
             </div>
           )}
-
-          <button onClick={addSection} className="blue-button">
-            Add Section
-          </button>
-
           {sections.map((section) => (
-            <div className="card-wrapper" key={section.id}>
+            <div className="modal-card-wrapper" key={section.id}>
               <div
                 className="section-wrapper"
                 style={{
@@ -433,11 +198,15 @@ export default function SyllabusBuilderModal({
                           >
                             <p className="component-title">Title: </p>
                             <label>
-                              <input
-                                className="title-input"
-                                type="text"
+                              <textarea
+                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
+                                className="title-input component-title-input"
                                 value={cell.value}
                                 onChange={(e) => {
+                                  autoResize(
+                                    e,
+                                    `${section.id}-${rIdx}-${cIdx}`
+                                  );
                                   const newCells = section.cells.map((r) =>
                                     r.map((c) => ({ ...c }))
                                   );
@@ -446,7 +215,20 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
-                                style={{ marginLeft: 5 }}
+                                onInput={(e) =>
+                                  autoResize(e, `${section.id}-${rIdx}-${cIdx}`)
+                                }
+                                style={{
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "none",
+                                  background: "none",
+                                }}
                               />
                             </label>
                           </div>
@@ -463,6 +245,11 @@ export default function SyllabusBuilderModal({
               </div>
             </div>
           ))}
+          <div className="button-container add-btn-container">
+            <button onClick={addSection} className="blue-button add-button">
+              Add Section
+            </button>
+          </div>
         </div>
 
         {/* Right Panel: Preview */}
@@ -491,18 +278,21 @@ export default function SyllabusBuilderModal({
                                 ? section.cells[1]?.length || 1
                                 : 1
                             }
-                            className={`table-cell ${
-                              cell.isTitle ? "title-cell" : ""
-                            } ${cell.isFullWidth ? "wide-cell" : ""} ${
-                              cell.isSecondary ? "secondary-cell" : ""
-                            }`}
+                            className={`table-cell ${cell.isTitle ? "title-cell" : ""
+                              } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
+                              }`}
                           >
-                            {cell.isTitle && isAdmin ? (
-                              <input
-                                type="text"
-                                className="syllabus-input"
+                            {isAdmin ? (
+                              <textarea
+                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
+                                className={`syllabus-input ${cell.isTitle ? "title-cell" : ""
+                                  }`}
                                 value={cell.value}
                                 onChange={(e) => {
+                                  autoResize(
+                                    e,
+                                    `${section.id}-${rIdx}-${cIdx}`
+                                  );
                                   const newCells = section.cells.map((r) =>
                                     r.map((c) => ({ ...c }))
                                   );
@@ -511,13 +301,27 @@ export default function SyllabusBuilderModal({
                                     cells: newCells,
                                   });
                                 }}
+                                onInput={(e) =>
+                                  autoResize(e, `${section.id}-${rIdx}-${cIdx}`)
+                                }
+                                style={{
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  width: "100%",
+                                  height: "100%",
+                                  backgroundColor: "none",
+                                  background: "none",
+                                  color:
+                                    !cell.isTitle && !cell.isSecondary
+                                      ? "black"
+                                      : undefined,
+                                }}
                               />
                             ) : (
-                              <div>
-                                {cell.value || (
-                                  <input className="syllabus-input-2" />
-                                )}
-                              </div>
+                              <div className="normal-cell">{cell.value}</div>
                             )}
                           </td>
                         ))}

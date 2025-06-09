@@ -27,6 +27,11 @@ button {
   overflow: auto;
 }
 
+td {
+  vertical-align: top !important; /* or middle if you want centering */
+  padding: 0 !important;
+}
+
 .table {
   width: 100%;
 }
@@ -63,37 +68,78 @@ button {
   align-items: center;
 }
 
-.title-input {
-  width: 400px;
-  height: 40px;
-  border-radius: 10px;
-  margin: 0;
+.title-input-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 input {
   margin: 0 !important;
 }
 
+.component-title-input {
+  width: 20rem !important;
+  padding: 0.4rem;
+}
+
+.normal-cell textarea {
+  color: #000 !important;
+}
+
 .button-container {
   display: flex;
   justify-content: flex-end;
+  width: 100% !important;
+}
+
+.add-button {
+  margin-top: 1rem;
+}
+
+.add-btn-container {
+  width: 98%;
 }
 
 .button-container button {
   background-color: #449df6;
   color: #fff;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
+}
+
+.button-container button:hover {
+  background-color: #2492ff;
 }
 
 .blue-button {
   background-color: #449df6;
   color: #fff;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
+}
+
+.blue-button:hover {
+  background-color: #2492ff;
+}
+
+.modal-card-wrapper {
+  width: 100% !important;
+  display: flex;
 }
 
 .section-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  width: 98%;
+  width: 100% !important;
+  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
+  border-radius: 15px;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
 }
 
 .syllabus-input {
@@ -103,12 +149,15 @@ input {
   background-color: #124046;
   color: #fff;
   font-size: 14px;
+  padding: 0;
+  display: flex;
+  vertical-align: middle;
 }
 
 .table-cell {
   width: 12rem;
-  height: 1.5rem;
-  font-size: 12px;
+  padding: 0.2rem !important;
+  font-size: 16px;
 }
 
 .table-cell input {
@@ -168,4 +217,10 @@ table {
   right: 0;
   margin-right: 7rem;
   margin-bottom: 4rem;
+}
+
+.textarea-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

@@ -4,34 +4,38 @@ import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
 import AdminDisplay from "../AdminDisplay/AdminDisplay";
 import ProfDisplay from "../ProfDisplay/ProfDisplay";
 import "./style.css";
+import Spinner from "../Spinner/Spinner";
 
 const LandingBot = () => {
   const [showBuilder, setShowBuilder] = useState(false);
-  const [role, setRole] = useState(null); // will hold the role object
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserRole = async () => {
+      setLoading(true);
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
         setRole(null);
-        return;
-      }
-
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile role:", error.message);
-        setRole(null);
       } else {
-        setRole(profile?.role); // This will be the object { prof: true, admin: false }
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile role:", error.message);
+          setRole(null);
+        } else {
+          setRole(profile?.role);
+        }
       }
+
+      setTimeout(() => setLoading(false), 300);
     };
 
     fetchUserRole();
@@ -46,6 +50,8 @@ const LandingBot = () => {
     setShowBuilder(false);
   };
 
+  if (loading) return <Spinner />;
+
   return (
     <div className="botwrapper">
       <div className="adminView">
@@ -59,10 +65,10 @@ const LandingBot = () => {
               onClose={handleClose}
               onSave={handleSave}
             />
+            <AdminDisplay setLoading={setLoading} /> {/* ✅ Only one */}
           </>
         )}
 
-        {role?.admin && <AdminDisplay />}
         {role?.prof && <ProfDisplay />}
 
         {!role && <p>Loading user role or no role assigned.</p>}

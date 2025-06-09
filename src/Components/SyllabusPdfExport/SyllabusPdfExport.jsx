@@ -84,6 +84,15 @@ export default function SyllabusPdfExport() {
                           } ${cell.isFullWidth ? "wide-cell" : ""} ${
                             cell.isSecondary ? "secondary-cell" : ""
                           }`}
+                          // Added inline styles to respect new lines and prevent overflow
+                          style={{
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            maxWidth: "300px",
+                            minWidth: "100px",
+                            padding: "6px 8px",
+                            verticalAlign: "top",
+                          }}
                         >
                           {cell.value || <em>&nbsp;</em>}
                         </td>
