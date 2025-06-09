@@ -2,25 +2,29 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
+import Spinner from "../Spinner/Spinner";
 
 const AdminDisplay = () => {
   const [syllabuses, setSyllabuses] = useState([]);
   const [selectedSyllabus, setSelectedSyllabus] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSyllabuses = async () => {
+      setLoading(true);
       const { data, error } = await supabase.from("syllabus_forms").select("*");
       if (error) {
         console.error("Error fetching syllabuses:", error.message);
       } else {
         setSyllabuses(data);
       }
+      setLoading(false);
     };
-
     fetchSyllabuses();
   }, []);
+
 
   const handleEdit = (syllabus) => {
     setSelectedSyllabus(syllabus);
@@ -54,7 +58,7 @@ const AdminDisplay = () => {
     <div className="admin-display">
       <div className="card-wrapper">
         {syllabuses.length === 0 ? (
-          <p>No syllabuses found.</p>
+          <Spinner />
         ) : (
           syllabuses.map((item) => (
             <div

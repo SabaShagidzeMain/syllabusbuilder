@@ -3,6 +3,7 @@ import ProfessorFillModal from "../professorFillModal/ProfessorFillModal";
 import { useProfData } from "../../hooks/useProfData";
 import { useHandleSave } from "../../hooks/useHandleSave";
 import { downloadSyllabusAsPDF } from "../../utility/downloadPdf";
+import Spinner from "../Spinner/Spinner";
 import "./style.css";
 
 export default function ProfDisplay() {
@@ -12,20 +13,22 @@ export default function ProfDisplay() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState("view");
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedSyllabus(null);
-    setMode("view");
-  };
-
   const handleSave = useHandleSave(
     mode,
     selectedSyllabus,
     userId,
     university,
     setProfForms,
-    closeModal
+    () => {
+      setIsModalOpen(false);
+      setSelectedSyllabus(null);
+      setMode("view");
+    }
   );
+
+  // ✅ Show spinner while data is loading
+  const isLoading = !syllabuses?.length && !profForms?.length;
+  if (isLoading) return <Spinner />;
 
   return (
     <div>
@@ -41,7 +44,7 @@ export default function ProfDisplay() {
       </button>
 
       {isModalOpen && mode === "create" && !selectedSyllabus && (
-        <div className="modal-backdrop" onClick={closeModal}>
+        <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
           <div className="dropdown-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Select a Syllabus Template</h3>
             <select
@@ -117,7 +120,11 @@ export default function ProfDisplay() {
       {isModalOpen && selectedSyllabus && (
         <ProfessorFillModal
           isOpen={isModalOpen}
-          onClose={closeModal}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedSyllabus(null);
+            setMode("view");
+          }}
           syllabus={selectedSyllabus}
           onSave={handleSave}
         />
