@@ -26,12 +26,14 @@ Commit Rules
  . chore - Routine tasks like dependency updates
 
 Roadmap
- [ ] Admin template preview
- [ ] Visual field editor (add/edit/remove fields)
- [ ] Dynamic form rendering for professors
+ [✓] Admin template preview
+ [✓] Visual field editor (add/edit/remove fields)
+ [✓] Dynamic form rendering for professors
  [ ] Word and PDF generation
- [ ] Authentication with Supabase
- [ ] Full live preview integration
+ [✓] Authentication with Supabase
+ [✓] Full live preview integration
  [ ] Deployment to Vercel or Netlify
+ [ ] Theme switching with TailwindCSS
+ [ ] Internationalization (2 Languages)
 
 Made by Saba Shagidze (SabaShagidzeMain - Github) for a project at ALTE Univesrity - 2025
