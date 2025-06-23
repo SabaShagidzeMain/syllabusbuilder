@@ -162,9 +162,9 @@ input {
   border: none;
   width: 100%;
   height: 100%;
-  background-color: #124046;
-  color: #fff;
-  font-size: 14px;
+  /* background-color: #124046; */
+  /* color: #fff; */
+  font-size: 16px;
 }
 
 .table-cell {
@@ -193,8 +193,8 @@ input:focus {
 
 .title-cell {
   width: 30%;
-  background-color: #124046;
-  color: #fff;
+  /* background-color: #124046; */
+  /* color: #fff; */
   padding: 0 0.5rem;
 }
 

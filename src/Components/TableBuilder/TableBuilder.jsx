@@ -260,12 +260,12 @@ export default function SyllabusBuilderModal({
           <h3>Syllabus Preview</h3>
           {sections.length === 0 && <p>No sections added yet.</p>}
           {sections.map((section) => (
-            <div key={section.id} style={{ marginBottom: "20px" }}>
+            <div key={section.id}>
               {section.cells.length > 0 && (
                 <table
                   className="syllabus-table"
                   border="1"
-                  style={{ width: "100%", marginTop: 5 }}
+                  style={{ width: "100%", }}
                 >
                   <tbody>
                     {section.cells.map((row, rIdx) => (
@@ -273,6 +273,7 @@ export default function SyllabusBuilderModal({
                         {row.map((cell, cIdx) => (
                           <td
                             key={cIdx}
+                            rowSpan={cell.rowSpan}
                             colSpan={
                               cell.isFullWidth
                                 ? section.cells[1]?.length || 1
@@ -280,7 +281,7 @@ export default function SyllabusBuilderModal({
                             }
                             className={`table-cell ${cell.isTitle ? "title-cell" : ""
                               } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
-                              }`}
+                              } ${cell.isFullHeight ? "full-height-cell" : ""}`}
                           >
                             {isAdmin ? (
                               <textarea

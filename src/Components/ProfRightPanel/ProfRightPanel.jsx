@@ -27,7 +27,7 @@ export default function ProfRightPanel({
     return (
         <div className="modal-right" style={{ flex: 1, overflowY: "auto", paddingLeft: 10 }}>
             {sections.map((section, sectionIndex) => (
-                <div key={section.id || sectionIndex} style={{ marginBottom: 20 }}>
+                <div key={section.id || sectionIndex}>
                     <table className="syllabus-table" border="1" style={{ width: "100%", borderCollapse: "collapse" }}>
                         <tbody>
                             {section.cells.map((row, rowIndex) => {
@@ -45,6 +45,7 @@ export default function ProfRightPanel({
                                                 <td
                                                     key={colIndex}
                                                     className={`table-cell ${cell.isTitle ? "title-cell" : ""}`}
+                                                    rowSpan={cell.rowSpan}
                                                     colSpan={cell.isFullWidth ? section.cells[1]?.length || 1 : 1}
                                                     onClick={() => {
                                                         if (!cell.isTitle) {
@@ -53,7 +54,6 @@ export default function ProfRightPanel({
                                                     }}
                                                     style={{
                                                         cursor: cell.isTitle ? "default" : "pointer",
-                                                        padding: "6px 8px",
                                                         maxWidth: 300,
                                                         minWidth: 100,
                                                     }}

@@ -41,7 +41,6 @@ export default function SyllabusPdfExport() {
     }
   }, [syllabusId]);
 
-  // This is the key difference: pass contentRef instead of content callback
   const handlePrint = useReactToPrint({
     contentRef,
     documentTitle: formTitle || "syllabus",
@@ -59,32 +58,34 @@ export default function SyllabusPdfExport() {
 
       <div ref={contentRef} className="export-wrapper">
         <div className="first-page page">
-          <img src={banner} alt="" className="banner-img" />
           <div className="title-container">
             <h1 className="form-title">{formTitle}</h1>
           </div>
         </div>
 
-        {/* Following pages with tables */}
         <div className="other-pages page">
           {sections.map((section, sIdx) =>
             section.cells.length > 0 ? (
               <table className="syllabus-table" key={sIdx}>
                 <tbody>
                   {section.cells.map((row, rIdx) => (
-                    <tr key={rIdx}>
+                    <tr
+                      key={rIdx}
+                      style={{
+                        breakInside: "avoid",
+                        pageBreakInside: "avoid",
+                      }}
+                    >
                       {row.map((cell, cIdx) => (
                         <td
                           key={cIdx}
+                          rowSpan={cell.rowSpan || 1}
                           colSpan={
                             cell.isFullWidth ? section.cells[1]?.length || 1 : 1
                           }
-                          className={`table-cell ${
-                            cell.isTitle ? "title-cell" : ""
-                          } ${cell.isFullWidth ? "wide-cell" : ""} ${
-                            cell.isSecondary ? "secondary-cell" : ""
-                          }`}
-                          // Added inline styles to respect new lines and prevent overflow
+                          className={`table-cell ${cell.isTitle ? "title-cell" : ""}
+                            ${cell.isFullWidth ? "wide-cell" : ""}
+                            ${cell.isSecondary ? "secondary-cell" : ""}`}
                           style={{
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",

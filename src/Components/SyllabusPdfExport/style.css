@@ -42,11 +42,11 @@
 .syllabus-table {
   width: 100%;
   border-collapse: collapse;
-
   /* Don't break in middle of rows */
-  break-inside: avoid; /* modern */
-  break-inside: avoid; /* fallback */
-  margin-bottom: 5mm; /* LESS spacing between tables */
+  break-inside: avoid;
+  /* modern */
+  break-inside: avoid;
+  /* fallback */
 }
 
 .table-cell {
@@ -75,6 +75,7 @@
 }
 
 @media print {
+
   html,
   body {
     height: initial !important;
@@ -96,6 +97,6 @@
   margin: 5mm;
 }
 
-@page:first {
+@page: first {
   margin: 0;
 }
