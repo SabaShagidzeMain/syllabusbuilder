@@ -1,0 +1,64 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.7);
+    width: 100vw;
+    height: 100vh;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    width: 80%;
+    max-height: 90%;
+    overflow-y: auto;
+    border-radius: 12px;
+    position: relative;
+}
+
+.asm-tr th {
+    text-align: center !important;
+}
+
+.asm-tr td {
+    text-align: center;
+    font-size: .9rem;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.asm-tr .blue-button {
+    margin-top: 0 !important;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.syllabus-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.asm-tr th,
+.asm-tr td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.asm-tr th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
