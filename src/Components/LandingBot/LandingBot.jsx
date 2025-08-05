@@ -109,6 +109,7 @@ const LandingBot = () => {
               onClose={handleClose}
               syllabus={selectedForm}
               onSave={handleSave}
+              isAdmin={role?.admin}
             />
 
             <AdminSyllabusModal

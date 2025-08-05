@@ -1,6 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRefs, autoResize, isAdmin }) {
+    const [sectionComments, setSectionComments] = useState({});
+    const [showCommentBox, setShowCommentBox] = useState({}); // { sectionIndex: boolean }
+
+    useEffect(() => {
+        // For each section, open comment box if adminComment exists & not empty
+        const newShowCommentBox = {};
+        sections.forEach((section, index) => {
+            newShowCommentBox[index] = !!(section.adminComment && section.adminComment.trim() !== "");
+        });
+        setShowCommentBox(newShowCommentBox);
+    }, [sections]);
+
+
+    const toggleCommentBox = (sectionIndex) => {
+        setShowCommentBox(prev => ({
+            ...prev,
+            [sectionIndex]: !prev[sectionIndex],
+        }));
+    };
+
+    const handleCommentChange = (sectionIndex, value) => {
+        const updatedSections = [...sections];
+        updatedSections[sectionIndex].adminComment = value;
+        setSections(updatedSections);
+    };
+
+
+    const handleSaveClick = () => {
+        console.log("Saving sections with comments:", sections);
+        onSave(sections);
+    };
+
+
     const updateCellValue = (sectionIndex, rowIndex, colIndex, value) => {
         const updatedSections = [...sections];
         updatedSections[sectionIndex].cells[rowIndex][colIndex].value = value;
@@ -29,6 +62,7 @@ export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRe
                     <div className="card-wrapper" key={section.id || sectionIndex}>
                         <div className="section-wrapper" style={{ marginTop: 15, border: "1px solid #ddd", padding: 10 }}>
                             <h4 style={{ marginBottom: 10 }}>Section {sectionIndex + 1}</h4>
+
                             {section.cells.map((row, rowIndex) => {
                                 const globalIndex = getGlobalRowIndex(sectionIndex, rowIndex);
                                 return (
@@ -40,7 +74,6 @@ export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRe
                                     >
                                         {row.map((cell, colIndex) => {
                                             if (cell.isTitle) {
-                                                // Editable title cell if admin, else static
                                                 return isAdmin ? (
                                                     <textarea
                                                         key={colIndex}
@@ -70,7 +103,6 @@ export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRe
                                                 );
                                             }
 
-                                            // Non-title cell textarea
                                             return (
                                                 <div key={colIndex} style={{ marginBottom: 6 }}>
                                                     {cell.subtag && (
@@ -109,12 +141,50 @@ export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRe
                                     </div>
                                 );
                             })}
+
+                            {isAdmin && (
+                                <div style={{ marginTop: 12 }}>
+                                    <button
+                                        className="blue-button"
+                                        style={{ marginBottom: 8 }}
+                                        onClick={() => toggleCommentBox(sectionIndex)}
+                                    >
+                                        {showCommentBox[sectionIndex] ? "Hide Comment" : "Add Comment"}
+                                    </button>
+
+                                    {showCommentBox[sectionIndex] && (
+                                        <div>
+                                            <label
+                                                style={{ fontWeight: "bold", display: "block", marginBottom: 4 }}
+                                            >
+                                                Admin Comment:
+                                            </label>
+                                            <textarea
+                                                value={sections[sectionIndex].adminComment || ""}
+                                                onChange={(e) => handleCommentChange(sectionIndex, e.target.value)}
+                                                placeholder="Write a comment for this section..."
+                                                style={{
+                                                    width: "100%",
+                                                    minHeight: 60,
+                                                    padding: 8,
+                                                    border: "1px solid #ccc",
+                                                    borderRadius: 4,
+                                                    fontSize: 14,
+                                                    resize: "vertical",
+                                                    backgroundColor: "#fdfdfd",
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))
             )}
+
             <div style={{ marginTop: 20 }}>
-                <button onClick={() => onSave(sections)} className="blue-button">
+                <button onClick={handleSaveClick} className="blue-button">
                     Save Responses
                 </button>
             </div>
