@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRefs, autoResize }) {
+export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRefs, autoResize, isAdmin }) {
     const updateCellValue = (sectionIndex, rowIndex, colIndex, value) => {
         const updatedSections = [...sections];
         updatedSections[sectionIndex].cells[rowIndex][colIndex].value = value;
@@ -40,17 +40,48 @@ export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRe
                                     >
                                         {row.map((cell, colIndex) => {
                                             if (cell.isTitle) {
-                                                return (
-                                                    <div key={colIndex} style={{ fontWeight: "bold", marginBottom: 6 }}>
+                                                // Editable title cell if admin, else static
+                                                return isAdmin ? (
+                                                    <textarea
+                                                        key={colIndex}
+                                                        className="prof-input-field title-cell-textarea"
+                                                        value={cell.value || ""}
+                                                        placeholder="Enter title"
+                                                        onChange={(e) => handleChange(e, sectionIndex, rowIndex, colIndex)}
+                                                        onInput={(e) => autoResize(e.target)}
+                                                        style={{
+                                                            fontWeight: "bold",
+                                                            marginBottom: 6,
+                                                            width: "100%",
+                                                            resize: "none",
+                                                            border: "1px solid #ccc",
+                                                            borderRadius: 4,
+                                                            minHeight: 40,
+                                                        }}
+                                                        rows={1}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        key={colIndex}
+                                                        style={{ fontWeight: "bold", marginBottom: 6, whiteSpace: "pre-wrap" }}
+                                                    >
                                                         {cell.value || "(Title)"}
                                                     </div>
                                                 );
                                             }
 
+                                            // Non-title cell textarea
                                             return (
                                                 <div key={colIndex} style={{ marginBottom: 6 }}>
                                                     {cell.subtag && (
-                                                        <label style={{ fontSize: 13, color: "#555", marginBottom: 4, display: "block" }}>
+                                                        <label
+                                                            style={{
+                                                                fontSize: 13,
+                                                                color: "#555",
+                                                                marginBottom: 4,
+                                                                display: "block",
+                                                            }}
+                                                        >
                                                             {cell.subtag.replace(/(sub-|for-sub-)/, "")}
                                                         </label>
                                                     )}

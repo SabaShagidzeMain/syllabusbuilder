@@ -1,5 +1,6 @@
 .modal {
-  position: fixed; /* BLOCKS scroll and overlays everything */
+  position: fixed;
+  /* BLOCKS scroll and overlays everything */
   top: 0;
   left: 0;
   width: 100%;
@@ -9,7 +10,8 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.8);
-  overflow: hidden; /* Prevent scroll inside modal */
+  overflow: hidden;
+  /* Prevent scroll inside modal */
 }
 
 button {
@@ -28,7 +30,8 @@ button {
 }
 
 td {
-  vertical-align: top !important; /* or middle if you want centering */
+  vertical-align: top !important;
+  /* or middle if you want centering */
   padding: 0 !important;
 }
 
@@ -146,12 +149,16 @@ input:focus {
   border: none;
   width: 100%;
   height: 100%;
-  background-color: #124046;
-  color: #fff;
-  font-size: 14px;
+  /* background-color: #124046; */
+  /* color: #fff; */
+  font-size: 16px;
   padding: 0;
   display: flex;
   vertical-align: middle;
+}
+
+.full-height-cell {
+  height: 100%;
 }
 
 .table-cell {
@@ -165,14 +172,14 @@ input:focus {
   font-weight: bold;
 }
 
-.wide-cell input {
+.wide-cell textarea {
   text-align: center;
 }
 
 .title-cell {
   width: 30%;
-  background-color: #124046;
-  color: #fff;
+  /* background-color: #124046; */
+  /* color: #fff; */
   padding: 0 0.5rem;
 }
 

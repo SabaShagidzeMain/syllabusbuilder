@@ -7,6 +7,7 @@ export default function ProfRightPanel({
     setSections,
     rightRowRefs,
     autoResize,
+    isAdmin, // <-- added isAdmin prop
 }) {
     const updateCellValue = (sectionIndex, rowIndex, colIndex, value) => {
         const updated = [...sections];
@@ -24,10 +25,11 @@ export default function ProfRightPanel({
         return idx + rowIndex;
     };
 
+
     return (
         <div className="modal-right" style={{ flex: 1, overflowY: "auto", paddingLeft: 10 }}>
             {sections.map((section, sectionIndex) => (
-                <div key={section.id || sectionIndex} style={{ marginBottom: 20 }}>
+                <div key={section.id || sectionIndex}>
                     <table className="syllabus-table" border="1" style={{ width: "100%", borderCollapse: "collapse" }}>
                         <tbody>
                             {section.cells.map((row, rowIndex) => {
@@ -41,19 +43,21 @@ export default function ProfRightPanel({
                                                 editingCell.rowIndex === rowIndex &&
                                                 editingCell.colIndex === colIndex;
 
+                                            const editable = !cell.isTitle || (cell.isTitle && isAdmin);
+
                                             return (
                                                 <td
                                                     key={colIndex}
                                                     className={`table-cell ${cell.isTitle ? "title-cell" : ""}`}
+                                                    rowSpan={cell.rowSpan}
                                                     colSpan={cell.isFullWidth ? section.cells[1]?.length || 1 : 1}
                                                     onClick={() => {
-                                                        if (!cell.isTitle) {
+                                                        if (editable) {
                                                             setEditingCell({ sectionIndex, rowIndex, colIndex });
                                                         }
                                                     }}
                                                     style={{
-                                                        cursor: cell.isTitle ? "default" : "pointer",
-                                                        padding: "6px 8px",
+                                                        cursor: editable ? "pointer" : "default",
                                                         maxWidth: 300,
                                                         minWidth: 100,
                                                     }}

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import ProfLeftPanel from "../ProfLeftPanel/ProfLeftPanel";
 import ProfRightPanel from "../ProfRightPanel/ProfRightPanel";
-import { autoResize, isValidContent, getGlobalRowIndex } from "../../utility/utils";
+import { autoResize, isValidContent } from "../../utility/utils";
 import "./style.css";
 
-export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave }) {
+export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave, isAdmin }) {
   const modalRef = useRef();
   const leftRowRefs = useRef([]);
   const rightRowRefs = useRef([]);
@@ -60,6 +60,7 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave }
           onSave={onSave}
           leftRowRefs={leftRowRefs}
           autoResize={autoResize}
+          isAdmin={isAdmin}  // <-- pass isAdmin here
         />
         <ProfRightPanel
           sections={sections}
@@ -68,6 +69,7 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave }
           setSections={setSections}
           rightRowRefs={rightRowRefs}
           autoResize={autoResize}
+          isAdmin={isAdmin}  // <-- and here
         />
       </div>
     </div>

@@ -3,6 +3,7 @@ import ProfessorFillModal from "../professorFillModal/ProfessorFillModal";
 import { useProfData } from "../../hooks/useProfData";
 import { useHandleSave } from "../../hooks/useHandleSave";
 import { downloadSyllabusAsPDF } from "../../utility/downloadPdf";
+import { supabase } from "../../utility/supabaseClient";
 import Spinner from "../Spinner/Spinner";
 import "./style.css";
 
