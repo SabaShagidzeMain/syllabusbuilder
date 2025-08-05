@@ -7,15 +7,19 @@ import AdminSyllabusModal from "../AdminSyllabusModal/AdminSyllabusModal";
 import ProfessorFillModal from "../professorFillModal/ProfessorFillModal";
 import Spinner from "../Spinner/Spinner";
 import "./style.css";
+import RegisterProfModal from "../RegisterProfModal/RegisterProfModal";
 
 const LandingBot = () => {
   const [openModal, setOpenModal] = useState(null); // null | 'create' | 'edit' | 'admin'
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
+  const [showRegisterProfModal, setShowRegisterProfModal] = useState(false);
+  const [adminUniversity, setAdminUniversity] = useState(null);
+
 
   useEffect(() => {
-    const fetchUserRole = async () => {
+    const fetchUserRoleAndUni = async () => {
       setLoading(true);
       const {
         data: { user },
@@ -23,25 +27,28 @@ const LandingBot = () => {
 
       if (!user) {
         setRole(null);
+        setAdminUniversity(null);
       } else {
         const { data: profile, error } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, university")
           .eq("user_id", user.id)
           .single();
 
         if (error) {
           console.error("Error fetching profile role:", error.message);
           setRole(null);
+          setAdminUniversity(null);
         } else {
           setRole(profile?.role);
+          setAdminUniversity(profile?.university);
         }
       }
 
       setTimeout(() => setLoading(false), 300);
     };
 
-    fetchUserRole();
+    fetchUserRoleAndUni();
   }, []);
 
   const handleSave = async (updatedSections) => {
@@ -99,6 +106,12 @@ const LandingBot = () => {
               <button className="openbtn view-btn" onClick={openAdminModal}>
                 Professor Syllabuses
               </button>
+              <button
+                className="openbtn register-btn"
+                onClick={() => setShowRegisterProfModal(true)}
+              >
+                Register Professor
+              </button>
             </div>
 
             <SyllabusBuilderModal
@@ -123,6 +136,13 @@ const LandingBot = () => {
             />
 
             <AdminDisplay setLoading={setLoading} />
+
+            <RegisterProfModal
+              isOpen={showRegisterProfModal}
+              onClose={() => setShowRegisterProfModal(false)}
+              adminUniversity={adminUniversity}
+            />
+
           </>
         )}
 
