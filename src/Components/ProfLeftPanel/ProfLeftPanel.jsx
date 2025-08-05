@@ -142,42 +142,67 @@ export default function ProfLeftPanel({ sections, setSections, onSave, leftRowRe
                                 );
                             })}
 
-                            {isAdmin && (
+                            {(isAdmin || (section.adminComment && section.adminComment.trim() !== "")) && (
                                 <div style={{ marginTop: 12 }}>
-                                    <button
-                                        className="blue-button"
-                                        style={{ marginBottom: 8 }}
-                                        onClick={() => toggleCommentBox(sectionIndex)}
-                                    >
-                                        {showCommentBox[sectionIndex] ? "Hide Comment" : "Add Comment"}
-                                    </button>
+                                    {/* For admins, show toggle button */}
+                                    {isAdmin && (
+                                        <button
+                                            className="blue-button"
+                                            style={{ marginBottom: 8 }}
+                                            onClick={() => toggleCommentBox(sectionIndex)}
+                                        >
+                                            {showCommentBox[sectionIndex] ? "Hide Comment" : "Add Comment"}
+                                        </button>
+                                    )}
 
-                                    {showCommentBox[sectionIndex] && (
+                                    {/* Show comment box if toggled or if professor and comment exists */}
+                                    {(showCommentBox[sectionIndex] || (!isAdmin && section.adminComment && section.adminComment.trim() !== "")) && (
                                         <div>
                                             <label
                                                 style={{ fontWeight: "bold", display: "block", marginBottom: 4 }}
                                             >
                                                 Admin Comment:
                                             </label>
-                                            <textarea
-                                                value={sections[sectionIndex].adminComment || ""}
-                                                onChange={(e) => handleCommentChange(sectionIndex, e.target.value)}
-                                                placeholder="Write a comment for this section..."
-                                                style={{
-                                                    width: "100%",
-                                                    minHeight: 60,
-                                                    padding: 8,
-                                                    border: "1px solid #ccc",
-                                                    borderRadius: 4,
-                                                    fontSize: 14,
-                                                    resize: "vertical",
-                                                    backgroundColor: "#fdfdfd",
-                                                }}
-                                            />
+
+                                            {isAdmin ? (
+                                                <textarea
+                                                    value={sections[sectionIndex].adminComment || ""}
+                                                    onChange={(e) => handleCommentChange(sectionIndex, e.target.value)}
+                                                    placeholder="Write a comment for this section..."
+                                                    style={{
+                                                        width: "100%",
+                                                        minHeight: 60,
+                                                        padding: 8,
+                                                        border: "1px solid #ccc",
+                                                        borderRadius: 4,
+                                                        fontSize: 14,
+                                                        resize: "vertical",
+                                                        backgroundColor: "#fdfdfd",
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div
+                                                    style={{
+                                                        width: "100%",
+                                                        minHeight: 60,
+                                                        padding: 8,
+                                                        border: "1px solid #ccc",
+                                                        borderRadius: 4,
+                                                        fontSize: 14,
+                                                        backgroundColor: "#f5f5f5",
+                                                        whiteSpace: "pre-wrap",
+                                                        overflowY: "auto",
+                                                    }}
+                                                >
+                                                    {sections[sectionIndex].adminComment || "(No comment)"}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
                             )}
+
+
                         </div>
                     </div>
                 ))
