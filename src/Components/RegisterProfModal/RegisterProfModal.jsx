@@ -37,14 +37,22 @@ export default function RegisterProfModal({ isOpen, onClose, adminUniversity }) 
 
             const data = await response.json();
 
+            // Inside your RegisterProfModal component, update this part in handleSubmit after successful registration:
+
             if (!response.ok) {
-                setError(data.message || "Failed to register professor.");
+                setError(data.error || "Failed to register professor.");
             } else {
-                setSuccess(`Professor registered successfully. Temporary password: ${data.tempPassword}`);
+                setSuccess(
+                    `✅ Professor registered successfully!\n\n` +
+                    `Temporary password: ${data.tempPassword}\n\n` +
+                    `⚠️ Please share this password securely with the professor and remind them to change it after first login.`
+                );
                 setEmail("");
                 setName("");
                 setSurname("");
             }
+
+
         } catch (err) {
             setError("Unexpected error occurred.");
         } finally {
@@ -97,7 +105,10 @@ export default function RegisterProfModal({ isOpen, onClose, adminUniversity }) 
                     />
 
                     {error && <p style={{ color: "red" }}>{error}</p>}
-                    {success && <p style={{ color: "green" }}>{success}</p>}
+                    {success && (
+                        <pre style={{ color: "green", whiteSpace: "pre-wrap" }}>{success}</pre>
+                    )}
+
 
                     <button type="submit" disabled={loading} style={{ marginRight: 10 }}>
                         {loading ? "Registering..." : "Register"}
