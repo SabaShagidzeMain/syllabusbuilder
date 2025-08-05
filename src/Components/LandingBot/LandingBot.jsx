@@ -9,11 +9,10 @@ import Spinner from "../Spinner/Spinner";
 import "./style.css";
 
 const LandingBot = () => {
-  const [showBuilder, setShowBuilder] = useState(false);
+  const [openModal, setOpenModal] = useState(null); // null | 'create' | 'edit' | 'admin'
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
-  const [showAdminModal, setShowAdminModal] = useState(false);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -59,24 +58,32 @@ const LandingBot = () => {
         return;
       }
 
+      // Close modal and reset selectedForm on successful save
       setSelectedForm(null);
+      setOpenModal(null);
     } catch (err) {
       alert("Unexpected error");
     }
   };
 
-
   const handleClose = () => {
-    setShowBuilder(false);
+    setOpenModal(null);
     setSelectedForm(null);
   };
 
   const handleEditForm = (form) => {
     setSelectedForm(form);
-    setShowBuilder(true);       // Open the TableBuilder
-    setShowAdminModal(false);   // Close the admin modal
+    setOpenModal("edit");
   };
 
+  const openCreateModal = () => {
+    setSelectedForm(null);
+    setOpenModal("create");
+  };
+
+  const openAdminModal = () => {
+    setOpenModal("admin");
+  };
 
   if (loading) return <Spinner />;
 
@@ -86,26 +93,23 @@ const LandingBot = () => {
         {role?.admin && (
           <>
             <div className="button-wrapper-two">
-              <button className="openbtn" onClick={() => setShowBuilder(true)}>
+              <button className="openbtn" onClick={openCreateModal}>
                 Create New
               </button>
-              <button
-                className="openbtn view-btn"
-                onClick={() => setShowAdminModal(true)}
-              >
+              <button className="openbtn view-btn" onClick={openAdminModal}>
                 Professor Syllabuses
               </button>
             </div>
 
             <SyllabusBuilderModal
-              isOpen={showBuilder && !selectedForm}
+              isOpen={openModal === "create"}
               onClose={handleClose}
               onSave={handleSave}
               existingForm={selectedForm}
             />
 
             <ProfessorFillModal
-              isOpen={!!selectedForm}
+              isOpen={openModal === "edit"}
               onClose={handleClose}
               syllabus={selectedForm}
               onSave={handleSave}
@@ -113,8 +117,8 @@ const LandingBot = () => {
             />
 
             <AdminSyllabusModal
-              isOpen={showAdminModal}
-              onClose={() => setShowAdminModal(false)}
+              isOpen={openModal === "admin"}
+              onClose={handleClose}
               onEdit={handleEditForm}
             />
 
