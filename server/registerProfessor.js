@@ -2,6 +2,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createClient } from "@supabase/supabase-js";
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // or use SMTP if you want
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -49,11 +58,32 @@ export async function registerProfessor(req, res) {
             return res.status(400).json({ error: profileError.message });
         }
 
-        // TODO: Send email with tempPassword here (optional)
+        // Send email with tempPassword
+        try {
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: "Your temporary password for Syllabus Builder",
+                text: `Hello ${name},
+
+Your account was successfully created.
+
+Temporary password: ${tempPassword}
+
+Please log in and change your password as soon as possible.
+
+Best regards,
+Syllabus Builder Team`,
+            });
+        } catch (emailErr) {
+            console.error("Email sending failed:", emailErr);
+            return res.status(500).json({
+                error: "User created but failed to send email with password",
+            });
+        }
 
         res.status(200).json({
-            message: "Professor registered successfully",
-            tempPassword, // For now, sending temp password in response (remove for production)
+            message: "Professor registered successfully, temporary password emailed.",
         });
     } catch (err) {
         console.error(err);

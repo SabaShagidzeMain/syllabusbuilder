@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { supabase } from "../../utility/supabaseClient";
 
 export default function RegisterProfModal({ isOpen, onClose, adminUniversity }) {
     const [email, setEmail] = useState("");
@@ -22,50 +21,36 @@ export default function RegisterProfModal({ isOpen, onClose, adminUniversity }) 
         }
 
         try {
-            // 1. Create user in Supabase Auth (admin method)
-            const tempPassword = Math.random().toString(36).slice(-8);
-            const { data: userData, error: signUpError } = await supabase.auth.admin.createUser({
-                email,
-                password: tempPassword,
-                email_confirm: true, // skip email confirmation
-            });
-
-            if (signUpError) {
-                setError(signUpError.message);
-                setLoading(false);
-                return;
-            }
-
-            // 2. Insert profile linked to the new user_id
-            const { error: profileError } = await supabase.from("profiles").insert([
-                {
-                    user_id: userData.id,
+            // Call your backend API
+            const response = await fetch("http://localhost:5000/api/registerProfessor", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
                     name,
                     surname,
                     university: adminUniversity,
-                    role: { prof: true, admin: false },
-                },
-            ]);
+                }),
+            });
 
-            if (profileError) {
-                setError(profileError.message);
-                setLoading(false);
-                return;
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || "Failed to register professor.");
+            } else {
+                setSuccess(`Professor registered successfully. Temporary password: ${data.tempPassword}`);
+                setEmail("");
+                setName("");
+                setSurname("");
             }
-
-            // 3. Optionally send an email with tempPassword here
-
-            setSuccess("Professor registered successfully. Temporary password emailed.");
-            setEmail("");
-            setName("");
-            setSurname("");
         } catch (err) {
             setError("Unexpected error occurred.");
         } finally {
             setLoading(false);
         }
     };
-
 
     if (!isOpen) return null;
 
