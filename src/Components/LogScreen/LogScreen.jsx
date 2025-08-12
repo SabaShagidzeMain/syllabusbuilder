@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./style.css";
-import { supabase } from "../../utility/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../utility/supabaseClient";
 
 const LogScreen = () => {
   const [activeRole, setActiveRole] = useState("professor");
@@ -26,6 +26,12 @@ const LogScreen = () => {
       return;
     }
 
+    // Step 1.5: Check if must_change_password flag is true
+    if (authData?.user?.user_metadata?.must_change_password) {
+      navigate("/change-password");
+      return;
+    }
+
     // Step 2: Fetch profile info
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
@@ -38,22 +44,11 @@ const LogScreen = () => {
       return;
     }
 
-    console.log("Profile Data:", profileData); // Check profile data structure
-    console.log("Roles:", profileData.role); // Check roles structure
-
     // Step 3: Validate university and role
     const selectedRoleKey = activeRole === "professor" ? "prof" : "admin";
-    console.log("Selected Role Key:", selectedRoleKey); // Log the selected role key
-
-    // Check if the role exists and matches, trimming any extra spaces
     const roleValue = profileData.role?.[selectedRoleKey]?.toString().trim();
-    console.log("Role Value:", roleValue); // Log the role value to ensure it matches
-
     const hasRole = roleValue === "true";
-    console.log("Has Role:", hasRole); // Log whether role is valid
-
     const universityMatches = profileData.university === university;
-    console.log("University Matches:", universityMatches); // Log if university matches
 
     if (!universityMatches) {
       setErrorMsg("University mismatch.");

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LogScreen from "./Components/LogScreen/LogScreen";
 import MainPage from "./Components/MainPage/MainPage";
 import SyllabusPdfExport from "./Components/SyllabusPdfExport/SyllabusPdfExport";
+import ChangePassword from "./Components/ChangePassword/ChangePassword";
 import "./App.css";
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LogScreen />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<MainPage />} />
         <Route
           path="/export-preview/:syllabusId"
