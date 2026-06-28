@@ -4,6 +4,7 @@ import backgroundImage from "../../assets/alte/altebck.png";
 import { supabase } from "../../utility/supabaseClient";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import alteLogo from "../../assets/alte/altelogo.png";
 
 const LandingTop = () => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const LandingTop = () => {
       <div className="overlay"></div>
       <div className="landing-left-wrapper">
         <div className="landing-left-inner">
-          <img src="src/assets/alte/altelogo.png" alt="" className="toplogo" />
+          <img src={alteLogo} alt="" className="toplogo" />
         </div>
       </div>
       <div className="landing-right-wrapper">
