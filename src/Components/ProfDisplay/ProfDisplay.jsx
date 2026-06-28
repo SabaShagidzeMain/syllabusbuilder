@@ -33,7 +33,7 @@ export default function ProfDisplay() {
 
   return (
     <div>
-      {/* <button
+      <button
         className="openbtn"
         onClick={() => {
           setIsModalOpen(true);
@@ -42,7 +42,7 @@ export default function ProfDisplay() {
         }}
       >
         Create New
-      </button> */}
+      </button>
 
       {isModalOpen && mode === "create" && !selectedSyllabus && (
         <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
