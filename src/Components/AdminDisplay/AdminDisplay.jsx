@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
-import alteLogo from "../../assets/alte/altelogo.jpg";
+import alteLogo from "../../assets/alte/altelogo.png";
 import Spinner from "../Spinner/Spinner";
 
 const AdminDisplay = () => {
