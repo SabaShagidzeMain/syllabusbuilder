@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
+import alteLogo from "../../assets/alte/altelogo.jpg";
 import Spinner from "../Spinner/Spinner";
 
 const AdminDisplay = () => {
@@ -67,7 +68,7 @@ const AdminDisplay = () => {
               onClick={() => handleEdit(item)}
             >
               <img
-                src="src/assets/alte/altelogo.jpg"
+                src={alteLogo}
                 alt=""
                 className="form-image"
               />
