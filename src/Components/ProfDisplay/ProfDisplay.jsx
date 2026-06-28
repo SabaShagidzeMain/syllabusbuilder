@@ -86,7 +86,7 @@ export default function ProfDisplay() {
                   className="pdf-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    window.open("/", "_blank");
+                    window.open(`/export-preview/${form.id}`, "_blank");
                   }}
                 >
                   Export
