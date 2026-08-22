@@ -1,0 +1,222 @@
+/* =========================================
+   PROFESSOR SIDEBAR
+========================================= */
+
+.professor-sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 250px;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+
+  border-right: 1px solid #e8e8e8;
+
+  padding: 28px 16px;
+
+  box-sizing: border-box;
+
+  z-index: 1000;
+}
+
+/* =========================================
+   BRAND
+========================================= */
+
+.professor-sidebar .sidebar-brand {
+  padding: 5px 14px 35px;
+}
+
+.professor-sidebar .sidebar-brand h1 {
+  margin: 0;
+
+  font-size: 25px;
+  font-weight: 750;
+
+  color: #222;
+
+  letter-spacing: -0.5px;
+}
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.professor-sidebar .sidebar-nav {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+/* =========================================
+   SIDEBAR ITEM
+========================================= */
+
+.professor-sidebar .sidebar-item {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 11px 13px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: #666;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+/* =========================================
+   HOVER
+========================================= */
+
+.professor-sidebar .sidebar-item:hover {
+  background: #f5f7f9;
+
+  color: #222;
+}
+
+/* =========================================
+   ACTIVE
+========================================= */
+
+.professor-sidebar .sidebar-item.active {
+  background: #eaf4ff;
+
+  color: #3185d6;
+
+  font-weight: 600;
+}
+
+/* =========================================
+   ICON
+========================================= */
+
+.professor-sidebar .sidebar-icon {
+  width: 20px;
+  height: 20px;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  object-fit: contain;
+
+  font-size: 16px;
+
+  flex-shrink: 0;
+}
+
+/* =========================================
+   BOTTOM
+========================================= */
+
+.professor-sidebar .sidebar-bottom {
+  margin-top: auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #eeeeee;
+}
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+.professor-sidebar .logout-item {
+  color: #777;
+}
+
+.professor-sidebar .logout-item:hover {
+  background: #fafafa;
+
+  color: #333;
+}
+
+.professor-sidebar .logout-icon {
+  font-size: 18px;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+  .professor-sidebar {
+    width: 70px;
+
+    padding: 20px 10px;
+  }
+
+  .professor-sidebar .sidebar-brand {
+    padding: 5px 0 30px;
+
+    display: flex;
+
+    justify-content: center;
+  }
+
+  .professor-sidebar .sidebar-brand h1 {
+    font-size: 0;
+  }
+
+  .professor-sidebar .sidebar-brand h1::after {
+    content: "S";
+
+    font-size: 25px;
+
+    font-weight: 750;
+  }
+
+  .professor-sidebar .sidebar-item {
+    justify-content: center;
+
+    padding: 12px 8px;
+  }
+
+  .professor-sidebar .sidebar-item span:last-child {
+    display: none;
+  }
+
+  .professor-sidebar .sidebar-icon {
+    width: 20px;
+    height: 20px;
+
+    font-size: 18px;
+  }
+}

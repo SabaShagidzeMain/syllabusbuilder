@@ -9,11 +9,12 @@ import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
 
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
-import alteLogo from "../../assets/alte/altelogo.png";
+import alteLogo from "../../assets/alte/altelogo2.png";
 import Spinner from "../Spinner/Spinner";
 
 const AdminDisplay = forwardRef((props, ref) => {
   const [syllabuses, setSyllabuses] = useState([]);
+  const [professorSyllabuses, setProfessorSyllabuses] = useState([]);
 
   const [selectedSyllabus, setSelectedSyllabus] = useState(null);
   const [selectedMainSyllabus, setSelectedMainSyllabus] = useState(null);
@@ -34,20 +35,75 @@ const AdminDisplay = forwardRef((props, ref) => {
   const fetchSyllabuses = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("syllabus_forms")
-      .select("*")
-      .order("created_at", {
-        ascending: false,
-      });
+    try {
+      /* =========================================
+         GET CURRENT USER
+      ========================================= */
 
-    if (error) {
-      console.error("Error fetching syllabuses:", error.message);
-    } else {
-      setSyllabuses(data || []);
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        console.error("Auth error:", userError?.message);
+        return;
+      }
+
+      /* =========================================
+         GET ADMIN PROFILE
+      ========================================= */
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("university")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Profile error:", profileError.message);
+        return;
+      }
+
+      /* =========================================
+         GET ADMIN SYLLABUS TEMPLATES
+      ========================================= */
+
+      const { data: syllabusData, error: syllabusError } = await supabase
+        .from("syllabus_forms")
+        .select("*")
+        .eq("university", profile.university)
+        .order("created_at", { ascending: false });
+
+      if (syllabusError) {
+        console.error("Error fetching syllabuses:", syllabusError.message);
+      } else {
+        setSyllabuses(syllabusData || []);
+      }
+
+      /* =========================================
+         GET PROFESSOR SYLLABUSES
+      ========================================= */
+
+      const { data: professorData, error: professorError } = await supabase
+        .from("prof_forms")
+        .select("*")
+        .eq("university", profile.university)
+        .order("created_at", { ascending: false });
+
+      if (professorError) {
+        console.error(
+          "Error fetching professor syllabuses:",
+          professorError.message,
+        );
+      } else {
+        setProfessorSyllabuses(professorData || []);
+      }
+    } catch (error) {
+      console.error("Unexpected fetch error:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   /* ==========================================
@@ -91,16 +147,23 @@ const AdminDisplay = forwardRef((props, ref) => {
   };
 
   /* ==========================================
+     EDIT PROFESSOR SYLLABUS
+  ========================================== */
+
+  const handleEditProfessorSyllabus = (syllabus) => {
+    setSelectedSyllabus(syllabus);
+    setSelectedMainSyllabus(null);
+    setModalOpen(true);
+  };
+
+  /* ==========================================
      CREATE MAIN SYLLABUS
   ========================================== */
 
   const handleCreateMain = () => {
     setSelectedSyllabus(null);
-
     setSelectedMainSyllabus(null);
-
     setInstanceMenuOpen(false);
-
     setModalOpen(true);
   };
 
@@ -110,11 +173,8 @@ const AdminDisplay = forwardRef((props, ref) => {
 
   const handleCreateInstance = (mainSyllabus) => {
     setSelectedSyllabus(null);
-
     setSelectedMainSyllabus(mainSyllabus);
-
     setInstanceMenuOpen(false);
-
     setModalOpen(true);
   };
 
@@ -150,9 +210,7 @@ const AdminDisplay = forwardRef((props, ref) => {
 
   const handleModalClose = () => {
     setModalOpen(false);
-
     setSelectedSyllabus(null);
-
     setSelectedMainSyllabus(null);
   };
 
@@ -176,14 +234,12 @@ const AdminDisplay = forwardRef((props, ref) => {
     });
 
     setModalOpen(false);
-
     setSelectedSyllabus(null);
-
     setSelectedMainSyllabus(null);
   };
 
   /* ==========================================
-     DELETE
+     DELETE ADMIN SYLLABUS
   ========================================== */
 
   const handleDelete = async (item) => {
@@ -223,6 +279,37 @@ const AdminDisplay = forwardRef((props, ref) => {
     }
 
     setSyllabuses((prev) => prev.filter((syllabus) => syllabus.id !== item.id));
+  };
+
+  /* ==========================================
+     DELETE PROFESSOR SYLLABUS
+  ========================================== */
+
+  const handleDeleteProfessorSyllabus = async (item) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${item.title || "Untitled Syllabus"}"?`,
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("prof_forms")
+      .delete()
+      .eq("id", item.id);
+
+    if (error) {
+      console.error("Error deleting professor syllabus:", error.message);
+
+      alert("Failed to delete professor syllabus.");
+
+      return;
+    }
+
+    setProfessorSyllabuses((prev) =>
+      prev.filter((syllabus) => syllabus.id !== item.id),
+    );
   };
 
   /* ==========================================
@@ -274,8 +361,9 @@ const AdminDisplay = forwardRef((props, ref) => {
                 className="syllabus-card"
                 onClick={() => handleEdit(item)}
               >
-                <img src={alteLogo} alt="" className="form-image" />
-
+                <div className="card-top-wrapper">
+                  <img src={alteLogo} alt="" className="form-image" />
+                </div>
                 <div className="card-bot-wrapper">
                   <div className="card-title-row">
                     <h3 className="ft1">{item.title}</h3>
@@ -290,7 +378,6 @@ const AdminDisplay = forwardRef((props, ref) => {
                       className="edit-button"
                       onClick={(e) => {
                         e.stopPropagation();
-
                         handleEdit(item);
                       }}
                     >
@@ -301,7 +388,6 @@ const AdminDisplay = forwardRef((props, ref) => {
                       className="pdf-btn dlt-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-
                         handleDelete(item);
                       }}
                     >
@@ -316,7 +402,7 @@ const AdminDisplay = forwardRef((props, ref) => {
       </section>
 
       {/* ======================================
-          SUBJECT SYLLABUSES
+          TEMPLATE INSTANCES
       ====================================== */}
 
       <section className="syllabus-section subject-section">
@@ -354,7 +440,9 @@ const AdminDisplay = forwardRef((props, ref) => {
                   className="syllabus-card"
                   onClick={() => handleEdit(item)}
                 >
-                  <img src={alteLogo} alt="" className="form-image" />
+                  <div className="card-top-wrapper">
+                    <img src={alteLogo} alt="" className="form-image" />
+                  </div>
 
                   <div className="card-bot-wrapper">
                     <div className="card-title-row">
@@ -377,7 +465,6 @@ const AdminDisplay = forwardRef((props, ref) => {
                         className="edit-button"
                         onClick={(e) => {
                           e.stopPropagation();
-
                           handleEdit(item);
                         }}
                       >
@@ -388,7 +475,6 @@ const AdminDisplay = forwardRef((props, ref) => {
                         className="pdf-btn dlt-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-
                           handleDelete(item);
                         }}
                       >
@@ -399,6 +485,78 @@ const AdminDisplay = forwardRef((props, ref) => {
                 </div>
               );
             })}
+          </div>
+        )}
+      </section>
+
+      {/* ======================================
+          PROFESSOR SYLLABUSES
+      ====================================== */}
+
+      <section className="syllabus-section professor-section">
+        <div className="section-header">
+          <div>
+            <h2>Professor Syllabuses</h2>
+          </div>
+
+          <span className="syllabus-count">{professorSyllabuses.length}</span>
+        </div>
+
+        {professorSyllabuses.length === 0 ? (
+          <div className="empty-state">
+            <h3>No professor syllabuses yet</h3>
+
+            <p>Syllabuses created by professors will appear here.</p>
+          </div>
+        ) : (
+          <div className="card-wrapper">
+            {professorSyllabuses.map((item) => (
+              <div
+                key={item.id}
+                className="syllabus-card"
+                onClick={() => handleEditProfessorSyllabus(item)}
+              >
+                <div className="card-top-wrapper">
+                  <img src={alteLogo} alt="" className="form-image" />
+                </div>
+
+                <div className="card-bot-wrapper">
+                  <div className="card-title-row">
+                    <h3 className="ft1">{item.title || "Untitled Syllabus"}</h3>
+
+                    <span className="syllabus-badge professor-badge">
+                      PROFESSOR
+                    </span>
+                  </div>
+
+                  <p className="card-description">
+                    Syllabus created by a professor
+                  </p>
+
+                  <div className="card-actions">
+                    <button
+                      className="edit-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditProfessorSyllabus(item);
+                      }}
+                    >
+                      View
+                    </button>
+
+                    <button
+                      className="pdf-btn dlt-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProfessorSyllabus(item);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>
