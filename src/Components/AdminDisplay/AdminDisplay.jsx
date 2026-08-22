@@ -337,7 +337,9 @@ const AdminDisplay = forwardRef((props, ref) => {
       <section className="syllabus-section">
         <div className="section-header">
           <div>
-            <h2>Your Templates</h2>
+            <div>
+              <h2>Your Templates</h2>
+            </div>
           </div>
 
           <span className="syllabus-count">{mainSyllabuses.length}</span>

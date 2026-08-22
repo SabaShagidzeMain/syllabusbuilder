@@ -89,8 +89,9 @@
 
 .section-header h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 650;
+  color: #353535;
 }
 
 .section-header p {
