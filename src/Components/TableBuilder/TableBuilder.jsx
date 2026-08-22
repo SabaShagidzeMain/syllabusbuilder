@@ -1,7 +1,11 @@
 import React, { useRef, useEffect, useState } from "react";
 import { supabase } from "../../utility/supabaseClient";
 import { predefinedTables } from "../../utility/predefinedTables";
-import { updateSyllabusForm, fetchUniversityForCurrentUser, insertSyllabusForm } from "../../utility/supabaseHelpers";
+import {
+  updateSyllabusForm,
+  fetchUniversityForCurrentUser,
+  insertSyllabusForm,
+} from "../../utility/supabaseHelpers";
 import "./style.css";
 
 export default function SyllabusBuilderModal({
@@ -9,6 +13,9 @@ export default function SyllabusBuilderModal({
   onClose,
   onSave,
   initialData,
+  parentSyllabus,
+  syllabusType = "main",
+  parentId = null,
 }) {
   const modalRef = useRef();
 
@@ -19,12 +26,20 @@ export default function SyllabusBuilderModal({
 
   useEffect(() => {
     if (initialData) {
+      // Editing an existing syllabus
       setSections(initialData.content || []);
       setFormTitle(initialData.title || "Syllabus Draft");
+    } else if (syllabusType === "instance" && parentSyllabus) {
+      // Creating a new instance:
+      // start with the main syllabus content
+      setSections(parentSyllabus.content || []);
+      setFormTitle("");
     } else {
+      // Creating a new main syllabus
+      setSections([]);
       setFormTitle("Syllabus Draft");
     }
-  }, [initialData]);
+  }, [initialData, parentSyllabus, syllabusType]);
 
   const handleSave = async () => {
     let result;
@@ -33,10 +48,12 @@ export default function SyllabusBuilderModal({
       result = await updateSyllabusForm(
         initialData.id,
         sections,
-        formTitle || initialData.title || "Updated Draft"
+        formTitle || initialData.title || "Updated Draft",
       );
     } else {
-      const { university, error: profileError } = await fetchUniversityForCurrentUser();
+      const { university, error: profileError } =
+        await fetchUniversityForCurrentUser();
+
       if (profileError || !university) {
         console.error("Error fetching university:", profileError?.message);
         return;
@@ -45,7 +62,9 @@ export default function SyllabusBuilderModal({
       result = await insertSyllabusForm(
         formTitle || "Syllabus Draft",
         sections,
-        university
+        university,
+        syllabusType,
+        parentId,
       );
     }
 
@@ -55,11 +74,14 @@ export default function SyllabusBuilderModal({
       console.error("Supabase error:", error.message);
     } else {
       console.log("Saved successfully!", data);
+
       onClose();
-      if (onSave) onSave(data?.[0]);
+
+      if (onSave) {
+        onSave(data?.[0]);
+      }
     }
   };
-
 
   const addSection = () => {
     setSections((prev) => [
@@ -76,8 +98,8 @@ export default function SyllabusBuilderModal({
   const updateSection = (id, changes) => {
     setSections((prev) =>
       prev.map((section) =>
-        section.id === id ? { ...section, ...changes } : section
-      )
+        section.id === id ? { ...section, ...changes } : section,
+      ),
     );
   };
 
@@ -167,12 +189,12 @@ export default function SyllabusBuilderModal({
                     value={section.tableId}
                     onChange={(e) => {
                       const table = predefinedTables.find(
-                        (t) => t.id === e.target.value
+                        (t) => t.id === e.target.value,
                       );
                       updateSection(section.id, {
                         tableId: table.id,
                         cells: table.cells.map((row) =>
-                          row.map((cell) => ({ ...cell }))
+                          row.map((cell) => ({ ...cell })),
                         ),
                       });
                     }}
@@ -205,10 +227,10 @@ export default function SyllabusBuilderModal({
                                 onChange={(e) => {
                                   autoResize(
                                     e,
-                                    `${section.id}-${rIdx}-${cIdx}`
+                                    `${section.id}-${rIdx}-${cIdx}`,
                                   );
                                   const newCells = section.cells.map((r) =>
-                                    r.map((c) => ({ ...c }))
+                                    r.map((c) => ({ ...c })),
                                   );
                                   newCells[rIdx][cIdx].value = e.target.value;
                                   updateSection(section.id, {
@@ -232,8 +254,8 @@ export default function SyllabusBuilderModal({
                               />
                             </label>
                           </div>
-                        ) : null
-                      )
+                        ) : null,
+                      ),
                     )}
                   </div>
                 )}
@@ -265,7 +287,7 @@ export default function SyllabusBuilderModal({
                 <table
                   className="syllabus-table"
                   border="1"
-                  style={{ width: "100%", }}
+                  style={{ width: "100%" }}
                 >
                   <tbody>
                     {section.cells.map((row, rIdx) => (
@@ -279,23 +301,26 @@ export default function SyllabusBuilderModal({
                                 ? section.cells[1]?.length || 1
                                 : 1
                             }
-                            className={`table-cell ${cell.isTitle ? "title-cell" : ""
-                              } ${cell.isFullWidth ? "wide-cell" : ""} ${cell.isSecondary ? "secondary-cell" : ""
-                              } ${cell.isFullHeight ? "full-height-cell" : ""}`}
+                            className={`table-cell ${
+                              cell.isTitle ? "title-cell" : ""
+                            } ${cell.isFullWidth ? "wide-cell" : ""} ${
+                              cell.isSecondary ? "secondary-cell" : ""
+                            } ${cell.isFullHeight ? "full-height-cell" : ""}`}
                           >
                             {isAdmin ? (
                               <textarea
                                 data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
-                                className={`syllabus-input ${cell.isTitle ? "title-cell" : ""
-                                  }`}
+                                className={`syllabus-input ${
+                                  cell.isTitle ? "title-cell" : ""
+                                }`}
                                 value={cell.value}
                                 onChange={(e) => {
                                   autoResize(
                                     e,
-                                    `${section.id}-${rIdx}-${cIdx}`
+                                    `${section.id}-${rIdx}-${cIdx}`,
                                   );
                                   const newCells = section.cells.map((r) =>
-                                    r.map((c) => ({ ...c }))
+                                    r.map((c) => ({ ...c })),
                                   );
                                   newCells[rIdx][cIdx].value = e.target.value;
                                   updateSection(section.id, {
