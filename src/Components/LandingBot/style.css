@@ -17,6 +17,8 @@
 .application-content {
   margin-left: 250px;
 
+  padding: 0 32px;
+
   width: calc(100% - 250px);
 
   min-height: 100vh;

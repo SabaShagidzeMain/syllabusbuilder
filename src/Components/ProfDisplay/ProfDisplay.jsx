@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 
 import ProfessorFillModal from "../professorFillModal/ProfessorFillModal";
 
@@ -13,7 +13,7 @@ import alteLogo from "../../assets/alte/altelogo.jpg";
 
 import "./style.css";
 
-export default function ProfDisplay() {
+const ProfDisplay = forwardRef((props, ref) => {
   const { userId, university, syllabuses, profForms, setProfForms, loading } =
     useProfData();
 
@@ -22,6 +22,10 @@ export default function ProfDisplay() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [mode, setMode] = useState("view");
+
+  /* =========================================
+     HANDLE SAVE
+  ========================================= */
 
   const handleSave = useHandleSave(
     mode,
@@ -36,17 +40,9 @@ export default function ProfDisplay() {
     },
   );
 
-  // =========================================
-  // ACTUAL DATA LOADING
-  // =========================================
-
-  if (loading) {
-    return <Spinner />;
-  }
-
-  // =========================================
-  // OPEN CREATE MODAL
-  // =========================================
+  /* =========================================
+     OPEN CREATE MODAL
+  ========================================= */
 
   const handleCreateNew = () => {
     setIsModalOpen(true);
@@ -54,9 +50,17 @@ export default function ProfDisplay() {
     setSelectedSyllabus(null);
   };
 
-  // =========================================
-  // CLOSE MODAL
-  // =========================================
+  /* =========================================
+     EXPOSE FUNCTIONS TO LANDINGBOT
+  ========================================= */
+
+  useImperativeHandle(ref, () => ({
+    createNewSyllabus: handleCreateNew,
+  }));
+
+  /* =========================================
+     CLOSE MODAL
+  ========================================= */
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -64,20 +68,20 @@ export default function ProfDisplay() {
     setMode("view");
   };
 
-  // =========================================
-  // UI
-  // =========================================
+  /* =========================================
+     LOADING
+  ========================================= */
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  /* =========================================
+     UI
+  ========================================= */
 
   return (
     <div className="prof-display">
-      {/* =====================================
-          CREATE BUTTON
-      ===================================== */}
-
-      <button className="openbtn" onClick={handleCreateNew}>
-        Create New
-      </button>
-
       {/* =====================================
           SELECT SYLLABUS
       ===================================== */}
@@ -214,4 +218,6 @@ export default function ProfDisplay() {
       )}
     </div>
   );
-}
+});
+
+export default ProfDisplay;

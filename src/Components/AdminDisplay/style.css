@@ -360,6 +360,8 @@
   text-align: center;
 
   background: #fafafa;
+
+  width: 100%;
 }
 
 .empty-state h3 {

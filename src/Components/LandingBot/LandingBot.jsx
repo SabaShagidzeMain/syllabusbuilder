@@ -361,10 +361,6 @@ const LandingBot = () => {
   if (role.prof === true) {
     return (
       <div className="application-layout">
-        {/* ================================
-            PROFESSOR SIDEBAR
-        ================================= */}
-
         <ProfessorSidebar
           activePage={activeProfPage}
           setActivePage={setActiveProfPage}
@@ -374,10 +370,6 @@ const LandingBot = () => {
           onLogout={handleLogout}
         />
 
-        {/* ================================
-            PROFESSOR CONTENT
-        ================================= */}
-
         <main className="application-content">
           {activeProfPage === "syllabuses" && (
             <ProfDisplay ref={profDisplayRef} />
@@ -386,7 +378,6 @@ const LandingBot = () => {
           {activeProfPage === "settings" && (
             <div className="settings-page">
               <h2>Settings</h2>
-
               <p>Professor account settings</p>
             </div>
           )}
