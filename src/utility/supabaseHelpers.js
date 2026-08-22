@@ -1,12 +1,27 @@
 import { supabase } from "../utility/supabaseClient";
 
-export async function updateSyllabusForm(id, sections, title) {
+export async function updateSyllabusForm(
+    id,
+    sections,
+    title,
+    syllabusType = "main",
+    overrides = {}
+) {
+    const updateData = {
+        title,
+    };
+
+    if (syllabusType === "main") {
+        // Main syllabuses own the actual structure/content
+        updateData.content = sections;
+    } else {
+        // Instances store their custom changes separately
+        updateData.overrides = overrides;
+    }
+
     const { data, error } = await supabase
         .from("syllabus_forms")
-        .update({
-            content: sections,
-            title,
-        })
+        .update(updateData)
         .eq("id", id)
         .select();
 
@@ -35,19 +50,27 @@ export async function insertSyllabusForm(
     sections,
     university,
     syllabusType = "main",
-    parentId = null
+    parentId = null,
+    overrides = {}
 ) {
+    const insertData = {
+        title,
+        university,
+        syllabus_type: syllabusType,
+        parent_id: parentId,
+        overrides,
+    };
+
+    if (syllabusType === "main") {
+        insertData.content = sections;
+    } else {
+        // Instance doesn't need to duplicate the main content
+        insertData.content = [];
+    }
+
     const { data, error } = await supabase
         .from("syllabus_forms")
-        .insert([
-            {
-                title,
-                content: sections,
-                university,
-                syllabus_type: syllabusType,
-                parent_id: parentId,
-            },
-        ])
+        .insert([insertData])
         .select();
 
     return { data, error };

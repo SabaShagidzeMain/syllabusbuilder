@@ -57,6 +57,14 @@ const AdminDisplay = () => {
 
   const handleEdit = (syllabus) => {
     setSelectedSyllabus(syllabus);
+
+    if (syllabus.syllabus_type === "instance") {
+      const parent = getParentSyllabus(syllabus.parent_id);
+      setSelectedMainSyllabus(parent || null);
+    } else {
+      setSelectedMainSyllabus(null);
+    }
+
     setModalOpen(true);
   };
 
