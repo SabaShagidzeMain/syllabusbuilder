@@ -29,21 +29,6 @@ const ProfessorSidebar = ({
 
       <nav className="sidebar-nav">
         {/* =====================================
-            MY SYLLABUSES
-        ===================================== */}
-
-        <button
-          className={`sidebar-item ${
-            activePage === "syllabuses" ? "active" : ""
-          }`}
-          onClick={onSyllabuses}
-        >
-          <img src={syllabusIcon} alt="Syllabuses" className="sidebar-icon" />
-
-          <span>My Syllabuses</span>
-        </button>
-
-        {/* =====================================
             CREATE SYLLABUS
         ===================================== */}
 

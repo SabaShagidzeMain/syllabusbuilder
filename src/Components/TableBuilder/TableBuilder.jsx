@@ -69,23 +69,20 @@ export default function SyllabusBuilderModal({
 
       if (!sectionOverrides) return;
 
-      Object.entries(sectionOverrides).forEach(
-        ([cellPosition, value]) => {
-          const [rowIndex, cellIndex] =
-            cellPosition.split("-").map(Number);
+      Object.entries(sectionOverrides).forEach(([cellPosition, value]) => {
+        const [rowIndex, cellIndex] = cellPosition.split("-").map(Number);
 
-          if (
-            result.includes(section) &&
-            result.find((s) => s.id === section.id)?.cells?.[rowIndex]?.[
-              cellIndex
-            ]
-          ) {
-            result.find(
-              (s) => s.id === section.id
-            ).cells[rowIndex][cellIndex].value = value;
-          }
+        if (
+          result.includes(section) &&
+          result.find((s) => s.id === section.id)?.cells?.[rowIndex]?.[
+            cellIndex
+          ]
+        ) {
+          result.find((s) => s.id === section.id).cells[rowIndex][
+            cellIndex
+          ].value = value;
         }
-      );
+      });
     });
 
     return result;
@@ -106,15 +103,14 @@ export default function SyllabusBuilderModal({
 
     editedSections.forEach((editedSection) => {
       const baseSection = baseSections.find(
-        (section) => section.id === editedSection.id
+        (section) => section.id === editedSection.id,
       );
 
       if (!baseSection) return;
 
       editedSection.cells.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
-          const baseCell =
-            baseSection.cells?.[rowIndex]?.[cellIndex];
+          const baseCell = baseSection.cells?.[rowIndex]?.[cellIndex];
 
           if (!baseCell) return;
 
@@ -126,9 +122,8 @@ export default function SyllabusBuilderModal({
               overrides[editedSection.id] = {};
             }
 
-            overrides[editedSection.id][
-              `${rowIndex}-${cellIndex}`
-            ] = editedValue;
+            overrides[editedSection.id][`${rowIndex}-${cellIndex}`] =
+              editedValue;
           }
         });
       });
@@ -149,17 +144,10 @@ export default function SyllabusBuilderModal({
     /*
      * Editing an existing MAIN syllabus
      */
-    if (
-      initialData &&
-      initialData.syllabus_type === "main"
-    ) {
-      setSections(
-        cloneSections(initialData.content || [])
-      );
+    if (initialData && initialData.syllabus_type === "main") {
+      setSections(cloneSections(initialData.content || []));
 
-      setFormTitle(
-        initialData.title || "Syllabus Draft"
-      );
+      setFormTitle(initialData.title || "Syllabus Draft");
 
       return;
     }
@@ -167,25 +155,17 @@ export default function SyllabusBuilderModal({
     /*
      * Editing an existing INSTANCE
      */
-    if (
-      initialData &&
-      initialData.syllabus_type === "instance"
-    ) {
-      const parentContent =
-        parentSyllabus?.content ||
-        [];
+    if (initialData && initialData.syllabus_type === "instance") {
+      const parentContent = parentSyllabus?.content || [];
 
-      const instanceContent =
-        applyOverrides(
-          parentContent,
-          initialData.overrides || {}
-        );
+      const instanceContent = applyOverrides(
+        parentContent,
+        initialData.overrides || {},
+      );
 
       setSections(instanceContent);
 
-      setFormTitle(
-        initialData.title || "Subject Syllabus"
-      );
+      setFormTitle(initialData.title || "Subject Syllabus");
 
       return;
     }
@@ -193,15 +173,8 @@ export default function SyllabusBuilderModal({
     /*
      * Creating a new INSTANCE
      */
-    if (
-      syllabusType === "instance" &&
-      parentSyllabus
-    ) {
-      setSections(
-        cloneSections(
-          parentSyllabus.content || []
-        )
-      );
+    if (syllabusType === "instance" && parentSyllabus) {
+      setSections(cloneSections(parentSyllabus.content || []));
 
       setFormTitle("");
 
@@ -213,12 +186,7 @@ export default function SyllabusBuilderModal({
      */
     setSections([]);
     setFormTitle("Syllabus Draft");
-  }, [
-    isOpen,
-    initialData,
-    parentSyllabus,
-    syllabusType,
-  ]);
+  }, [isOpen, initialData, parentSyllabus, syllabusType]);
 
   /*
    * ---------------------------------------------------------
@@ -242,63 +210,43 @@ export default function SyllabusBuilderModal({
        * -----------------------------------------------------
        */
 
-      if (
-        initialData.syllabus_type === "main"
-      ) {
+      if (initialData.syllabus_type === "main") {
         result = await updateSyllabusForm(
           initialData.id,
           sections,
           formTitle || initialData.title || "Updated Draft",
           "main",
-          {}
+          {},
         );
-      }
+      } else {
+        /*
+         * -----------------------------------------------------
+         * EDITING INSTANCE
+         * -----------------------------------------------------
+         */
+        const parentContent = parentSyllabus?.content || [];
 
-      /*
-       * -----------------------------------------------------
-       * EDITING INSTANCE
-       * -----------------------------------------------------
-       */
-
-      else {
-        const parentContent =
-          parentSyllabus?.content || [];
-
-        const overrides = buildOverrides(
-          parentContent,
-          sections
-        );
+        const overrides = buildOverrides(parentContent, sections);
 
         result = await updateSyllabusForm(
           initialData.id,
           sections,
           formTitle || initialData.title || "Updated Subject Syllabus",
           "instance",
-          overrides
+          overrides,
         );
       }
-    }
+    } else {
+      /*
+       * =======================================================
+       * CREATE NEW SYLLABUS
+       * =======================================================
+       */
+      const { university, error: profileError } =
+        await fetchUniversityForCurrentUser();
 
-    /*
-     * =======================================================
-     * CREATE NEW SYLLABUS
-     * =======================================================
-     */
-
-    else {
-      const {
-        university,
-        error: profileError,
-      } = await fetchUniversityForCurrentUser();
-
-      if (
-        profileError ||
-        !university
-      ) {
-        console.error(
-          "Error fetching university:",
-          profileError?.message
-        );
+      if (profileError || !university) {
+        console.error("Error fetching university:", profileError?.message);
 
         return;
       }
@@ -316,37 +264,30 @@ export default function SyllabusBuilderModal({
           university,
           "main",
           null,
-          {}
+          {},
         );
-      }
-
-      /*
-       * -----------------------------------------------------
-       * NEW INSTANCE
-       * -----------------------------------------------------
-       */
-
-      else {
-        const parentContent =
-          parentSyllabus?.content || [];
+      } else {
+        /*
+         * -----------------------------------------------------
+         * NEW INSTANCE
+         * -----------------------------------------------------
+         */
+        const parentContent = parentSyllabus?.content || [];
 
         /*
          * Initially the instance is identical
          * to the main syllabus, so there are
          * no overrides.
          */
-        const overrides = buildOverrides(
-          parentContent,
-          sections
-        );
+        const overrides = buildOverrides(parentContent, sections);
 
         result = await insertSyllabusForm(
           formTitle || "Subject Syllabus",
-          [],
+          sections,
           university,
           "instance",
           parentId,
-          overrides
+          overrides,
         );
       }
     }
@@ -357,24 +298,15 @@ export default function SyllabusBuilderModal({
      * =======================================================
      */
 
-    const {
-      data,
-      error,
-    } = result;
+    const { data, error } = result;
 
     if (error) {
-      console.error(
-        "Supabase error:",
-        error.message
-      );
+      console.error("Supabase error:", error.message);
 
       return;
     }
 
-    console.log(
-      "Saved successfully!",
-      data
-    );
+    console.log("Saved successfully!", data);
 
     onClose();
 
@@ -401,10 +333,7 @@ export default function SyllabusBuilderModal({
     ]);
   };
 
-  const updateSection = (
-    id,
-    changes
-  ) => {
+  const updateSection = (id, changes) => {
     setSections((prev) =>
       prev.map((section) =>
         section.id === id
@@ -412,18 +341,13 @@ export default function SyllabusBuilderModal({
               ...section,
               ...changes,
             }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
   const removeSection = (id) => {
-    setSections((prev) =>
-      prev.filter(
-        (section) =>
-          section.id !== id
-      )
-    );
+    setSections((prev) => prev.filter((section) => section.id !== id));
   };
 
   /*
@@ -433,29 +357,16 @@ export default function SyllabusBuilderModal({
    */
 
   useEffect(() => {
-    const handleClickOutside = (
-      event
-    ) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(
-          event.target
-        )
-      ) {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
 
@@ -465,23 +376,14 @@ export default function SyllabusBuilderModal({
    * ---------------------------------------------------------
    */
 
-  function autoResize(
-    e,
-    syncId
-  ) {
-    const allMatching =
-      document.querySelectorAll(
-        `[data-sync-id='${syncId}']`
-      );
+  function autoResize(e, syncId) {
+    const allMatching = document.querySelectorAll(`[data-sync-id='${syncId}']`);
 
-    allMatching.forEach(
-      (el) => {
-        el.style.height = "auto";
+    allMatching.forEach((el) => {
+      el.style.height = "auto";
 
-        el.style.height =
-          `${e.target.scrollHeight}px`;
-      }
-    );
+      el.style.height = `${e.target.scrollHeight}px`;
+    });
   }
 
   if (!isOpen) {
@@ -497,7 +399,6 @@ export default function SyllabusBuilderModal({
           display: "flex",
         }}
       >
-
         {/* ================================================= */}
         {/* LEFT PANEL */}
         {/* ================================================= */}
@@ -507,310 +408,172 @@ export default function SyllabusBuilderModal({
           style={{
             width: "50%",
             padding: "10px",
-            borderRight:
-              "1px solid #ccc",
+            borderRight: "1px solid #ccc",
           }}
         >
-
           {/* FORM TITLE */}
 
           {isAdmin && (
             <div className="title-input-container">
-
-              <label className="component-title">
-                Form Title:
-              </label>
+              <label className="component-title">Form Title:</label>
 
               <textarea
                 className="title-input"
                 value={formTitle}
                 onChange={(e) => {
-                  autoResize(
-                    e,
-                    "form-title"
-                  );
+                  autoResize(e, "form-title");
 
-                  setFormTitle(
-                    e.target.value
-                  );
+                  setFormTitle(e.target.value);
                 }}
-                onInput={(e) =>
-                  autoResize(
-                    e,
-                    "form-title"
-                  )
-                }
+                onInput={(e) => autoResize(e, "form-title")}
                 data-sync-id="form-title"
                 style={{
                   resize: "none",
                   overflow: "hidden",
-                  overflowWrap:
-                    "break-word",
-                  wordBreak:
-                    "break-word",
-                  whiteSpace:
-                    "pre-wrap",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                  whiteSpace: "pre-wrap",
                   width: "100%",
                   height: "1.8em",
                   padding: "0",
                   lineHeight: "1.1",
                   fontSize: "1rem",
-                  fontFamily:
-                    "inherit",
-                  border:
-                    "1px solid #ccc",
-                  borderRadius:
-                    "6px",
-                  boxSizing:
-                    "border-box",
+                  fontFamily: "inherit",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                  boxSizing: "border-box",
                 }}
               />
-
             </div>
           )}
 
           {/* SECTIONS */}
 
-          {sections.map(
-            (section) => (
+          {sections.map((section) => (
+            <div className="modal-card-wrapper" key={section.id}>
               <div
-                className="modal-card-wrapper"
-                key={section.id}
+                className="section-wrapper"
+                style={{
+                  marginTop: "15px",
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                }}
               >
+                <div className="input-container">
+                  <label className="component-title">Component:</label>
 
-                <div
-                  className="section-wrapper"
-                  style={{
-                    marginTop:
-                      "15px",
-                    border:
-                      "1px solid #ddd",
-                    padding:
-                      "10px",
-                  }}
-                >
+                  <select
+                    className="component-selector"
+                    value={section.tableId}
+                    onChange={(e) => {
+                      const table = predefinedTables.find(
+                        (t) => t.id === e.target.value,
+                      );
 
-                  <div className="input-container">
+                      if (!table) return;
 
-                    <label className="component-title">
-                      Component:
-                    </label>
+                      updateSection(section.id, {
+                        tableId: table.id,
 
-                    <select
-                      className="component-selector"
-                      value={
-                        section.tableId
-                      }
-                      onChange={(e) => {
+                        cells: table.cells.map((row) =>
+                          row.map((cell) => ({
+                            ...cell,
+                          })),
+                        ),
+                      });
+                    }}
+                  >
+                    <option value="">-- Select --</option>
 
-                        const table =
-                          predefinedTables.find(
-                            (t) =>
-                              t.id ===
-                              e.target.value
-                          );
-
-                        if (!table)
-                          return;
-
-                        updateSection(
-                          section.id,
-                          {
-                            tableId:
-                              table.id,
-
-                            cells:
-                              table.cells.map(
-                                (row) =>
-                                  row.map(
-                                    (cell) =>
-                                      ({
-                                        ...cell,
-                                      })
-                                  )
-                              ),
-                          }
-                        );
-                      }}
-                    >
-
-                      <option value="">
-                        -- Select --
+                    {predefinedTables.map((table) => (
+                      <option key={table.id} value={table.id}>
+                        {table.name}
                       </option>
-
-                      {predefinedTables.map(
-                        (table) => (
-                          <option
-                            key={
-                              table.id
-                            }
-                            value={
-                              table.id
-                            }
-                          >
-                            {table.name}
-                          </option>
-                        )
-                      )}
-
-                    </select>
-
-                  </div>
-
-                  {/* TITLE EDITORS */}
-
-                  {section.cells.length >
-                    0 &&
-                    isAdmin && (
-                      <div
-                        style={{
-                          marginTop:
-                            "10px",
-                        }}
-                      >
-
-                        {section.cells.map(
-                          (
-                            row,
-                            rIdx
-                          ) =>
-                            row.map(
-                              (
-                                cell,
-                                cIdx
-                              ) =>
-                                cell.isTitle ? (
-                                  <div
-                                    className="input-container"
-                                    key={`${rIdx}-${cIdx}`}
-                                    style={{
-                                      marginBottom:
-                                        5,
-                                    }}
-                                  >
-
-                                    <p className="component-title">
-                                      Title:
-                                    </p>
-
-                                    <label>
-
-                                      <textarea
-                                        data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
-                                        className="title-input component-title-input"
-                                        value={
-                                          cell.value
-                                        }
-                                        onChange={(
-                                          e
-                                        ) => {
-
-                                          autoResize(
-                                            e,
-                                            `${section.id}-${rIdx}-${cIdx}`
-                                          );
-
-                                          const newCells =
-                                            section.cells.map(
-                                              (
-                                                row
-                                              ) =>
-                                                row.map(
-                                                  (
-                                                    c
-                                                  ) =>
-                                                    ({
-                                                      ...c,
-                                                    })
-                                                )
-                                            );
-
-                                          newCells[
-                                            rIdx
-                                          ][
-                                            cIdx
-                                          ].value =
-                                            e.target.value;
-
-                                          updateSection(
-                                            section.id,
-                                            {
-                                              cells:
-                                                newCells,
-                                            }
-                                          );
-                                        }}
-                                        onInput={(
-                                          e
-                                        ) =>
-                                          autoResize(
-                                            e,
-                                            `${section.id}-${rIdx}-${cIdx}`
-                                          )
-                                        }
-                                        style={{
-                                          resize:
-                                            "none",
-                                          overflow:
-                                            "hidden",
-                                          overflowWrap:
-                                            "break-word",
-                                          wordBreak:
-                                            "break-word",
-                                          whiteSpace:
-                                            "pre-wrap",
-                                          width:
-                                            "100%",
-                                          height:
-                                            "100%",
-                                          background:
-                                            "none",
-                                        }}
-                                      />
-
-                                    </label>
-
-                                  </div>
-                                ) : null
-                            )
-                        )}
-
-                      </div>
-                    )}
-
-                  <div className="button-container">
-
-                    <button
-                      onClick={() =>
-                        removeSection(
-                          section.id
-                        )
-                      }
-                    >
-                      Remove Section
-                    </button>
-
-                  </div>
-
+                    ))}
+                  </select>
                 </div>
 
+                {/* TITLE EDITORS */}
+
+                {section.cells.length > 0 && isAdmin && (
+                  <div
+                    style={{
+                      marginTop: "10px",
+                    }}
+                  >
+                    {section.cells.map((row, rIdx) =>
+                      row.map((cell, cIdx) =>
+                        cell.isTitle ? (
+                          <div
+                            className="input-container"
+                            key={`${rIdx}-${cIdx}`}
+                            style={{
+                              marginBottom: 5,
+                            }}
+                          >
+                            <p className="component-title">Title:</p>
+
+                            <label>
+                              <textarea
+                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
+                                className="title-input component-title-input"
+                                value={cell.value}
+                                onChange={(e) => {
+                                  autoResize(
+                                    e,
+                                    `${section.id}-${rIdx}-${cIdx}`,
+                                  );
+
+                                  const newCells = section.cells.map((row) =>
+                                    row.map((c) => ({
+                                      ...c,
+                                    })),
+                                  );
+
+                                  newCells[rIdx][cIdx].value = e.target.value;
+
+                                  updateSection(section.id, {
+                                    cells: newCells,
+                                  });
+                                }}
+                                onInput={(e) =>
+                                  autoResize(e, `${section.id}-${rIdx}-${cIdx}`)
+                                }
+                                style={{
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  width: "100%",
+                                  height: "100%",
+                                  background: "none",
+                                }}
+                              />
+                            </label>
+                          </div>
+                        ) : null,
+                      ),
+                    )}
+                  </div>
+                )}
+
+                <div className="button-container">
+                  <button onClick={() => removeSection(section.id)}>
+                    Remove Section
+                  </button>
+                </div>
               </div>
-            )
-          )}
+            </div>
+          ))}
 
           {/* ADD SECTION */}
 
           <div className="button-container add-btn-container">
-
-            <button
-              onClick={addSection}
-              className="blue-button add-button"
-            >
+            <button onClick={addSection} className="blue-button add-button">
               Add Section
             </button>
-
           </div>
-
         </div>
 
         {/* ================================================= */}
@@ -822,227 +585,109 @@ export default function SyllabusBuilderModal({
           style={{
             width: "50%",
             padding: "10px",
-            overflowY:
-              "auto",
+            overflowY: "auto",
           }}
         >
+          <h3>Syllabus Preview</h3>
 
-          <h3>
-            Syllabus Preview
-          </h3>
+          {sections.length === 0 && <p>No sections added yet.</p>}
 
-          {sections.length ===
-            0 && (
-            <p>
-              No sections added yet.
-            </p>
-          )}
-
-          {sections.map(
-            (section) => (
-              <div
-                key={
-                  section.id
-                }
-              >
-
-                {section.cells
-                  .length >
-                  0 && (
-                  <table
-                    className="syllabus-table"
-                    border="1"
-                    style={{
-                      width:
-                        "100%",
-                    }}
-                  >
-
-                    <tbody>
-
-                      {section.cells.map(
-                        (
-                          row,
-                          rIdx
-                        ) => (
-                          <tr
-                            key={
-                              rIdx
+          {sections.map((section) => (
+            <div key={section.id}>
+              {section.cells.length > 0 && (
+                <table
+                  className="syllabus-table"
+                  border="1"
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  <tbody>
+                    {section.cells.map((row, rIdx) => (
+                      <tr key={rIdx}>
+                        {row.map((cell, cIdx) => (
+                          <td
+                            key={cIdx}
+                            rowSpan={cell.rowSpan}
+                            colSpan={
+                              cell.isFullWidth
+                                ? section.cells[1]?.length || 1
+                                : 1
                             }
-                          >
-
-                            {row.map(
-                              (
-                                cell,
-                                cIdx
-                              ) => (
-
-                                <td
-                                  key={
-                                    cIdx
-                                  }
-                                  rowSpan={
-                                    cell.rowSpan
-                                  }
-                                  colSpan={
-                                    cell.isFullWidth
-                                      ? section
-                                          .cells[1]
-                                          ?.length ||
-                                        1
-                                      : 1
-                                  }
-                                  className={`
+                            className={`
                                     table-cell
-                                    ${
-                                      cell.isTitle
-                                        ? "title-cell"
-                                        : ""
-                                    }
-                                    ${
-                                      cell.isFullWidth
-                                        ? "wide-cell"
-                                        : ""
-                                    }
-                                    ${
-                                      cell.isSecondary
-                                        ? "secondary-cell"
-                                        : ""
-                                    }
+                                    ${cell.isTitle ? "title-cell" : ""}
+                                    ${cell.isFullWidth ? "wide-cell" : ""}
+                                    ${cell.isSecondary ? "secondary-cell" : ""}
                                     ${
                                       cell.isFullHeight
                                         ? "full-height-cell"
                                         : ""
                                     }
                                   `}
-                                >
+                          >
+                            {isAdmin ? (
+                              <textarea
+                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
+                                className={`syllabus-input ${
+                                  cell.isTitle ? "title-cell" : ""
+                                }`}
+                                value={cell.value || ""}
+                                onChange={(e) => {
+                                  autoResize(
+                                    e,
+                                    `${section.id}-${rIdx}-${cIdx}`,
+                                  );
 
-                                  {isAdmin ? (
+                                  const newCells = section.cells.map((row) =>
+                                    row.map((c) => ({
+                                      ...c,
+                                    })),
+                                  );
 
-                                    <textarea
-                                      data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
-                                      className={`syllabus-input ${
-                                        cell.isTitle
-                                          ? "title-cell"
-                                          : ""
-                                      }`}
-                                      value={
-                                        cell.value ||
-                                        ""
-                                      }
-                                      onChange={(
-                                        e
-                                      ) => {
+                                  newCells[rIdx][cIdx].value = e.target.value;
 
-                                        autoResize(
-                                          e,
-                                          `${section.id}-${rIdx}-${cIdx}`
-                                        );
-
-                                        const newCells =
-                                          section.cells.map(
-                                            (
-                                              row
-                                            ) =>
-                                              row.map(
-                                                (
-                                                  c
-                                                ) =>
-                                                  ({
-                                                    ...c,
-                                                  })
-                                              )
-                                          );
-
-                                        newCells[
-                                          rIdx
-                                        ][
-                                          cIdx
-                                        ].value =
-                                          e.target.value;
-
-                                        updateSection(
-                                          section.id,
-                                          {
-                                            cells:
-                                              newCells,
-                                          }
-                                        );
-                                      }}
-                                      onInput={(
-                                        e
-                                      ) =>
-                                        autoResize(
-                                          e,
-                                          `${section.id}-${rIdx}-${cIdx}`
-                                        )
-                                      }
-                                      style={{
-                                        resize:
-                                          "none",
-                                        overflow:
-                                          "hidden",
-                                        overflowWrap:
-                                          "break-word",
-                                        wordBreak:
-                                          "break-word",
-                                        whiteSpace:
-                                          "pre-wrap",
-                                        width:
-                                          "100%",
-                                        height:
-                                          "100%",
-                                        background:
-                                          "none",
-                                        color:
-                                          !cell.isTitle &&
-                                          !cell.isSecondary
-                                            ? "black"
-                                            : undefined,
-                                      }}
-                                    />
-
-                                  ) : (
-
-                                    <div className="normal-cell">
-                                      {
-                                        cell.value
-                                      }
-                                    </div>
-
-                                  )}
-
-                                </td>
-
-                              )
+                                  updateSection(section.id, {
+                                    cells: newCells,
+                                  });
+                                }}
+                                onInput={(e) =>
+                                  autoResize(e, `${section.id}-${rIdx}-${cIdx}`)
+                                }
+                                style={{
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  width: "100%",
+                                  height: "100%",
+                                  background: "none",
+                                  color:
+                                    !cell.isTitle && !cell.isSecondary
+                                      ? "black"
+                                      : undefined,
+                                }}
+                              />
+                            ) : (
+                              <div className="normal-cell">{cell.value}</div>
                             )}
-
-                          </tr>
-                        )
-                      )}
-
-                    </tbody>
-
-                  </table>
-                )}
-
-              </div>
-            )
-          )}
-
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          ))}
         </div>
 
         {/* SAVE */}
 
-        <button
-          className="close-button blue-button"
-          onClick={
-            handleSave
-          }
-        >
+        <button className="close-button blue-button" onClick={handleSave}>
           Save
         </button>
-
       </div>
     </div>
   );
