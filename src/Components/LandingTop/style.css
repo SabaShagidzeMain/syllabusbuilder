@@ -3,14 +3,24 @@
   height: 20rem;
   z-index: 60;
   position: absolute;
+  top: 0;
+  left: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
 }
 
 .landingtop-wrapper {
+  position: relative;
+  z-index: 1;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  width: 100%;
   height: 20rem;
+
+  box-sizing: border-box;
 }
 
 .landing-left-wrapper {
@@ -29,6 +39,7 @@
   justify-content: end;
   align-items: center;
   padding: 2rem;
+  box-sizing: border-box;
 }
 
 .landing-right-wrapper {
@@ -47,6 +58,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 2rem;
+  box-sizing: border-box;
 }
 
 .toplogo {
@@ -89,6 +101,10 @@ p {
   background-color: #fff;
   border: 2px solid #b9b9b9;
 }
+
+/* =========================================
+   RESPONSIVE
+========================================= */
 
 @media (max-width: 1215px) {
   .landingtop-wrapper {

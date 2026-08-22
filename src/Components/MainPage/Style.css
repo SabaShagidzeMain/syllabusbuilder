@@ -1,0 +1,32 @@
+/* =========================================
+   MAIN PAGE
+========================================= */
+
+.main-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   HERO
+========================================= */
+
+.main-hero {
+  width: 100%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.main-content {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+}
