@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
+
 import { supabase } from "../../utility/supabaseClient";
 import "./style.css";
+
 import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
 import alteLogo from "../../assets/alte/altelogo.png";
 import Spinner from "../Spinner/Spinner";
 
-const AdminDisplay = () => {
+const AdminDisplay = forwardRef((props, ref) => {
   const [syllabuses, setSyllabuses] = useState([]);
 
   const [selectedSyllabus, setSelectedSyllabus] = useState(null);
@@ -15,6 +22,10 @@ const AdminDisplay = () => {
   const [instanceMenuOpen, setInstanceMenuOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
+
+  /* ==========================================
+     FETCH SYLLABUSES
+  ========================================== */
 
   useEffect(() => {
     fetchSyllabuses();
@@ -26,7 +37,9 @@ const AdminDisplay = () => {
     const { data, error } = await supabase
       .from("syllabus_forms")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", {
+        ascending: false,
+      });
 
     if (error) {
       console.error("Error fetching syllabuses:", error.message);
@@ -37,37 +50,38 @@ const AdminDisplay = () => {
     setLoading(false);
   };
 
-  // ==========================================
-  // FILTER SYLLABUSES
-  // ==========================================
+  /* ==========================================
+     FILTER SYLLABUSES
+  ========================================== */
 
   const mainSyllabuses = syllabuses.filter(
-    (syllabus) => syllabus.syllabus_type === "main"
+    (syllabus) => syllabus.syllabus_type === "main",
   );
 
   const instanceSyllabuses = syllabuses.filter(
-    (syllabus) => syllabus.syllabus_type === "instance"
+    (syllabus) => syllabus.syllabus_type === "instance",
   );
 
-  // ==========================================
-  // FIND PARENT
-  // ==========================================
+  /* ==========================================
+     FIND PARENT
+  ========================================== */
 
   const getParentSyllabus = (parentId) => {
     return mainSyllabuses.find(
-      (syllabus) => String(syllabus.id) === String(parentId)
+      (syllabus) => String(syllabus.id) === String(parentId),
     );
   };
 
-  // ==========================================
-  // EDIT SYLLABUS
-  // ==========================================
+  /* ==========================================
+     EDIT SYLLABUS
+  ========================================== */
 
   const handleEdit = (syllabus) => {
     setSelectedSyllabus(syllabus);
 
     if (syllabus.syllabus_type === "instance") {
       const parent = getParentSyllabus(syllabus.parent_id);
+
       setSelectedMainSyllabus(parent || null);
     } else {
       setSelectedMainSyllabus(null);
@@ -76,67 +90,101 @@ const AdminDisplay = () => {
     setModalOpen(true);
   };
 
-  // ==========================================
-  // CREATE MAIN
-  // ==========================================
+  /* ==========================================
+     CREATE MAIN SYLLABUS
+  ========================================== */
 
   const handleCreateMain = () => {
     setSelectedSyllabus(null);
+
     setSelectedMainSyllabus(null);
 
     setInstanceMenuOpen(false);
+
     setModalOpen(true);
   };
 
-  // ==========================================
-  // CREATE INSTANCE
-  // ==========================================
+  /* ==========================================
+     CREATE SUBJECT SYLLABUS
+  ========================================== */
 
   const handleCreateInstance = (mainSyllabus) => {
     setSelectedSyllabus(null);
+
     setSelectedMainSyllabus(mainSyllabus);
 
     setInstanceMenuOpen(false);
+
     setModalOpen(true);
   };
 
-  // ==========================================
-  // CLOSE BUILDER
-  // ==========================================
+  /* ==========================================
+     OPEN SUBJECT SYLLABUS SELECTION
+  ========================================== */
+
+  const handleCreateFromTemplate = () => {
+    if (mainSyllabuses.length === 0) {
+      return;
+    }
+
+    setInstanceMenuOpen(true);
+  };
+
+  /* ==========================================
+     EXPOSE ACTIONS TO SIDEBAR
+  ========================================== */
+
+  useImperativeHandle(ref, () => ({
+    createMainSyllabus: () => {
+      handleCreateMain();
+    },
+
+    createSubjectSyllabus: () => {
+      handleCreateFromTemplate();
+    },
+  }));
+
+  /* ==========================================
+     CLOSE BUILDER
+  ========================================== */
 
   const handleModalClose = () => {
     setModalOpen(false);
+
     setSelectedSyllabus(null);
+
     setSelectedMainSyllabus(null);
   };
 
-  // ==========================================
-  // SAVE BUILDER
-  // ==========================================
+  /* ==========================================
+     SAVE BUILDER
+  ========================================== */
 
   const handleModalSave = (updatedData) => {
-    if (!updatedData) return;
+    if (!updatedData) {
+      return;
+    }
 
     setSyllabuses((prev) => {
       const existing = prev.find((s) => s.id === updatedData.id);
 
       if (existing) {
-        return prev.map((s) =>
-          s.id === updatedData.id ? updatedData : s
-        );
+        return prev.map((s) => (s.id === updatedData.id ? updatedData : s));
       }
 
       return [...prev, updatedData];
     });
 
     setModalOpen(false);
+
     setSelectedSyllabus(null);
+
     setSelectedMainSyllabus(null);
   };
 
-  // ==========================================
-  // DELETE
-  // ==========================================
+  /* ==========================================
+     DELETE
+  ========================================== */
 
   const handleDelete = async (item) => {
     const isMain = item.syllabus_type === "main";
@@ -145,8 +193,7 @@ const AdminDisplay = () => {
 
     if (isMain) {
       const children = instanceSyllabuses.filter(
-        (instance) =>
-          String(instance.parent_id) === String(item.id)
+        (instance) => String(instance.parent_id) === String(item.id),
       );
 
       if (children.length > 0) {
@@ -158,7 +205,9 @@ const AdminDisplay = () => {
 
     const confirmDelete = window.confirm(message);
 
-    if (!confirmDelete) return;
+    if (!confirmDelete) {
+      return;
+    }
 
     const { error } = await supabase
       .from("syllabus_forms")
@@ -167,18 +216,18 @@ const AdminDisplay = () => {
 
     if (error) {
       console.error("Error deleting syllabus:", error.message);
+
       alert("Failed to delete syllabus.");
+
       return;
     }
 
-    setSyllabuses((prev) =>
-      prev.filter((syllabus) => syllabus.id !== item.id)
-    );
+    setSyllabuses((prev) => prev.filter((syllabus) => syllabus.id !== item.id));
   };
 
-  // ==========================================
-  // LOADING
-  // ==========================================
+  /* ==========================================
+     LOADING
+  ========================================== */
 
   if (loading) {
     return (
@@ -188,129 +237,60 @@ const AdminDisplay = () => {
     );
   }
 
-  // ==========================================
-  // UI
-  // ==========================================
+  /* ==========================================
+     UI
+  ========================================== */
 
   return (
     <div className="admin-display">
-
-      {/* ====================================== */}
-      {/* PAGE HEADER */}
-      {/* ====================================== */}
-
-      <div className="admin-header">
-        <div>
-          <h1>Syllabuses</h1>
-
-          <p>
-            Manage your main syllabus templates and
-            subject syllabuses.
-          </p>
-        </div>
-
-        <div className="admin-actions">
-
-          <button
-            className="blue-button create-button"
-            onClick={handleCreateMain}
-          >
-            + Create Main Syllabus
-          </button>
-
-          <button
-            className="blue-button create-button secondary-create"
-            onClick={() => setInstanceMenuOpen(true)}
-            disabled={mainSyllabuses.length === 0}
-          >
-            + Create Subject Syllabus
-          </button>
-
-        </div>
-      </div>
-
-      {/* ====================================== */}
-      {/* MAIN SYLLABUSES */}
-      {/* ====================================== */}
+      {/* ======================================
+          MAIN SYLLABUSES
+      ====================================== */}
 
       <section className="syllabus-section">
-
         <div className="section-header">
-
           <div>
-            <h2>Main Syllabuses</h2>
-
-            <p>
-              Main templates used as the foundation
-              for subject syllabuses.
-            </p>
+            <h2>Your Templates</h2>
           </div>
 
-          <span className="syllabus-count">
-            {mainSyllabuses.length}
-          </span>
-
+          <span className="syllabus-count">{mainSyllabuses.length}</span>
         </div>
 
         {mainSyllabuses.length === 0 ? (
-
           <div className="empty-state">
             <h3>No main syllabuses yet</h3>
 
-            <p>
-              Create a main syllabus template to get started.
-            </p>
+            <p>Create a main syllabus template to get started.</p>
 
-            <button
-              className="blue-button"
-              onClick={handleCreateMain}
-            >
+            <button className="blue-button" onClick={handleCreateMain}>
               + Create Main Syllabus
             </button>
           </div>
-
         ) : (
-
           <div className="card-wrapper">
-
             {mainSyllabuses.map((item) => (
-
               <div
                 key={item.id}
                 className="syllabus-card"
                 onClick={() => handleEdit(item)}
               >
-
-                <img
-                  src={alteLogo}
-                  alt=""
-                  className="form-image"
-                />
+                <img src={alteLogo} alt="" className="form-image" />
 
                 <div className="card-bot-wrapper">
-
                   <div className="card-title-row">
+                    <h3 className="ft1">{item.title}</h3>
 
-                    <h3 className="ft1">
-                      {item.title}
-                    </h3>
-
-                    <span className="syllabus-badge main-badge">
-                      MAIN
-                    </span>
-
+                    <span className="syllabus-badge main-badge">MAIN</span>
                   </div>
 
-                  <p className="card-description">
-                    Main syllabus template
-                  </p>
+                  <p className="card-description">Main syllabus template</p>
 
                   <div className="card-actions">
-
                     <button
                       className="edit-button"
                       onClick={(e) => {
                         e.stopPropagation();
+
                         handleEdit(item);
                       }}
                     >
@@ -321,125 +301,83 @@ const AdminDisplay = () => {
                       className="pdf-btn dlt-btn"
                       onClick={(e) => {
                         e.stopPropagation();
+
                         handleDelete(item);
                       }}
                     >
                       Delete
                     </button>
-
                   </div>
-
                 </div>
-
               </div>
-
             ))}
-
           </div>
-
         )}
-
       </section>
 
-      {/* ====================================== */}
-      {/* SUBJECT SYLLABUSES */}
-      {/* ====================================== */}
+      {/* ======================================
+          SUBJECT SYLLABUSES
+      ====================================== */}
 
       <section className="syllabus-section subject-section">
-
         <div className="section-header">
-
           <div>
-            <h2>Subject Syllabuses</h2>
-
-            <p>
-              Individual syllabuses based on main templates.
-            </p>
+            <h2>Template Instances</h2>
           </div>
 
-          <span className="syllabus-count">
-            {instanceSyllabuses.length}
-          </span>
-
+          <span className="syllabus-count">{instanceSyllabuses.length}</span>
         </div>
 
         {instanceSyllabuses.length === 0 ? (
-
           <div className="empty-state">
-
             <h3>No subject syllabuses yet</h3>
 
-            <p>
-              Create a subject syllabus from one of your
-              main templates.
-            </p>
+            <p>Create a subject syllabus from one of your main templates.</p>
 
             {mainSyllabuses.length > 0 && (
               <button
                 className="blue-button"
-                onClick={() => setInstanceMenuOpen(true)}
+                onClick={handleCreateFromTemplate}
               >
                 + Create Subject Syllabus
               </button>
             )}
-
           </div>
-
         ) : (
-
           <div className="card-wrapper">
-
             {instanceSyllabuses.map((item) => {
-
-              const parent = getParentSyllabus(
-                item.parent_id
-              );
+              const parent = getParentSyllabus(item.parent_id);
 
               return (
-
                 <div
                   key={item.id}
                   className="syllabus-card"
                   onClick={() => handleEdit(item)}
                 >
-
-                  <img
-                    src={alteLogo}
-                    alt=""
-                    className="form-image"
-                  />
+                  <img src={alteLogo} alt="" className="form-image" />
 
                   <div className="card-bot-wrapper">
-
                     <div className="card-title-row">
-
-                      <h3 className="ft1">
-                        {item.title}
-                      </h3>
+                      <h3 className="ft1">{item.title}</h3>
 
                       <span className="syllabus-badge instance-badge">
                         SUBJECT
                       </span>
-
                     </div>
 
                     <p className="card-description">
-
                       Based on:
-
                       <strong>
-                        {parent?.title ||
-                          "Unknown Main Syllabus"}
+                        {parent?.title || "Unknown Main Syllabus"}
                       </strong>
-
                     </p>
 
                     <div className="card-actions">
-
                       <button
                         className="edit-button"
                         onClick={(e) => {
                           e.stopPropagation();
+
                           handleEdit(item);
                         }}
                       >
@@ -450,52 +388,36 @@ const AdminDisplay = () => {
                         className="pdf-btn dlt-btn"
                         onClick={(e) => {
                           e.stopPropagation();
+
                           handleDelete(item);
                         }}
                       >
                         Delete
                       </button>
-
                     </div>
-
                   </div>
-
                 </div>
-
               );
             })}
-
           </div>
-
         )}
-
       </section>
 
-      {/* ====================================== */}
-      {/* SELECT MAIN SYLLABUS MODAL */}
-      {/* ====================================== */}
+      {/* ======================================
+          SELECT MAIN SYLLABUS
+      ====================================== */}
 
       {instanceMenuOpen && (
-
         <div
           className="selection-overlay"
           onClick={() => setInstanceMenuOpen(false)}
         >
-
-          <div
-            className="selection-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-
+          <div className="selection-modal" onClick={(e) => e.stopPropagation()}>
             <div className="selection-header">
-
               <div>
                 <h2>Create Subject Syllabus</h2>
 
-                <p>
-                  Choose the main syllabus this subject
-                  should be based on.
-                </p>
+                <p>Choose the main syllabus this subject should be based on.</p>
               </div>
 
               <button
@@ -504,69 +426,43 @@ const AdminDisplay = () => {
               >
                 ×
               </button>
-
             </div>
 
             <div className="main-selection-list">
-
               {mainSyllabuses.map((main) => (
-
                 <button
                   key={main.id}
                   className="main-selection-card"
-                  onClick={() =>
-                    handleCreateInstance(main)
-                  }
+                  onClick={() => handleCreateInstance(main)}
                 >
-
-                  <img
-                    src={alteLogo}
-                    alt=""
-                  />
+                  <img src={alteLogo} alt="" />
 
                   <div>
+                    <strong>{main.title}</strong>
 
-                    <strong>
-                      {main.title}
-                    </strong>
-
-                    <span>
-                      Main Syllabus
-                    </span>
-
+                    <span>Main Syllabus</span>
                   </div>
 
-                  <span className="selection-arrow">
-                    →
-                  </span>
-
+                  <span className="selection-arrow">→</span>
                 </button>
-
               ))}
-
             </div>
 
             <button
               className="cancel-button"
-              onClick={() =>
-                setInstanceMenuOpen(false)
-              }
+              onClick={() => setInstanceMenuOpen(false)}
             >
               Cancel
             </button>
-
           </div>
-
         </div>
-
       )}
 
-      {/* ====================================== */}
-      {/* SYLLABUS BUILDER */}
-      {/* ====================================== */}
+      {/* ======================================
+          SYLLABUS BUILDER
+      ====================================== */}
 
       {modalOpen && (
-
         <SyllabusBuilderModal
           isOpen={modalOpen}
           onClose={handleModalClose}
@@ -575,21 +471,15 @@ const AdminDisplay = () => {
           parentSyllabus={selectedMainSyllabus}
           syllabusType={
             selectedSyllabus?.syllabus_type ||
-            (selectedMainSyllabus
-              ? "instance"
-              : "main")
+            (selectedMainSyllabus ? "instance" : "main")
           }
           parentId={
-            selectedSyllabus?.parent_id ||
-            selectedMainSyllabus?.id ||
-            null
+            selectedSyllabus?.parent_id || selectedMainSyllabus?.id || null
           }
         />
-
       )}
-
     </div>
   );
-};
+});
 
 export default AdminDisplay;

@@ -1,63 +1,110 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
 import { supabase } from "../../utility/supabaseClient";
-import SyllabusBuilderModal from "../TableBuilder/TableBuilder";
+
 import AdminDisplay from "../AdminDisplay/AdminDisplay";
 import ProfDisplay from "../ProfDisplay/ProfDisplay";
 import AdminSyllabusModal from "../AdminSyllabusModal/AdminSyllabusModal";
 import ProfessorFillModal from "../professorFillModal/ProfessorFillModal";
-import Spinner from "../Spinner/Spinner";
-import "./style.css";
 import RegisterProfModal from "../RegisterProfModal/RegisterProfModal";
+import AppSidebar from "../AppSidebar/AppSidebar";
+
+import Spinner from "../Spinner/Spinner";
+
+import "./style.css";
 
 const LandingBot = () => {
-  const [openModal, setOpenModal] = useState(null); // null | 'create' | 'edit' | 'admin'
+  /* =========================================
+     ADMIN DISPLAY REF
+  ========================================= */
+
+  const adminDisplayRef = useRef(null);
+
+  /* =========================================
+     GENERAL STATE
+  ========================================= */
+
+  const [openModal, setOpenModal] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
   const [showRegisterProfModal, setShowRegisterProfModal] = useState(false);
   const [adminUniversity, setAdminUniversity] = useState(null);
 
+  const [activePage, setActivePage] = useState("syllabuses");
+
+  /* =========================================
+     FETCH USER ROLE
+  ========================================= */
 
   useEffect(() => {
     const fetchUserRoleAndUni = async () => {
-      setLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        setLoading(true);
 
-      if (!user) {
-        setRole(null);
-        setAdminUniversity(null);
-      } else {
-        const { data: profile, error } = await supabase
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.error("Auth error:", userError.message);
+          setRole(null);
+          setAdminUniversity(null);
+          return;
+        }
+
+        if (!user) {
+          setRole(null);
+          setAdminUniversity(null);
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role, university")
           .eq("user_id", user.id)
           .single();
 
-        if (error) {
-          console.error("Error fetching profile role:", error.message);
+        if (profileError) {
+          console.error("Error fetching profile role:", profileError.message);
+
           setRole(null);
           setAdminUniversity(null);
-        } else {
-          setRole(profile?.role);
-          setAdminUniversity(profile?.university);
-        }
-      }
 
-      setTimeout(() => setLoading(false), 300);
+          return;
+        }
+
+        setRole(profile?.role);
+        setAdminUniversity(profile?.university);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+
+        setRole(null);
+        setAdminUniversity(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchUserRoleAndUni();
   }, []);
 
+  /* =========================================
+     HANDLE PROFESSOR FORM SAVE
+  ========================================= */
+
   const handleSave = async (updatedSections) => {
-    if (!selectedForm) return;
+    if (!selectedForm) {
+      return;
+    }
 
     try {
       const { error } = await supabase
         .from("prof_forms")
-        .update({ content: updatedSections })
+        .update({
+          content: updatedSections,
+        })
         .eq("id", selectedForm.id);
 
       if (error) {
@@ -65,61 +112,178 @@ const LandingBot = () => {
         return;
       }
 
-      // Close modal and reset selectedForm on successful save
       setSelectedForm(null);
       setOpenModal(null);
     } catch (err) {
+      console.error(err);
       alert("Unexpected error");
     }
   };
+
+  /* =========================================
+     CLOSE MODAL
+  ========================================= */
 
   const handleClose = () => {
     setOpenModal(null);
     setSelectedForm(null);
   };
 
+  /* =========================================
+     EDIT PROFESSOR FORM
+  ========================================= */
+
   const handleEditForm = (form) => {
     setSelectedForm(form);
     setOpenModal("edit");
   };
 
-  const openCreateModal = () => {
-    setSelectedForm(null);
-    setOpenModal("create");
+  /* =========================================
+     SIDEBAR:
+     NEW SYLLABUS TEMPLATE
+  ========================================= */
+
+  const handleNewSyllabus = () => {
+    setActivePage("syllabuses");
+
+    if (adminDisplayRef.current?.createMainSyllabus) {
+      adminDisplayRef.current.createMainSyllabus();
+    }
   };
 
-  const openAdminModal = () => {
+  /* =========================================
+     SIDEBAR:
+     CREATE FROM TEMPLATE
+  ========================================= */
+
+  const handleCreateFromTemplate = () => {
+    setActivePage("syllabuses");
+
+    if (adminDisplayRef.current?.createSubjectSyllabus) {
+      adminDisplayRef.current.createSubjectSyllabus();
+    }
+  };
+
+  /* =========================================
+     SIDEBAR:
+     PROFESSOR SUBMISSIONS
+  ========================================= */
+
+  const handleProfessorSubmissions = () => {
+    setActivePage("submissions");
     setOpenModal("admin");
   };
 
-  if (loading) return <Spinner />;
+  /* =========================================
+     SIDEBAR:
+     REGISTER PROFESSOR
+  ========================================= */
+
+  const handleRegisterProfessor = () => {
+    setActivePage("register");
+    setShowRegisterProfModal(true);
+  };
+
+  /* =========================================
+     SIDEBAR:
+     SETTINGS
+  ========================================= */
+
+  const handleSettings = () => {
+    setActivePage("settings");
+  };
+
+  /* =========================================
+     LOGOUT
+  ========================================= */
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Logout error:", error.message);
+        alert("Failed to log out.");
+        return;
+      }
+
+      // Force the application to reload
+      // so the login page/auth state is refreshed.
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Unexpected logout error:", error);
+    }
+  };
+
+  /* =========================================
+     APPLICATION
+  ========================================= */
 
   return (
-    <div className="botwrapper">
-      <div className="adminView">
-        {role?.admin && (
-          <>
-            <div className="button-wrapper-two">
-              <button className="openbtn" onClick={openCreateModal}>
-                Create New
-              </button>
-              <button className="openbtn view-btn" onClick={openAdminModal}>
-                Professor Syllabuses
-              </button>
-              <button
-                className="openbtn register-btn"
-                onClick={() => setShowRegisterProfModal(true)}
-              >
-                Register Professor
-              </button>
-            </div>
+    <div className="application-layout">
+      {/* =====================================
+          SIDEBAR
+          Render it immediately for admins.
+      ===================================== */}
 
-            <SyllabusBuilderModal
-              isOpen={openModal === "create"}
-              onClose={handleClose}
-              onSave={handleSave}
-              existingForm={selectedForm}
+      {role?.admin && (
+        <AppSidebar
+          activePage={activePage}
+          setActivePage={setActivePage}
+          onNewSyllabus={handleNewSyllabus}
+          onCreateFromTemplate={handleCreateFromTemplate}
+          onProfessorSubmissions={handleProfessorSubmissions}
+          onRegisterProfessor={handleRegisterProfessor}
+          onSettings={handleSettings}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* =====================================
+          MAIN CONTENT
+      ===================================== */}
+
+      <main
+        className={
+          role?.admin ? "application-content" : "application-content-full"
+        }
+      >
+        {/* ===================================
+            LOADING
+        =================================== */}
+
+        {loading && <Spinner />}
+
+        {/* ===================================
+            ADMIN
+        =================================== */}
+
+        {!loading && role?.admin && (
+          <>
+            {/* ================================
+                ADMIN SYLLABUS DISPLAY
+            ================================= */}
+
+            {activePage === "syllabuses" && (
+              <AdminDisplay ref={adminDisplayRef} />
+            )}
+
+            {/* ================================
+                PROFESSOR SUBMISSIONS
+            ================================= */}
+
+            <AdminSyllabusModal
+              isOpen={openModal === "admin"}
+              onClose={() => {
+                setOpenModal(null);
+                setActivePage("syllabuses");
+              }}
+              onEdit={handleEditForm}
             />
+
+            {/* ================================
+                PROFESSOR SUBMISSION EDIT
+            ================================= */}
 
             <ProfessorFillModal
               isOpen={openModal === "edit"}
@@ -129,27 +293,37 @@ const LandingBot = () => {
               isAdmin={role?.admin}
             />
 
-            <AdminSyllabusModal
-              isOpen={openModal === "admin"}
-              onClose={handleClose}
-              onEdit={handleEditForm}
-            />
-
-            <AdminDisplay setLoading={setLoading} />
+            {/* ================================
+                REGISTER PROFESSOR
+            ================================= */}
 
             <RegisterProfModal
               isOpen={showRegisterProfModal}
-              onClose={() => setShowRegisterProfModal(false)}
+              onClose={() => {
+                setShowRegisterProfModal(false);
+                setActivePage("syllabuses");
+              }}
               adminUniversity={adminUniversity}
             />
-
           </>
         )}
 
-        {role?.prof && <ProfDisplay />}
+        {/* ===================================
+            PROFESSOR
+        =================================== */}
 
-        {!role && <p>Loading user role or no role assigned.</p>}
-      </div>
+        {!loading && role?.prof && <ProfDisplay />}
+
+        {/* ===================================
+            NO ROLE
+        =================================== */}
+
+        {!loading && !role && (
+          <div className="no-role-message">
+            <p>Loading user role or no role assigned.</p>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
