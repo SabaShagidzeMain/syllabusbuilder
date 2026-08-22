@@ -5,6 +5,8 @@ import templateIcon from "../../assets/general/tabler_template.png";
 import instanceIcon from "../../assets/general/ri_instance-line.png";
 import submissionsIcon from "../../assets/general/typcn_document.png";
 import registerIcon from "../../assets/general/mdi_register-outline.png";
+import settingsIcon from "../../assets/general/material-symbols_settings-outline-rounded.png";
+import logoutIcon from "../../assets/general/material-symbols_logout.png";
 
 const AppSidebar = ({
   activePage,
@@ -73,14 +75,14 @@ const AppSidebar = ({
           }`}
           onClick={onSettings}
         >
-          <span className="sidebar-icon">⚙</span>
+          <img src={settingsIcon} className="sidebar-icon" alt="" />
           <span>Settings</span>
         </button>
 
         {/* LOG OUT */}
 
         <button className="sidebar-item logout-item" onClick={onLogout}>
-          <span className="sidebar-icon">↪</span>
+          <img src={logoutIcon} className="sidebar-icon" alt="" />
           <span>Log out</span>
         </button>
       </div>
