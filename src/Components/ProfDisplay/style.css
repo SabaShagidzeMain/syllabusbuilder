@@ -56,13 +56,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 6rem;
+  width: 100%;
   font-size: 0.7rem;
   padding: 0.4rem;
 }
 
 .card-btn-wrapper {
   display: flex;
-  flex-direction: column;
   gap: 0.4rem;
+  justify-content: space-between;
 }

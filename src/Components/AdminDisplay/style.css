@@ -183,6 +183,10 @@
   flex-shrink: 0;
 }
 
+.syllabus-card h4 {
+  margin: 0;
+}
+
 .syllabus-card:hover {
   transform: translateY(-4px);
 
@@ -194,8 +198,8 @@
 ========================================= */
 
 .form-image {
-  width: 172px;
-  height: 82px;
+  width: 100%;
+  height: 8rem;
 
   object-fit: cover;
 
