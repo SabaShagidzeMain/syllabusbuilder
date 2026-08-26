@@ -54,14 +54,14 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave, 
   return (
     <div className="modal">
       <div className="modal-inner" ref={modalRef}>
-        <ProfLeftPanel
+        {/* <ProfLeftPanel
           sections={sections}
           setSections={setSections}
           onSave={onSave}
           leftRowRefs={leftRowRefs}
           autoResize={autoResize}
           isAdmin={isAdmin}  // <-- pass isAdmin here
-        />
+        /> */}
         <ProfRightPanel
           sections={sections}
           editingCell={editingCell}
