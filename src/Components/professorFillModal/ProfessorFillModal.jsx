@@ -4,7 +4,13 @@ import ProfRightPanel from "../ProfRightPanel/ProfRightPanel";
 import { autoResize, isValidContent } from "../../utility/utils";
 import "./style.css";
 
-export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave, isAdmin }) {
+export default function ProfessorFillModal({
+  isOpen,
+  onClose,
+  syllabus,
+  onSave,
+  isAdmin,
+}) {
   const modalRef = useRef();
   const leftRowRefs = useRef([]);
   const rightRowRefs = useRef([]);
@@ -30,7 +36,7 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave, 
   }, [onClose]);
 
   useEffect(() => {
-    leftRowRefs.current.forEach(row => {
+    leftRowRefs.current.forEach((row) => {
       if (row) row.querySelectorAll("textarea").forEach(autoResize);
     });
 
@@ -41,7 +47,7 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave, 
           leftRow.style.height = rightRow.style.height = "auto";
           const maxHeight = Math.max(
             leftRow.getBoundingClientRect().height,
-            rightRow.getBoundingClientRect().height
+            rightRow.getBoundingClientRect().height,
           );
           leftRow.style.height = rightRow.style.height = `${maxHeight}px`;
         }
@@ -69,7 +75,8 @@ export default function ProfessorFillModal({ isOpen, onClose, syllabus, onSave, 
           setSections={setSections}
           rightRowRefs={rightRowRefs}
           autoResize={autoResize}
-          isAdmin={isAdmin}  // <-- and here
+          isAdmin={isAdmin}
+          onSave={onSave}
         />
       </div>
     </div>
