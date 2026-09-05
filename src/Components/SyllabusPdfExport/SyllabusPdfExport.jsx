@@ -28,6 +28,76 @@ export default function SyllabusPdfExport() {
   };
 
   /* =========================================
+     GET COLUMN COUNT
+  ========================================= */
+
+  const getColumnCount = (section) => {
+    if (!section?.cells?.length) {
+      return 1;
+    }
+
+    let maxColumns = 1;
+
+    section.cells.forEach((row) => {
+      let rowColumns = 0;
+
+      row.forEach((cell) => {
+        if (cell.isFullWidth) {
+          rowColumns = Math.max(
+            rowColumns,
+            section.cells[1]?.length || row.length || 1,
+          );
+        } else {
+          rowColumns += cell.colSpan || 1;
+        }
+      });
+
+      maxColumns = Math.max(maxColumns, rowColumns);
+    });
+
+    return maxColumns;
+  };
+
+  /* =========================================
+     GET COLUMN WIDTHS
+  ========================================= */
+
+  const getColumnWidths = (section) => {
+    const columnCount = getColumnCount(section);
+
+    /*
+     * Use saved widths from the builder.
+     */
+
+    if (
+      Array.isArray(section?.columnWidths) &&
+      section.columnWidths.length === columnCount
+    ) {
+      return section.columnWidths;
+    }
+
+    /*
+     * Default:
+     *
+     * Column 1 = 30%
+     * Remaining columns = 70%
+     */
+
+    if (columnCount <= 1) {
+      return [100];
+    }
+
+    const firstColumnWidth = 30;
+    const remainingWidth = 100 - firstColumnWidth;
+
+    const otherColumnWidth = remainingWidth / (columnCount - 1);
+
+    return Array.from({ length: columnCount }, (_, index) =>
+      index === 0 ? firstColumnWidth : otherColumnWidth,
+    );
+  };
+
+  /* =========================================
      APPLY INSTANCE OVERRIDES
   ========================================= */
 
@@ -45,13 +115,49 @@ export default function SyllabusPdfExport() {
         return;
       }
 
-      Object.entries(sectionOverrides).forEach(([cellPosition, value]) => {
+      Object.entries(sectionOverrides).forEach(([cellPosition, override]) => {
         const [rowIndex, cellIndex] = cellPosition.split("-").map(Number);
 
         const targetSection = result.find((s) => s.id === section.id);
 
-        if (targetSection?.cells?.[rowIndex]?.[cellIndex]) {
-          targetSection.cells[rowIndex][cellIndex].value = value;
+        const targetCell = targetSection?.cells?.[rowIndex]?.[cellIndex];
+
+        if (!targetCell) {
+          return;
+        }
+
+        /*
+         * Support both the old format:
+         *
+         * "0-1": "some text"
+         *
+         * and the newer object format:
+         *
+         * "0-1": {
+         *   value: "some text",
+         *   checked: true
+         * }
+         */
+
+        if (
+          override &&
+          typeof override === "object" &&
+          !Array.isArray(override)
+        ) {
+          if ("value" in override) {
+            targetCell.value = override.value;
+          }
+
+          if ("checked" in override) {
+            targetCell.checked = override.checked;
+          }
+        } else {
+          /*
+           * Backwards compatibility with
+           * existing overrides.
+           */
+
+          targetCell.value = override;
         }
       });
     });
@@ -100,7 +206,20 @@ export default function SyllabusPdfExport() {
         if (Array.isArray(profForm.content) && profForm.content.length > 0) {
           console.log("Export: using prof_forms.content");
 
-          setSections(profForm.content);
+          /*
+           * IMPORTANT:
+           *
+           * This content already contains:
+           *
+           * - columnWidths
+           * - checkbox states
+           * - cell values
+           *
+           * so don't rebuild it.
+           */
+
+          setSections(cloneSections(profForm.content));
+
           setLoading(false);
 
           return;
@@ -184,6 +303,7 @@ export default function SyllabusPdfExport() {
       fetchSyllabus();
     } else {
       setError("No syllabus ID provided.");
+
       setLoading(false);
     }
   }, [syllabusId]);
@@ -228,7 +348,9 @@ export default function SyllabusPdfExport() {
       </button>
 
       <div ref={contentRef} className="export-wrapper">
-        {/* FIRST PAGE */}
+        {/* =====================================
+            FIRST PAGE
+        ===================================== */}
 
         <div className="first-page page">
           <div className="title-container">
@@ -236,12 +358,43 @@ export default function SyllabusPdfExport() {
           </div>
         </div>
 
-        {/* SYLLABUS */}
+        {/* =====================================
+            SYLLABUS
+        ===================================== */}
 
         <div className="other-pages page">
-          {sections.map((section, sIdx) =>
-            section.cells?.length > 0 ? (
-              <table className="syllabus-table" key={section.id || sIdx}>
+          {sections.map((section, sIdx) => {
+            if (!section.cells?.length) {
+              return null;
+            }
+
+            const columnWidths = getColumnWidths(section);
+
+            return (
+              <table
+                className="syllabus-table"
+                key={section.id || sIdx}
+                style={{
+                  width: "100%",
+                  tableLayout: "fixed",
+                  borderCollapse: "collapse",
+                }}
+              >
+                {/* =================================
+                    COLUMN WIDTHS
+                ================================= */}
+
+                <colgroup>
+                  {columnWidths.map((width, columnIndex) => (
+                    <col
+                      key={columnIndex}
+                      style={{
+                        width: `${width}%`,
+                      }}
+                    />
+                  ))}
+                </colgroup>
+
                 <tbody>
                   {section.cells.map((row, rIdx) => (
                     <tr
@@ -256,32 +409,62 @@ export default function SyllabusPdfExport() {
                           key={cIdx}
                           rowSpan={cell.rowSpan || 1}
                           colSpan={
-                            cell.isFullWidth ? section.cells[1]?.length || 1 : 1
+                            cell.isFullWidth
+                              ? section.cells[1]?.length || 1
+                              : cell.colSpan || 1
                           }
                           className={`
-                                  table-cell
-                                  ${cell.isTitle ? "title-cell" : ""}
-                                  ${cell.isFullWidth ? "wide-cell" : ""}
-                                  ${cell.isSecondary ? "secondary-cell" : ""}
-                                `}
+                                table-cell
+                                ${cell.isTitle ? "title-cell" : ""}
+                                ${cell.isFullWidth ? "wide-cell" : ""}
+                                ${cell.isSecondary ? "secondary-cell" : ""}
+                                ${cell.isFullHeight ? "full-height-cell" : ""}
+                              `}
                           style={{
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",
-                            maxWidth: "300px",
-                            minWidth: "100px",
+                            overflowWrap: "break-word",
+                            boxSizing: "border-box",
                             padding: "6px 8px",
                             verticalAlign: "top",
                           }}
                         >
-                          {cell.value || <em>&nbsp;</em>}
+                          {/* ===============================
+                                  CHECKBOX
+                              =============================== */}
+
+                          {cell.isCheckbox ? (
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "100%",
+                                minHeight: "20px",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={cell.checked || false}
+                                readOnly
+                                style={{
+                                  width: "18px",
+                                  height: "18px",
+                                  margin: 0,
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            cell.value || <em>&nbsp;</em>
+                          )}
                         </td>
                       ))}
                     </tr>
                   ))}
                 </tbody>
               </table>
-            ) : null,
-          )}
+            );
+          })}
         </div>
       </div>
     </div>
