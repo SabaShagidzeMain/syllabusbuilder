@@ -25,6 +25,14 @@ export default function SyllabusBuilderModal({
 
   /*
    * ---------------------------------------------------------
+   * COLUMN RESIZE STATE
+   * ---------------------------------------------------------
+   */
+
+  const [dragState, setDragState] = useState(null);
+
+  /*
+   * ---------------------------------------------------------
    * DEEP CLONE
    * ---------------------------------------------------------
    */
@@ -37,24 +45,210 @@ export default function SyllabusBuilderModal({
 
   /*
    * ---------------------------------------------------------
-   * APPLY INSTANCE OVERRIDES
+   * GET COLUMN COUNT
    * ---------------------------------------------------------
    *
-   * overrides format:
+   * Determines how many actual columns the table has.
+   */
+
+  const getColumnCount = (section) => {
+    if (!section?.cells?.length) {
+      return 1;
+    }
+
+    let maxColumns = 1;
+
+    section.cells.forEach((row) => {
+      let rowColumns = 0;
+
+      row.forEach((cell) => {
+        if (cell.isFullWidth) {
+          rowColumns = Math.max(
+            rowColumns,
+            section.cells[1]?.length || row.length || 1,
+          );
+        } else {
+          rowColumns += cell.colSpan || 1;
+        }
+      });
+
+      maxColumns = Math.max(maxColumns, rowColumns);
+    });
+
+    return maxColumns;
+  };
+
+  /*
+   * ---------------------------------------------------------
+   * GET COLUMN WIDTHS
+   * ---------------------------------------------------------
    *
-   * {
-   *   "sectionId": {
-   *     "rowIndex-cellIndex": "new value"
-   *   }
-   * }
+   * The first column is ALWAYS 30%.
+   *
+   * The remaining columns divide the remaining 70%.
+   *
+   * If custom widths already exist, use those instead.
+   */
+
+  const getColumnWidths = (section) => {
+    const columnCount = getColumnCount(section);
+
+    if (
+      Array.isArray(section?.columnWidths) &&
+      section.columnWidths.length === columnCount
+    ) {
+      return section.columnWidths;
+    }
+
+    if (columnCount <= 1) {
+      return [100];
+    }
+
+    const firstColumnWidth = 30;
+    const remainingWidth = 100 - firstColumnWidth;
+
+    const otherColumnWidth = remainingWidth / (columnCount - 1);
+
+    return Array.from({ length: columnCount }, (_, index) =>
+      index === 0 ? firstColumnWidth : otherColumnWidth,
+    );
+  };
+
+  /*
+   * ---------------------------------------------------------
+   * UPDATE COLUMN WIDTHS
+   * ---------------------------------------------------------
+   */
+
+  const updateColumnWidths = (sectionId, widths) => {
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              columnWidths: widths,
+            }
+          : section,
+      ),
+    );
+  };
+
+  /*
+   * ---------------------------------------------------------
+   * COLUMN DRAGGING
+   * ---------------------------------------------------------
+   *
+   * columnIndex represents the column immediately to the
+   * LEFT of the divider being dragged.
    *
    * Example:
    *
-   * {
-   *   "1750670134197": {
-   *     "0-1": "Bioinformatics"
-   *   }
-   * }
+   * [ Column 1 ][ Column 2 ][ Column 3 ][ Column 4 ]
+   *              ^
+   *              columnIndex = 0
+   *
+   *              [ Column 2 ][ Column 3 ]
+   *                           ^
+   *                           columnIndex = 1
+   *
+   * The first divider is deliberately disabled.
+   */
+
+  useEffect(() => {
+    if (!dragState) {
+      return;
+    }
+
+    const handleMouseMove = (event) => {
+      const { sectionId, columnIndex, startX, tableWidth, originalWidths } =
+        dragState;
+
+      /*
+       * columnIndex === 0 means the divider between
+       * column 1 and column 2.
+       *
+       * The first column must NEVER change width,
+       * therefore this divider cannot be dragged.
+       */
+      if (columnIndex === 0) {
+        return;
+      }
+
+      const deltaPixels = event.clientX - startX;
+
+      const deltaPercent = (deltaPixels / tableWidth) * 100;
+
+      const newWidths = [...originalWidths];
+
+      /*
+       * The divider sits between:
+       *
+       * columnIndex
+       * and
+       * columnIndex + 1
+       */
+
+      const newLeftWidth = originalWidths[columnIndex] + deltaPercent;
+
+      const newRightWidth = originalWidths[columnIndex + 1] - deltaPercent;
+
+      /*
+       * Prevent columns from becoming too narrow.
+       */
+
+      const MIN_COLUMN_WIDTH = 8;
+
+      if (newLeftWidth < MIN_COLUMN_WIDTH) {
+        return;
+      }
+
+      if (newRightWidth < MIN_COLUMN_WIDTH) {
+        return;
+      }
+
+      /*
+       * IMPORTANT:
+       *
+       * We only modify the two columns adjacent
+       * to the dragged divider.
+       *
+       * Column 1 is never touched.
+       */
+
+      newWidths[columnIndex] = newLeftWidth;
+      newWidths[columnIndex + 1] = newRightWidth;
+
+      updateColumnWidths(sectionId, newWidths);
+    };
+
+    const handleMouseUp = () => {
+      setDragState(null);
+
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+
+    document.addEventListener("mouseup", handleMouseUp);
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+
+      document.removeEventListener("mouseup", handleMouseUp);
+
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [dragState]);
+
+  /*
+   * ---------------------------------------------------------
+   * APPLY INSTANCE OVERRIDES
+   * ---------------------------------------------------------
    */
 
   const applyOverrides = (baseSections, overrides) => {
@@ -67,7 +261,9 @@ export default function SyllabusBuilderModal({
     result.forEach((section) => {
       const sectionOverrides = overrides[section.id];
 
-      if (!sectionOverrides) return;
+      if (!sectionOverrides) {
+        return;
+      }
 
       Object.entries(sectionOverrides).forEach(([cellPosition, value]) => {
         const [rowIndex, cellIndex] = cellPosition.split("-").map(Number);
@@ -95,7 +291,7 @@ export default function SyllabusBuilderModal({
    *
    * Compare the edited instance with the main syllabus.
    *
-   * Only changed cell values are stored.
+   * Only changed cell values are stored as overrides.
    */
 
   const buildOverrides = (baseSections, editedSections) => {
@@ -106,13 +302,17 @@ export default function SyllabusBuilderModal({
         (section) => section.id === editedSection.id,
       );
 
-      if (!baseSection) return;
+      if (!baseSection) {
+        return;
+      }
 
       editedSection.cells.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
           const baseCell = baseSection.cells?.[rowIndex]?.[cellIndex];
 
-          if (!baseCell) return;
+          if (!baseCell) {
+            return;
+          }
 
           const editedValue = cell.value ?? "";
           const baseValue = baseCell.value ?? "";
@@ -139,11 +339,14 @@ export default function SyllabusBuilderModal({
    */
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
 
     /*
      * Editing an existing MAIN syllabus
      */
+
     if (initialData && initialData.syllabus_type === "main") {
       setSections(cloneSections(initialData.content || []));
 
@@ -155,6 +358,7 @@ export default function SyllabusBuilderModal({
     /*
      * Editing an existing INSTANCE
      */
+
     if (initialData && initialData.syllabus_type === "instance") {
       const parentContent = parentSyllabus?.content || [];
 
@@ -163,7 +367,33 @@ export default function SyllabusBuilderModal({
         initialData.overrides || {},
       );
 
-      setSections(instanceContent);
+      /*
+       * If the instance already contains saved
+       * column widths, preserve them.
+       */
+
+      if (Array.isArray(initialData.content)) {
+        const savedContent = cloneSections(initialData.content);
+
+        /*
+         * Apply cell-value overrides while preserving
+         * the saved column widths.
+         */
+
+        savedContent.forEach((savedSection) => {
+          const overrideSection = instanceContent.find(
+            (section) => section.id === savedSection.id,
+          );
+
+          if (overrideSection && Array.isArray(savedSection.columnWidths)) {
+            overrideSection.columnWidths = savedSection.columnWidths;
+          }
+        });
+
+        setSections(savedContent);
+      } else {
+        setSections(instanceContent);
+      }
 
       setFormTitle(initialData.title || "Subject Syllabus");
 
@@ -173,6 +403,7 @@ export default function SyllabusBuilderModal({
     /*
      * Creating a new INSTANCE
      */
+
     if (syllabusType === "instance" && parentSyllabus) {
       setSections(cloneSections(parentSyllabus.content || []));
 
@@ -184,6 +415,7 @@ export default function SyllabusBuilderModal({
     /*
      * Creating a new MAIN syllabus
      */
+
     setSections([]);
     setFormTitle("Syllabus Draft");
   }, [isOpen, initialData, parentSyllabus, syllabusType]);
@@ -224,6 +456,7 @@ export default function SyllabusBuilderModal({
          * EDITING INSTANCE
          * -----------------------------------------------------
          */
+
         const parentContent = parentSyllabus?.content || [];
 
         const overrides = buildOverrides(parentContent, sections);
@@ -242,6 +475,7 @@ export default function SyllabusBuilderModal({
        * CREATE NEW SYLLABUS
        * =======================================================
        */
+
       const { university, error: profileError } =
         await fetchUniversityForCurrentUser();
 
@@ -272,13 +506,9 @@ export default function SyllabusBuilderModal({
          * NEW INSTANCE
          * -----------------------------------------------------
          */
+
         const parentContent = parentSyllabus?.content || [];
 
-        /*
-         * Initially the instance is identical
-         * to the main syllabus, so there are
-         * no overrides.
-         */
         const overrides = buildOverrides(parentContent, sections);
 
         result = await insertSyllabusForm(
@@ -386,6 +616,12 @@ export default function SyllabusBuilderModal({
     });
   }
 
+  /*
+   * ---------------------------------------------------------
+   * MODAL
+   * ---------------------------------------------------------
+   */
+
   if (!isOpen) {
     return null;
   }
@@ -470,7 +706,9 @@ export default function SyllabusBuilderModal({
                         (t) => t.id === e.target.value,
                       );
 
-                      if (!table) return;
+                      if (!table) {
+                        return;
+                      }
 
                       updateSection(section.id, {
                         tableId: table.id,
@@ -480,6 +718,12 @@ export default function SyllabusBuilderModal({
                             ...cell,
                           })),
                         ),
+
+                        /*
+                         * Reset custom widths when
+                         * selecting a completely new table.
+                         */
+                        columnWidths: undefined,
                       });
                     }}
                   >
@@ -592,16 +836,49 @@ export default function SyllabusBuilderModal({
 
           {sections.length === 0 && <p>No sections added yet.</p>}
 
-          {sections.map((section) => (
-            <div key={section.id}>
-              {section.cells.length > 0 && (
+          {sections.map((section) => {
+            if (section.cells.length === 0) {
+              return null;
+            }
+
+            const columnWidths = getColumnWidths(section);
+
+            return (
+              <div
+                key={section.id}
+                style={{
+                  position: "relative",
+                  width: "100%",
+                }}
+              >
+                {/* ================================================= */}
+                {/* TABLE */}
+                {/* ================================================= */}
+
                 <table
                   className="syllabus-table"
                   border="1"
                   style={{
                     width: "100%",
+                    tableLayout: "fixed",
+                    borderCollapse: "collapse",
                   }}
                 >
+                  {/* ================================================= */}
+                  {/* COLUMN WIDTH DEFINITIONS */}
+                  {/* ================================================= */}
+
+                  <colgroup>
+                    {columnWidths.map((width, columnIndex) => (
+                      <col
+                        key={columnIndex}
+                        style={{
+                          width: `${width}%`,
+                        }}
+                      />
+                    ))}
+                  </colgroup>
+
                   <tbody>
                     {section.cells.map((row, rIdx) => (
                       <tr key={rIdx}>
@@ -612,19 +889,15 @@ export default function SyllabusBuilderModal({
                             colSpan={
                               cell.isFullWidth
                                 ? section.cells[1]?.length || 1
-                                : 1
+                                : cell.colSpan || 1
                             }
                             className={`
-                                    table-cell
-                                    ${cell.isTitle ? "title-cell" : ""}
-                                    ${cell.isFullWidth ? "wide-cell" : ""}
-                                    ${cell.isSecondary ? "secondary-cell" : ""}
-                                    ${
-                                      cell.isFullHeight
-                                        ? "full-height-cell"
-                                        : ""
-                                    }
-                                  `}
+                                  table-cell
+                                  ${cell.isTitle ? "title-cell" : ""}
+                                  ${cell.isFullWidth ? "wide-cell" : ""}
+                                  ${cell.isSecondary ? "secondary-cell" : ""}
+                                  ${cell.isFullHeight ? "full-height-cell" : ""}
+                                `}
                           >
                             {isAdmin ? (
                               <textarea
@@ -667,6 +940,7 @@ export default function SyllabusBuilderModal({
                                     !cell.isTitle && !cell.isSecondary
                                       ? "black"
                                       : undefined,
+                                  boxSizing: "border-box",
                                 }}
                               />
                             ) : (
@@ -678,12 +952,97 @@ export default function SyllabusBuilderModal({
                     ))}
                   </tbody>
                 </table>
-              )}
-            </div>
-          ))}
+
+                {/* ================================================= */}
+                {/* RESIZE HANDLES */}
+                {/* ================================================= */}
+
+                {columnWidths.slice(0, -1).map((_, columnIndex) => {
+                  /*
+                   * DO NOT render the first divider.
+                   *
+                   * columnIndex 0 =
+                   * divider between column 1 and 2
+                   *
+                   * That divider must remain fixed.
+                   */
+
+                  if (columnIndex === 0) {
+                    return null;
+                  }
+
+                  /*
+                   * Find the horizontal position
+                   * of this divider.
+                   *
+                   * Example:
+                   *
+                   * widths:
+                   * [30, 20, 25, 25]
+                   *
+                   * divider after column 2:
+                   * 30 + 20 = 50%
+                   */
+
+                  const leftPosition = columnWidths
+                    .slice(0, columnIndex + 1)
+                    .reduce((sum, width) => sum + width, 0);
+
+                  return (
+                    <div
+                      key={`resize-${columnIndex}`}
+                      className="column-resize-handle"
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        bottom: 0,
+                        left: `${leftPosition}%`,
+                        width: "10px",
+                        transform: "translateX(-50%)",
+                        cursor: "col-resize",
+                        zIndex: 50,
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const table =
+                          e.currentTarget.parentElement.querySelector("table");
+
+                        if (!table) {
+                          return;
+                        }
+
+                        const tableRect = table.getBoundingClientRect();
+
+                        setDragState({
+                          sectionId: section.id,
+
+                          /*
+                           * This is the column
+                           * immediately LEFT
+                           * of the divider.
+                           */
+                          columnIndex,
+
+                          startX: e.clientX,
+
+                          tableWidth: tableRect.width,
+
+                          originalWidths: [...columnWidths],
+                        });
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
+        {/* ================================================= */}
         {/* SAVE */}
+        {/* ================================================= */}
 
         <button className="close-button blue-button" onClick={handleSave}>
           Save

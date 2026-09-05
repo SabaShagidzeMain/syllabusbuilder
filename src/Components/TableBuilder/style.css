@@ -231,3 +231,11 @@ table {
   justify-content: center;
   align-items: center;
 }
+
+.column-resize-handle {
+  transition: background-color 0.15s ease;
+}
+
+.column-resize-handle:hover {
+  background-color: rgba(0, 0, 0, 0.15);
+}
