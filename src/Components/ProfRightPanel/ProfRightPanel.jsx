@@ -19,6 +19,21 @@ export default function ProfRightPanel({
     setSections(updated);
   };
 
+  const updateCheckbox = (sectionIndex, rowIndex, colIndex, checked) => {
+    const updated = sections.map((section) => ({
+      ...section,
+      cells: section.cells.map((row) =>
+        row.map((cell) => ({
+          ...cell,
+        })),
+      ),
+    }));
+
+    updated[sectionIndex].cells[rowIndex][colIndex].checked = checked;
+
+    setSections(updated);
+  };
+
   const handleBlurOrEnter = () => {
     setEditingCell(null);
   };
@@ -70,13 +85,6 @@ export default function ProfRightPanel({
    * ---------------------------------------------------------
    * GET COLUMN WIDTHS
    * ---------------------------------------------------------
-   *
-   * Use the widths saved by SyllabusBuilderModal.
-   *
-   * If no custom widths exist yet:
-   *
-   * First column = 30%
-   * Remaining columns share the other 70%.
    */
 
   const getColumnWidths = (section) => {
@@ -174,8 +182,14 @@ export default function ProfRightPanel({
                             editingCell.rowIndex === rowIndex &&
                             editingCell.colIndex === colIndex;
 
+                          /*
+                           * Checkbox cells are always editable,
+                           * even when they aren't normal text cells.
+                           */
                           const editable =
-                            !cell.isTitle || (cell.isTitle && isAdmin);
+                            cell.isCheckbox ||
+                            !cell.isTitle ||
+                            (cell.isTitle && isAdmin);
 
                           return (
                             <td
@@ -190,7 +204,11 @@ export default function ProfRightPanel({
                                   : cell.colSpan || 1
                               }
                               onClick={() => {
-                                if (editable) {
+                                /*
+                                 * Don't open the textarea when
+                                 * clicking a checkbox.
+                                 */
+                                if (editable && !cell.isCheckbox) {
                                   setEditingCell({
                                     sectionIndex,
                                     rowIndex,
@@ -199,12 +217,55 @@ export default function ProfRightPanel({
                                 }
                               }}
                               style={{
-                                cursor: editable ? "pointer" : "default",
+                                cursor: cell.isCheckbox
+                                  ? "default"
+                                  : editable
+                                    ? "pointer"
+                                    : "default",
                                 boxSizing: "border-box",
                                 overflow: "hidden",
                               }}
                             >
-                              {isEditing ? (
+                              {/* =====================================
+                                  CHECKBOX CELL
+                              ===================================== */}
+
+                              {cell.isCheckbox ? (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: "100%",
+                                    height: "100%",
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={cell.checked || false}
+                                    onChange={(e) => {
+                                      updateCheckbox(
+                                        sectionIndex,
+                                        rowIndex,
+                                        colIndex,
+                                        e.target.checked,
+                                      );
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                    }}
+                                    style={{
+                                      width: "18px",
+                                      height: "18px",
+                                      cursor: "pointer",
+                                    }}
+                                  />
+                                </div>
+                              ) : isEditing ? (
+                                /* =====================================
+                                    NORMAL EDITING CELL
+                                ===================================== */
+
                                 <textarea
                                   autoFocus
                                   value={cell.value || ""}
@@ -249,6 +310,10 @@ export default function ProfRightPanel({
                                   }}
                                 />
                               ) : (
+                                /* =====================================
+                                    NORMAL DISPLAY CELL
+                                ===================================== */
+
                                 <span
                                   style={{
                                     display: "block",

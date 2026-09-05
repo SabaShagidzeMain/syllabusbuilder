@@ -451,6 +451,35 @@ export const predefinedTables = [
   },
   {
     id: "12",
+    name: "Title Left - 2x4 Table (Checkbox)",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+    ],
+  },
+  {
+    id: "13",
     name: "Title Left - 2x2 Table",
     cells: [
       [
@@ -465,6 +494,175 @@ export const predefinedTables = [
         { value: "", tag: "for-title-1" },
       ],
       [
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+    ],
+  },
+  {
+    id: "14",
+    name: "Title Left - 2x2 Table (Checkbox)",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+    ],
+  },
+  {
+    id: "15",
+    name: "Title Left - 2x12 Table",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+    ],
+  },
+  {
+    id: "16",
+    name: "Title Left - 2x12 Table (Checkbox)",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+      ],
+    ],
+  },
+  {
+    id: "17",
+    name: "Title Left - 3x4 Table",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+    ],
+  },
+  {
+    id: "18",
+    name: "Title Left - 3x4 Table (Checkbox)",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
         { value: "", tag: "for-title-1" },
         { value: "", tag: "for-title-1" },
       ],

@@ -899,7 +899,41 @@ export default function SyllabusBuilderModal({
                                   ${cell.isFullHeight ? "full-height-cell" : ""}
                                 `}
                           >
-                            {isAdmin ? (
+                            {cell.isCheckbox ? (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={cell.checked || false}
+                                  onChange={(e) => {
+                                    const newCells = section.cells.map((row) =>
+                                      row.map((c) => ({
+                                        ...c,
+                                      })),
+                                    );
+
+                                    newCells[rIdx][cIdx].checked =
+                                      e.target.checked;
+
+                                    updateSection(section.id, {
+                                      cells: newCells,
+                                    });
+                                  }}
+                                  style={{
+                                    width: "18px",
+                                    height: "18px",
+                                    cursor: "pointer",
+                                  }}
+                                />
+                              </div>
+                            ) : isAdmin ? (
                               <textarea
                                 data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
                                 className={`syllabus-input ${
