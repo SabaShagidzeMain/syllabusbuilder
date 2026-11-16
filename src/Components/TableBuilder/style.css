@@ -1,50 +1,118 @@
+/* ==========================================
+   MODAL
+========================================== */
+
 .modal {
   position: fixed;
-  /* BLOCKS scroll and overlays everything */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
+  inset: 0;
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
   overflow: hidden;
-  /* Prevent scroll inside modal */
 }
+
+.modal-inner {
+  position: relative;
+  display: flex;
+  width: 90%;
+  height: 90%;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.modal-left,
+.modal-right {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.modal-left {
+  padding: 20px;
+  border-radius: 20px 0 0 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modal-right {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 24px 100px;
+  background: #e5e7eb;
+  border-radius: 0 20px 20px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ==========================================
+   PREVIEW PAGES
+========================================== */
+
+.preview-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.preview-pages .syllabus-document {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 794px;
+  aspect-ratio: 210 / 297;
+}
+
+.preview-pages .syllabus-content {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ==========================================
+   GENERAL ELEMENTS
+========================================== */
 
 button {
   background-color: #fff;
 }
 
-.modal-right {
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
+input {
+  margin: 0 !important;
 }
 
-.modal-left {
-  border-radius: 20px;
-  overflow: auto;
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+table {
+  border-collapse: collapse;
 }
 
 td {
-  vertical-align: top !important;
-  /* or middle if you want centering */
-  padding: 0 !important;
+  vertical-align: top;
+  padding: 0;
 }
 
-.table {
-  width: 100%;
+h3 {
+  margin: 0 0 1.5rem;
 }
 
-.modal-inner {
-  display: flex;
-  width: 90%;
-  height: 90%;
-  border-radius: 20px;
-}
+/* ==========================================
+   EDITOR COMPONENTS
+========================================== */
 
 .component-title {
   font-size: 18px;
@@ -52,23 +120,29 @@ td {
 
 .component-selector {
   width: 400px;
+  max-width: 100%;
   height: 40px;
+  padding-left: 1rem;
   border-radius: 10px;
   font-size: 16px;
   appearance: none;
-  padding-left: 1rem;
-
   background-image: url(../../assets/general/drparrow.png);
   background-repeat: no-repeat;
   background-position: right center;
   background-size: auto 100%;
 }
 
+.component-title-input {
+  width: 20rem !important;
+  max-width: 100%;
+  padding: 0.4rem;
+}
+
 .input-container {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
 }
 
 .title-input-container {
@@ -77,23 +151,41 @@ td {
   align-items: center;
 }
 
-input {
-  margin: 0 !important;
+.syllabus-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
 }
 
-.component-title-input {
-  width: 20rem !important;
-  padding: 0.4rem;
+.syllabus-input-2 {
+  width: 100%;
+  border: none;
 }
 
-.normal-cell textarea {
-  color: #000 !important;
-}
+/* ==========================================
+   BUTTONS
+========================================== */
 
 .button-container {
   display: flex;
   justify-content: flex-end;
   width: 100% !important;
+}
+
+.button-container button,
+.blue-button {
+  background-color: #449df6;
+  color: #fff;
+  transition: background-color 0.2s ease-in-out;
+  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
+}
+
+.button-container button:hover,
+.blue-button:hover {
+  background-color: #2492ff;
 }
 
 .add-button {
@@ -104,31 +196,13 @@ input {
   width: 98%;
 }
 
-.button-container button {
-  background-color: #449df6;
-  color: #fff;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
-}
-
-.button-container button:hover {
-  background-color: #2492ff;
-}
-
-.blue-button {
-  background-color: #449df6;
-  color: #fff;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
-}
-
-.blue-button:hover {
-  background-color: #2492ff;
-}
+/* ==========================================
+   SECTION COMPONENTS
+========================================== */
 
 .modal-card-wrapper {
-  width: 100% !important;
   display: flex;
+  width: 100% !important;
 }
 
 .section-wrapper {
@@ -136,56 +210,50 @@ input {
   flex-direction: column;
   gap: 0.5rem;
   width: 100% !important;
-  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
   border-radius: 15px;
+  box-shadow: 0.3rem 0.3rem 0.3rem rgb(170, 170, 170);
 }
 
-textarea:focus,
-input:focus {
-  outline: none;
-}
+/* ==========================================
+   TABLES AND CELLS
+========================================== */
 
-.syllabus-input {
-  border: none;
+.table {
   width: 100%;
-  height: 100%;
-  /* background-color: #124046; */
-  /* color: #fff; */
-  font-size: 16px;
-  padding: 0;
-  display: flex;
-  vertical-align: middle;
-}
-
-.full-height-cell {
-  height: 100%;
 }
 
 .table-cell {
-  width: 12rem;
-  padding: 0.2rem !important;
-  font-size: 16px;
+  min-width: 0;
+  padding: 3px 5px !important;
+  font-size: 11px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  vertical-align: top;
+  box-sizing: border-box;
 }
 
 .table-cell input {
-  font-size: 12px;
+  width: 100%;
+  font-size: 11px;
   font-weight: bold;
-}
-
-.wide-cell textarea {
-  text-align: center;
+  box-sizing: border-box;
 }
 
 .title-cell {
   width: 30%;
-  /* background-color: #124046; */
-  /* color: #fff; */
-  padding: 0 0.5rem;
+  padding: 3px 5px !important;
 }
 
-.syllabus-input-2 {
-  width: 100%;
+.title-cell input {
+  height: auto;
   border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.wide-cell textarea {
+  text-align: center;
 }
 
 .secondary-cell {
@@ -197,33 +265,8 @@ input:focus {
   color: black;
 }
 
-h3 {
-  margin: 0 0 1.5rem 0;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-.title-cell input {
-  border: none;
-  height: 1rem;
-  border: none;
-  outline: none;
-  box-shadow: none;
-}
-
-.close-button-wrapper {
-  height: fit-content;
-  width: fit-content;
-}
-
-.close-button {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin-right: 7rem;
-  margin-bottom: 4rem;
+.normal-cell textarea {
+  color: #000 !important;
 }
 
 .textarea-wrapper {
@@ -232,10 +275,201 @@ table {
   align-items: center;
 }
 
+/* ==========================================
+   COLUMN RESIZING
+========================================== */
+
 .column-resize-handle {
   transition: background-color 0.15s ease;
 }
 
 .column-resize-handle:hover {
   background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================
+   SAVE BUTTON
+========================================== */
+
+.close-button-wrapper {
+  width: fit-content;
+  height: fit-content;
+}
+
+.close-button {
+  position: absolute;
+  z-index: 20;
+  right: 35px;
+  bottom: 30px;
+  margin: 0;
+}
+
+/* ==========================================
+   A4 DOCUMENT
+========================================== */
+
+.syllabus-document {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 794px;
+  min-width: 0;
+  aspect-ratio: 210 / 297;
+  padding: 7.14%;
+  box-sizing: border-box;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.syllabus-content {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ==========================================
+   DOCUMENT TABLES
+========================================== */
+
+.syllabus-document table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  box-sizing: border-box;
+}
+
+.syllabus-document tr {
+  height: auto;
+}
+
+.syllabus-document td,
+.syllabus-document th {
+  min-width: 0;
+  max-width: 100%;
+  padding: 3px 5px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.syllabus-document .table-cell {
+  padding: 1px 3px !important;
+  vertical-align: top;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   DOCUMENT INPUTS
+========================================== */
+
+.syllabus-document textarea,
+.syllabus-document input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.syllabus-document .syllabus-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 0.2rem;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.2;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.syllabus-document .syllabus-input.title-cell {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+textarea {
+  align-content: center !important;
+}
+
+/* ==========================================
+   ALTE BRANDING
+========================================== */
+
+.alte-document .syllabus-header {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  flex: 0 0 auto;
+}
+
+.alte-document .syllabus-header img {
+  display: block;
+  width: 100%;
+  max-height: 90px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+.alte-document .syllabus-footer,
+.syllabus-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 20px;
+  margin-top: auto;
+  padding: 5px 3px;
+  border-top: 1px solid #ccc;
+  color: #333;
+  font-size: 8px;
+  font-weight: 600;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+  .modal-inner {
+    width: 96%;
+    height: 96%;
+  }
+
+  .modal-left,
+  .modal-right {
+    padding: 12px;
+  }
+
+  .close-button {
+    right: 20px;
+    bottom: 20px;
+  }
 }

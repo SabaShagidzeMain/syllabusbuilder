@@ -14,59 +14,70 @@ const LogScreen = () => {
   const handleLogin = async () => {
     setErrorMsg("");
 
-    // Step 1: Try signing in
-    const { data: authData, error: authError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    try {
+      // Step 1: Authenticate user
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-    if (authError) {
-      setErrorMsg(authError.message);
-      return;
+      if (authError) {
+        setErrorMsg("Login failed: Incorrect email or password.");
+        return;
+      }
+
+      // Step 2: Fetch user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("university, role")
+        .eq("user_id", authData.user.id)
+        .single();
+
+      if (profileError || !profileData) {
+        await supabase.auth.signOut();
+        setErrorMsg(
+          "Login failed: Could not retrieve your user profile. Please contact support.",
+        );
+        return;
+      }
+
+      // Step 3: Validate university
+      const universityMatches =
+        profileData.university?.trim() === university.trim();
+
+      if (!universityMatches) {
+        setErrorMsg(
+          "Login failed: The selected university does not match the university registered to your account.",
+        );
+
+        await supabase.auth.signOut();
+
+        return;
+      }
+
+      // Step 4: Validate role
+      const selectedRoleKey = activeRole === "professor" ? "prof" : "admin";
+
+      const roleValue = profileData.role?.[selectedRoleKey]?.toString().trim();
+
+      const hasRole = roleValue === "true";
+
+      if (!hasRole) {
+        await supabase.auth.signOut();
+        setErrorMsg(
+          `Login failed: Your account is not registered as a ${activeRole}.`,
+        );
+        return;
+      }
+
+      // Step 5: All validations passed
+      navigate("/");
+    } catch (error) {
+      await supabase.auth.signOut();
+      setErrorMsg("Something went wrong while logging in. Please try again.");
+      console.error("Login error:", error);
     }
-
-    // Step 2: Fetch profile info
-    const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .select("university, role")
-      .eq("user_id", authData.user.id)
-      .single();
-
-    if (profileError) {
-      setErrorMsg("Could not retrieve profile.");
-      return;
-    }
-
-    console.log("Profile Data:", profileData); // Check profile data structure
-    console.log("Roles:", profileData.role); // Check roles structure
-
-    // Step 3: Validate university and role
-    const selectedRoleKey = activeRole === "professor" ? "prof" : "admin";
-    console.log("Selected Role Key:", selectedRoleKey); // Log the selected role key
-
-    // Check if the role exists and matches, trimming any extra spaces
-    const roleValue = profileData.role?.[selectedRoleKey]?.toString().trim();
-    console.log("Role Value:", roleValue); // Log the role value to ensure it matches
-
-    const hasRole = roleValue === "true";
-    console.log("Has Role:", hasRole); // Log whether role is valid
-
-    const universityMatches = profileData.university === university;
-    console.log("University Matches:", universityMatches); // Log if university matches
-
-    if (!universityMatches) {
-      setErrorMsg("University mismatch.");
-      return;
-    }
-
-    if (!hasRole) {
-      setErrorMsg(`You are not authorized as a ${activeRole}.`);
-      return;
-    }
-
-    // Step 4: All good
-    navigate("/");
   };
 
   return (
@@ -74,6 +85,7 @@ const LogScreen = () => {
       <div className="logScreen">
         <div className="button-wrapper">
           <button
+            type="button"
             className={`log-button-left ${
               activeRole === "professor" ? "log-button-active" : ""
             }`}
@@ -81,7 +93,9 @@ const LogScreen = () => {
           >
             Professor
           </button>
+
           <button
+            type="button"
             className={`log-button-right ${
               activeRole === "admin" ? "log-button-active" : ""
             }`}
@@ -105,15 +119,17 @@ const LogScreen = () => {
               <option value="Tbilisi Uni">Tbilisi Uni</option>
             </select>
           </div>
+
           <div className="input-inner">
             <p className="input-name">Email</p>
             <input
-              type="text"
+              type="email"
               className="text-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
+
           <div className="input-inner">
             <p className="input-name">Password</p>
             <input
@@ -123,9 +139,11 @@ const LogScreen = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+
+          <div className="login-error">{errorMsg && <p>{errorMsg}</p>}</div>
+
           <div className="log-wrapper">
-            <button className="log-button" onClick={handleLogin}>
+            <button type="button" className="log-button" onClick={handleLogin}>
               Login
             </button>
           </div>

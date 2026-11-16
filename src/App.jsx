@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { supabase } from "./utility/supabaseClient";
 
 import LogScreen from "./Components/LogScreen/LogScreen";
@@ -24,7 +29,7 @@ function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
-      }
+      },
     );
 
     return () => {
@@ -34,44 +39,29 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
-        Loading...
-      </div>
+      <div style={{ padding: "20px", textAlign: "center" }}>Loading...</div>
     );
   }
 
   return (
     <Router>
       <Routes>
-
         {/* LOGIN */}
-        <Route
-          path="/login"
-          element={
-            user ? <Navigate to="/" replace /> : <LogScreen />
-          }
-        />
+        <Route path="/login" element={<LogScreen />} />
 
-        {/* MAIN PAGE (PROTECTED) */}
+        {/* MAIN PAGE */}
         <Route
           path="/"
-          element={
-            user ? <MainPage /> : <Navigate to="/login" replace />
-          }
+          element={user ? <MainPage /> : <Navigate to="/login" replace />}
         />
 
-        {/* EXPORT (PROTECTED) */}
+        {/* EXPORT */}
         <Route
           path="/export-preview/:syllabusId"
           element={
-            user ? (
-              <SyllabusPdfExport />
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            user ? <SyllabusPdfExport /> : <Navigate to="/login" replace />
           }
         />
-
       </Routes>
     </Router>
   );

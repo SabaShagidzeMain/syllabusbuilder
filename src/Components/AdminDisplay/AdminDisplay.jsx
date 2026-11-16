@@ -24,6 +24,8 @@ const AdminDisplay = forwardRef((props, ref) => {
 
   const [loading, setLoading] = useState(true);
 
+  const [university, setUniversity] = useState("");
+
   /* ==========================================
      FETCH SYLLABUSES
   ========================================== */
@@ -64,6 +66,9 @@ const AdminDisplay = forwardRef((props, ref) => {
         console.error("Profile error:", profileError.message);
         return;
       }
+
+      setUniversity(profile.university);
+      console.log("PROFILE UNIVERSITY:", profile.university);
 
       /* =========================================
          GET ADMIN SYLLABUS TEMPLATES
@@ -629,6 +634,7 @@ const AdminDisplay = forwardRef((props, ref) => {
           onSave={handleModalSave}
           initialData={selectedSyllabus}
           parentSyllabus={selectedMainSyllabus}
+          university={university}
           syllabusType={
             selectedSyllabus?.syllabus_type ||
             (selectedMainSyllabus ? "instance" : "main")
