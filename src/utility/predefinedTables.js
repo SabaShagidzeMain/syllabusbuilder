@@ -668,4 +668,29 @@ export const predefinedTables = [
       ],
     ],
   },
+  {
+    id: "19",
+    name: "Title Left - 3x3 Table (Checkbox)",
+    cells: [
+      [
+        {
+          value: "",
+          isTitle: true,
+          isFullHeight: true,
+          tag: "title-1",
+          rowSpan: 4,
+        },
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+      [
+        { value: "", tag: "for-title-1", isCheckbox: true },
+        { value: "", tag: "for-title-1" },
+      ],
+    ],
+  },
 ];

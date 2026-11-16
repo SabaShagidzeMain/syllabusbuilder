@@ -10,6 +10,7 @@ export default function ProfessorFillModal({
   syllabus,
   onSave,
   isAdmin,
+  university,
 }) {
   const modalRef = useRef();
   const leftRowRefs = useRef([]);
@@ -77,6 +78,7 @@ export default function ProfessorFillModal({
           autoResize={autoResize}
           isAdmin={isAdmin}
           onSave={onSave}
+          university={university}
         />
       </div>
     </div>

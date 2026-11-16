@@ -560,7 +560,7 @@ export default function SyllabusBuilderModal({
         style={{
           position: "relative",
           width: "100%",
-          marginBottom: "8px",
+          marginBottom: "0",
         }}
       >
         <table

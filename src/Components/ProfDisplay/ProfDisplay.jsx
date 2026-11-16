@@ -214,6 +214,7 @@ const ProfDisplay = forwardRef((props, ref) => {
           onClose={handleClose}
           syllabus={selectedSyllabus}
           onSave={handleSave}
+          university={university}
         />
       )}
     </div>
