@@ -9,7 +9,6 @@ import {
 import { predefinedTables } from "../../utility/predefinedTables";
 
 import "./style.css";
-import alteLogo from "../../assets/alte/altelogo.png";
 
 export default function SyllabusBuilderModal({
   isOpen,
@@ -32,7 +31,6 @@ export default function SyllabusBuilderModal({
   const [formTitle, setFormTitle] = useState("Syllabus Draft");
   const [sections, setSections] = useState([]);
   const [dragState, setDragState] = useState(null);
-  const [pages, setPages] = useState(null);
 
   // ---------------------------------------------------------
   // DEEP CLONE
@@ -184,11 +182,7 @@ export default function SyllabusBuilderModal({
       Object.entries(sectionOverrides).forEach(([cellPosition, value]) => {
         const [rowIndex, cellIndex] = cellPosition.split("-").map(Number);
 
-        if (
-          result.find((s) => s.id === section.id)?.cells?.[rowIndex]?.[
-            cellIndex
-          ]
-        ) {
+        if (section.cells?.[rowIndex]?.[cellIndex]) {
           section.cells[rowIndex][cellIndex].value = value;
         }
       });
@@ -209,7 +203,7 @@ export default function SyllabusBuilderModal({
         (section) => section.id === editedSection.id,
       );
 
-      if (!baseSection) return;
+      if (!baseSection || !Array.isArray(editedSection.cells)) return;
 
       editedSection.cells.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
@@ -241,9 +235,6 @@ export default function SyllabusBuilderModal({
 
   useEffect(() => {
     if (!isOpen) return;
-
-    // Start with a fresh measurement when opening the modal.
-    setPages(null);
 
     if (initialData && initialData.syllabus_type === "main") {
       setSections(cloneSections(initialData.content || []));
@@ -373,9 +364,6 @@ export default function SyllabusBuilderModal({
   // ---------------------------------------------------------
 
   const addSection = () => {
-    // Structural change: measure the full document again.
-    setPages(null);
-
     setSections((prev) => [
       ...prev,
       {
@@ -387,6 +375,83 @@ export default function SyllabusBuilderModal({
     ]);
   };
 
+  const createCustomLayout = (sectionId) => {
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              type: "custom-layout",
+              tableId: "custom-layout",
+              header: "Header",
+              content: [],
+              cells: undefined,
+              columnWidths: undefined,
+            }
+          : section,
+      ),
+    );
+  };
+
+  const addCustomContentBlock = (sectionId, type) => {
+    setSections((prev) =>
+      prev.map((section) => {
+        if (section.id !== sectionId) return section;
+
+        const block =
+          type === "text"
+            ? {
+                id: `${Date.now()}-${Math.random()}`,
+                type: "text",
+                value: "",
+              }
+            : {
+                id: `${Date.now()}-${Math.random()}`,
+                type: "table",
+                rows: [
+                  [{ value: "" }, { value: "" }],
+                  [{ value: "" }, { value: "" }],
+                ],
+              };
+
+        return {
+          ...section,
+          content: [...(section.content || []), block],
+        };
+      }),
+    );
+  };
+
+  const updateCustomContentBlock = (sectionId, blockId, updater) => {
+    setSections((prev) =>
+      prev.map((section) => {
+        if (section.id !== sectionId) return section;
+
+        return {
+          ...section,
+          content: (section.content || []).map((block) =>
+            block.id === blockId ? updater(block) : block,
+          ),
+        };
+      }),
+    );
+  };
+
+  const removeCustomContentBlock = (sectionId, blockId) => {
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: (section.content || []).filter(
+                (block) => block.id !== blockId,
+              ),
+            }
+          : section,
+      ),
+    );
+  };
+
   const updateSection = (id, changes) => {
     setSections((prev) =>
       prev.map((section) =>
@@ -396,9 +461,6 @@ export default function SyllabusBuilderModal({
   };
 
   const removeSection = (id) => {
-    // Structural change: measure the full document again.
-    setPages(null);
-
     setSections((prev) => prev.filter((section) => section.id !== id));
   };
 
@@ -410,7 +472,7 @@ export default function SyllabusBuilderModal({
     const textareas = document.querySelectorAll(`[data-sync-id='${syncId}']`);
 
     textareas.forEach((textarea) => {
-      textarea.style.height = "0px";
+      textarea.style.height = "auto";
       textarea.style.height = `${textarea.scrollHeight}px`;
     });
   }
@@ -422,145 +484,407 @@ export default function SyllabusBuilderModal({
   useLayoutEffect(() => {
     if (!isOpen) return;
 
-    const textareas = document.querySelectorAll(
-      ".syllabus-document textarea, .modal-left textarea",
-    );
+    const resizeAllTextareas = () => {
+      const textareas = document.querySelectorAll(
+        ".syllabus-document textarea, .modal-left textarea",
+      );
 
-    textareas.forEach((textarea) => {
-      textarea.style.height = "0px";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    });
-  }, [sections, isOpen]);
-
-  // ---------------------------------------------------------
-  // CALCULATE PAGE BREAKS WITHOUT RESETTING THE PREVIEW
-  // ---------------------------------------------------------
-
-  useLayoutEffect(() => {
-    if (!isOpen) return;
-
-    const calculatePages = () => {
-      const preview = modalRef.current?.querySelector(".preview-pages");
-
-      if (!preview) return;
-
-      // Use the first page to determine the available content height.
-      const contentElement = preview.querySelector(".syllabus-content");
-
-      if (!contentElement) return;
-
-      const availableHeight = contentElement.clientHeight;
-
-      if (availableHeight <= 0) return;
-
-      // Collect rows from ALL currently rendered pages.
-      // This means we can recalculate pagination without first
-      // switching the preview back to one long page.
-      const rows = Array.from(preview.querySelectorAll("tr[data-section-id]"));
-
-      const calculatedPages = [[]];
-
-      let currentPage = 0;
-      let usedHeight = 0;
-      let previousSectionId = null;
-
-      rows.forEach((row) => {
-        const sectionId = row.dataset.sectionId;
-        const rowIndex = Number(row.dataset.rowIndex);
-        const rowHeight = row.getBoundingClientRect().height;
-
-        if (rowHeight <= 0) return;
-
-        const sectionGap =
-          previousSectionId !== null && previousSectionId !== sectionId ? 8 : 0;
-
-        // Move to the next page if this row does not fit.
-        if (
-          calculatedPages[currentPage].length > 0 &&
-          usedHeight + sectionGap + rowHeight > availableHeight
-        ) {
-          calculatedPages.push([]);
-          currentPage++;
-          usedHeight = 0;
-          previousSectionId = null;
-        }
-
-        const currentEntries = calculatedPages[currentPage];
-        const lastEntry = currentEntries[currentEntries.length - 1];
-
-        // Merge consecutive rows belonging to the same section.
-        if (
-          lastEntry &&
-          lastEntry.sectionId === sectionId &&
-          lastEntry.end === rowIndex
-        ) {
-          lastEntry.end = rowIndex + 1;
-        } else {
-          currentEntries.push({
-            sectionId,
-            start: rowIndex,
-            end: rowIndex + 1,
-          });
-        }
-
-        const actualGap =
-          previousSectionId !== null && previousSectionId !== sectionId ? 8 : 0;
-
-        usedHeight += actualGap + rowHeight;
-        previousSectionId = sectionId;
-      });
-
-      // Avoid triggering another render if the page breaks
-      // have not actually changed.
-      setPages((currentPages) => {
-        if (
-          currentPages &&
-          currentPages.length === calculatedPages.length &&
-          currentPages.every(
-            (page, pageIndex) =>
-              page.length === calculatedPages[pageIndex].length &&
-              page.every((entry, entryIndex) => {
-                const nextEntry = calculatedPages[pageIndex][entryIndex];
-
-                return (
-                  entry.sectionId === nextEntry.sectionId &&
-                  entry.start === nextEntry.start &&
-                  entry.end === nextEntry.end
-                );
-              }),
-          )
-        ) {
-          return currentPages;
-        }
-
-        return calculatedPages;
+      textareas.forEach((textarea) => {
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
       });
     };
 
-    // Wait until React has rendered the updated text and the
-    // textarea heights have been adjusted.
-    const frame = requestAnimationFrame(calculatePages);
+    resizeAllTextareas();
+
+    const frame = requestAnimationFrame(resizeAllTextareas);
 
     return () => cancelAnimationFrame(frame);
-  }, [isOpen, sections, university]);
+  }, [sections, isOpen]);
 
   // ---------------------------------------------------------
-  // RENDER SECTION / PART OF SECTION
+  // CUSTOM LAYOUT ITEMS
   // ---------------------------------------------------------
 
-  const renderSection = (section, start = 0, end = section.cells.length) => {
-    if (!section.cells.length) return null;
+  const getCustomLayoutItems = (section) => {
+    const items = [];
+
+    (section.content || []).forEach((block) => {
+      if (block.type === "text") {
+        items.push({
+          type: "text",
+          block,
+        });
+      }
+
+      if (block.type === "table") {
+        (block.rows || []).forEach((row, rowIndex) => {
+          items.push({
+            type: "table-row",
+            block,
+            row,
+            rowIndex,
+            isLastRow: rowIndex === block.rows.length - 1,
+          });
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      items.push({ type: "empty" });
+    }
+
+    return items;
+  };
+
+  // ---------------------------------------------------------
+  // RENDER SECTION
+  // ---------------------------------------------------------
+
+  const renderSection = (section) => {
+    // =======================================================
+    // CUSTOM TWO-CELL LAYOUT
+    // =======================================================
+
+    if (
+      section.type === "custom-layout" ||
+      section.tableId === "custom-layout"
+    ) {
+      const visibleItems = getCustomLayoutItems(section);
+
+      const isEmptySection =
+        visibleItems.length === 1 && visibleItems[0].type === "empty";
+
+      return (
+        <div
+          key={section.id}
+          style={{
+            width: "100%",
+            marginBottom: 0,
+          }}
+        >
+          <table
+            className="syllabus-table custom-layout-outer-table"
+            border="1"
+            style={{
+              width: "100%",
+              maxWidth: "100%",
+              tableLayout: "fixed",
+              borderCollapse: "collapse",
+            }}
+          >
+            <colgroup>
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "70%" }} />
+            </colgroup>
+
+            <tbody>
+              <tr
+                data-section-id={isEmptySection ? section.id : undefined}
+                data-row-index={isEmptySection ? 0 : undefined}
+              >
+                {/* LEFT HEADER CELL */}
+
+                <td className="table-cell custom-layout-header-cell">
+                  {isAdmin ? (
+                    <textarea
+                      rows={1}
+                      className="syllabus-input title-cell"
+                      value={section.header || ""}
+                      onChange={(e) =>
+                        updateSection(section.id, {
+                          header: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    <div className="normal-cell">{section.header}</div>
+                  )}
+                </td>
+
+                {/* RIGHT CONTENT CELL */}
+
+                <td className="table-cell custom-layout-content-cell">
+                  <div className="custom-layout-content-block">
+                    {visibleItems.map((item, itemIndex) => {
+                      if (item.type === "empty") {
+                        return null;
+                      }
+
+                      // ---------------------------------------
+                      // TEXT BLOCK
+                      // ---------------------------------------
+
+                      if (item.type === "text") {
+                        return (
+                          <div
+                            key={item.block.id}
+                            className="custom-layout-text-block"
+                            data-section-id={section.id}
+                            data-row-index={itemIndex}
+                          >
+                            {isAdmin ? (
+                              <textarea
+                                rows={1}
+                                className="syllabus-input custom-layout-text-input"
+                                value={item.block.value || ""}
+                                onChange={(e) => {
+                                  updateCustomContentBlock(
+                                    section.id,
+                                    item.block.id,
+                                    (current) => ({
+                                      ...current,
+                                      value: e.target.value,
+                                    }),
+                                  );
+
+                                  e.target.style.height = "auto";
+                                  e.target.style.height = `${e.target.scrollHeight}px`;
+                                }}
+                                onInput={(e) => {
+                                  e.target.style.height = "auto";
+                                  e.target.style.height = `${e.target.scrollHeight}px`;
+                                }}
+                                style={{
+                                  display: "block",
+                                  width: "100%",
+                                  minWidth: 0,
+                                  height: "auto",
+                                  minHeight: "1.3em",
+                                  maxHeight: "none",
+                                  padding: 0,
+                                  margin: 0,
+                                  border: "none",
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  overflowWrap: "anywhere",
+                                  wordBreak: "break-word",
+                                  whiteSpace: "pre-wrap",
+                                  boxSizing: "border-box",
+                                  background: "transparent",
+                                  lineHeight: "1.3",
+                                }}
+                              />
+                            ) : (
+                              <div className="normal-cell">
+                                {item.block.value}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      // ---------------------------------------
+                      // TABLE BLOCK
+                      // ---------------------------------------
+
+                      const isFirstVisibleRowOfBlock =
+                        itemIndex === 0 ||
+                        visibleItems[itemIndex - 1].block?.id !== item.block.id;
+
+                      if (!isFirstVisibleRowOfBlock) return null;
+
+                      const blockRows = visibleItems
+                        .map((entry) => ({
+                          entry,
+                        }))
+                        .filter(
+                          ({ entry }) =>
+                            entry.type === "table-row" &&
+                            entry.block.id === item.block.id,
+                        );
+
+                      const columnCount = Math.max(
+                        1,
+                        item.block.rows?.[0]?.length || 1,
+                      );
+
+                      return (
+                        <div
+                          key={item.block.id}
+                          className="custom-layout-table-block"
+                        >
+                          <table
+                            className="syllabus-table custom-layout-nested-table"
+                            border="0"
+                            style={{
+                              width: "100%",
+                              maxWidth: "100%",
+                              tableLayout: "fixed",
+                              borderCollapse: "collapse",
+                            }}
+                          >
+                            <colgroup>
+                              {Array.from(
+                                { length: columnCount },
+                                (_, columnIndex) => (
+                                  <col
+                                    key={columnIndex}
+                                    style={{
+                                      width: `${100 / columnCount}%`,
+                                    }}
+                                  />
+                                ),
+                              )}
+                            </colgroup>
+
+                            <tbody>
+                              {blockRows.map(({ entry }) => {
+                                const absoluteIndex =
+                                  visibleItems.indexOf(entry);
+
+                                return (
+                                  <tr
+                                    key={entry.rowIndex}
+                                    data-section-id={section.id}
+                                    data-row-index={absoluteIndex}
+                                  >
+                                    {entry.row.map((cell, cellIndex) => (
+                                      <td
+                                        className="table-cell"
+                                        key={cellIndex}
+                                      >
+                                        {isAdmin ? (
+                                          <textarea
+                                            rows={1}
+                                            className="syllabus-input"
+                                            value={cell.value || ""}
+                                            onChange={(e) =>
+                                              updateCustomContentBlock(
+                                                section.id,
+                                                item.block.id,
+                                                (current) => ({
+                                                  ...current,
+                                                  rows: current.rows.map(
+                                                    (row, rowIndex) =>
+                                                      row.map((c, ci) =>
+                                                        rowIndex ===
+                                                          entry.rowIndex &&
+                                                        ci === cellIndex
+                                                          ? {
+                                                              ...c,
+                                                              value:
+                                                                e.target.value,
+                                                            }
+                                                          : { ...c },
+                                                      ),
+                                                  ),
+                                                }),
+                                              )
+                                            }
+                                            onInput={(e) => {
+                                              e.target.style.height = "auto";
+                                              e.target.style.height = `${e.target.scrollHeight}px`;
+                                            }}
+                                            style={{
+                                              display: "block",
+                                              width: "100%",
+                                              minWidth: 0,
+                                              height: "auto",
+                                              minHeight: 0,
+                                              padding: 0,
+                                              margin: 0,
+                                              border: "none",
+                                              resize: "none",
+                                              overflow: "hidden",
+                                              overflowWrap: "anywhere",
+                                              wordBreak: "break-word",
+                                              whiteSpace: "pre-wrap",
+                                              boxSizing: "border-box",
+                                              background: "transparent",
+                                            }}
+                                          />
+                                        ) : (
+                                          <div className="normal-cell">
+                                            {cell.value}
+                                          </div>
+                                        )}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+
+                          {/* TABLE ACTIONS */}
+
+                          {isAdmin &&
+                            blockRows.some(({ entry }) => entry.isLastRow) && (
+                              <div className="custom-layout-table-actions">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateCustomContentBlock(
+                                      section.id,
+                                      item.block.id,
+                                      (current) => ({
+                                        ...current,
+                                        rows: [
+                                          ...(current.rows || []).map((row) =>
+                                            row.map((cell) => ({ ...cell })),
+                                          ),
+                                          Array(current.rows?.[0]?.length || 2)
+                                            .fill(null)
+                                            .map(() => ({ value: "" })),
+                                        ],
+                                      }),
+                                    );
+                                  }}
+                                >
+                                  + Row
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateCustomContentBlock(
+                                      section.id,
+                                      item.block.id,
+                                      (current) => ({
+                                        ...current,
+                                        rows: (current.rows || []).map(
+                                          (row) => [
+                                            ...row.map((cell) => ({ ...cell })),
+                                            { value: "" },
+                                          ],
+                                        ),
+                                      }),
+                                    );
+                                  }}
+                                >
+                                  + Column
+                                </button>
+                              </div>
+                            )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    // =======================================================
+    // NORMAL PREDEFINED TABLE
+    // =======================================================
+
+    if (!section.cells?.length) return null;
 
     const columnWidths = getColumnWidths(section);
-    const visibleRows = section.cells.slice(start, end);
+    const visibleRows = section.cells;
 
     return (
       <div
-        key={`${section.id}-${start}-${end}`}
+        key={section.id}
         style={{
           position: "relative",
           width: "100%",
-          marginBottom: "0",
+          marginBottom: 0,
         }}
       >
         <table
@@ -580,14 +904,10 @@ export default function SyllabusBuilderModal({
 
           <tbody>
             {visibleRows.map((row, localIndex) => {
-              const rIdx = start + localIndex;
+              const rIdx = localIndex;
 
               return (
-                <tr
-                  key={rIdx}
-                  data-section-id={section.id}
-                  data-row-index={rIdx}
-                >
+                <tr key={rIdx}>
                   {row.map((cell, cIdx) => (
                     <td
                       key={cIdx}
@@ -637,7 +957,6 @@ export default function SyllabusBuilderModal({
                           />
                         </div>
                       ) : isAdmin ? (
-                        // RIGHT-PANEL PREVIEW TEXTAREA
                         <textarea
                           rows={1}
                           data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
@@ -665,9 +984,9 @@ export default function SyllabusBuilderModal({
                             display: "block",
                             width: "100%",
                             height: "auto",
-                            minHeight: "0",
-                            padding: "0",
-                            margin: "0",
+                            minHeight: 0,
+                            padding: 0,
+                            margin: 0,
                             border: "none",
                             resize: "none",
                             overflow: "hidden",
@@ -768,20 +1087,6 @@ export default function SyllabusBuilderModal({
 
   if (!isOpen) return null;
 
-  const isMeasuring = pages === null;
-
-  const pageChunks = isMeasuring
-    ? [
-        sections
-          .filter((section) => section.cells.length > 0)
-          .map((section) => ({
-            sectionId: section.id,
-            start: 0,
-            end: section.cells.length,
-          })),
-      ]
-    : pages;
-
   // ---------------------------------------------------------
   // RENDER
   // ---------------------------------------------------------
@@ -825,7 +1130,7 @@ export default function SyllabusBuilderModal({
                   whiteSpace: "pre-wrap",
                   width: "100%",
                   height: "3rem",
-                  minHeight: "0",
+                  minHeight: 0,
                   padding: "0 .5rem",
                   lineHeight: "1.1",
                   fontSize: "1rem",
@@ -856,27 +1161,36 @@ export default function SyllabusBuilderModal({
 
                   <select
                     className="component-selector"
-                    value={section.tableId}
+                    value={section.tableId || ""}
                     onChange={(e) => {
+                      if (e.target.value === "custom-layout") {
+                        createCustomLayout(section.id);
+                        return;
+                      }
+
                       const table = predefinedTables.find(
                         (t) => t.id === e.target.value,
                       );
 
                       if (!table) return;
 
-                      // The table structure is changing, so remeasure.
-                      setPages(null);
-
                       updateSection(section.id, {
+                        type: "table",
                         tableId: table.id,
                         cells: table.cells.map((row) =>
                           row.map((cell) => ({ ...cell })),
                         ),
+                        header: undefined,
+                        content: undefined,
                         columnWidths: undefined,
                       });
                     }}
                   >
                     <option value="">-- Select --</option>
+
+                    <option value="custom-layout">
+                      Custom Two-Cell Layout
+                    </option>
 
                     {predefinedTables.map((table) => (
                       <option key={table.id} value={table.id}>
@@ -888,66 +1202,138 @@ export default function SyllabusBuilderModal({
 
                 {/* LEFT-PANEL TITLE EDITORS */}
 
-                {section.cells.length > 0 && isAdmin && (
-                  <div style={{ marginTop: "10px" }}>
-                    {section.cells.map((row, rIdx) =>
-                      row.map((cell, cIdx) =>
-                        cell.isTitle ? (
-                          <div
-                            className="input-container"
-                            key={`${rIdx}-${cIdx}`}
-                            style={{ marginBottom: 5 }}
-                          >
-                            <p className="component-title">Title:</p>
+                {section.type !== "custom-layout" &&
+                  section.tableId !== "custom-layout" &&
+                  section.cells?.length > 0 &&
+                  isAdmin && (
+                    <div style={{ marginTop: "10px" }}>
+                      {section.cells.map((row, rIdx) =>
+                        row.map((cell, cIdx) =>
+                          cell.isTitle ? (
+                            <div
+                              className="input-container"
+                              key={`${rIdx}-${cIdx}`}
+                              style={{ marginBottom: 5 }}
+                            >
+                              <p className="component-title">Title:</p>
 
-                            <label>
-                              <textarea
-                                rows={1}
-                                data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
-                                className="syllabus-input title-cell"
-                                value={cell.value || ""}
-                                onChange={(e) => {
-                                  const newCells = section.cells.map((row) =>
-                                    row.map((c) => ({ ...c })),
-                                  );
+                              <label>
+                                <textarea
+                                  rows={1}
+                                  data-sync-id={`${section.id}-${rIdx}-${cIdx}`}
+                                  className="syllabus-input title-cell"
+                                  value={cell.value || ""}
+                                  onChange={(e) => {
+                                    const newCells = section.cells.map((row) =>
+                                      row.map((c) => ({ ...c })),
+                                    );
 
-                                  newCells[rIdx][cIdx].value = e.target.value;
+                                    newCells[rIdx][cIdx].value = e.target.value;
 
-                                  updateSection(section.id, {
-                                    cells: newCells,
-                                  });
+                                    updateSection(section.id, {
+                                      cells: newCells,
+                                    });
 
-                                  autoResize(`${section.id}-${rIdx}-${cIdx}`);
-                                }}
-                                onInput={() =>
-                                  autoResize(`${section.id}-${rIdx}-${cIdx}`)
-                                }
-                                style={{
-                                  display: "block",
-                                  resize: "none",
-                                  overflow: "hidden",
-                                  overflowWrap: "anywhere",
-                                  wordBreak: "break-word",
-                                  whiteSpace: "pre-wrap",
-                                  width: "20rem",
-                                  height: "2rem",
-                                  minHeight: "0",
-                                  padding: "0",
-                                  margin: "0",
-                                  border: "1px solid black",
-                                  background: "none",
-                                  fontSize: "14px",
-                                  lineHeight: "1.2",
-                                  boxSizing: "border-box",
-                                  borderRadius: "8px",
-                                  alignContent: "center",
-                                }}
-                              />
-                            </label>
-                          </div>
-                        ) : null,
-                      ),
-                    )}
+                                    autoResize(`${section.id}-${rIdx}-${cIdx}`);
+                                  }}
+                                  onInput={() =>
+                                    autoResize(`${section.id}-${rIdx}-${cIdx}`)
+                                  }
+                                  style={{
+                                    display: "block",
+                                    resize: "none",
+                                    overflow: "hidden",
+                                    overflowWrap: "anywhere",
+                                    wordBreak: "break-word",
+                                    whiteSpace: "pre-wrap",
+                                    width: "20rem",
+                                    height: "2rem",
+                                    minHeight: 0,
+                                    padding: 0,
+                                    margin: 0,
+                                    border: "1px solid black",
+                                    background: "none",
+                                    fontSize: "14px",
+                                    lineHeight: "1.2",
+                                    boxSizing: "border-box",
+                                    borderRadius: "8px",
+                                    alignContent: "center",
+                                  }}
+                                />
+                              </label>
+                            </div>
+                          ) : null,
+                        ),
+                      )}
+                    </div>
+                  )}
+
+                {/* CUSTOM LAYOUT EDITOR */}
+
+                {(section.type === "custom-layout" ||
+                  section.tableId === "custom-layout") && (
+                  <div className="custom-layout-controls">
+                    <label className="component-title">Left cell header:</label>
+
+                    <textarea
+                      rows={2}
+                      className="syllabus-input"
+                      value={section.header || ""}
+                      onChange={(e) =>
+                        updateSection(section.id, {
+                          header: e.target.value,
+                        })
+                      }
+                    />
+
+                    <p className="component-title">Right cell content:</p>
+
+                    {(section.content || []).map((block, index) => (
+                      <div
+                        className="custom-layout-block-control"
+                        key={block.id}
+                      >
+                        <span>
+                          {index + 1}.{" "}
+                          {block.type === "text" ? "Text block" : "Table"}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeCustomContentBlock(section.id, block.id)
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+
+                    <div className="custom-layout-add-actions">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addCustomContentBlock(section.id, "text")
+                        }
+                      >
+                        + Add Text
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          addCustomContentBlock(section.id, "table")
+                        }
+                      >
+                        + Add Table
+                      </button>
+                    </div>
+
+                    <p className="custom-layout-hint">
+                      Content is stacked vertically in the right cell. Nested
+                      tables use the same table styling as the existing syllabus
+                      tables.
+                    </p>
                   </div>
                 )}
 
@@ -970,7 +1356,7 @@ export default function SyllabusBuilderModal({
         </div>
 
         {/* ================================================= */}
-        {/* RIGHT PANEL / MULTI-PAGE PREVIEW */}
+        {/* RIGHT PANEL / CONTINUOUS DOCUMENT */}
         {/* ================================================= */}
 
         <div
@@ -984,54 +1370,32 @@ export default function SyllabusBuilderModal({
           {sections.length === 0 && <p>No sections added yet.</p>}
 
           <div className="preview-pages">
-            {pageChunks.map((page, pageIndex) => (
+            <div
+              className="syllabus-document"
+              style={{
+                height: "auto",
+                minHeight: 0,
+                overflow: "visible",
+              }}
+            >
               <div
-                key={pageIndex}
-                data-measuring={isMeasuring ? "true" : "false"}
-                className={`syllabus-document ${
-                  university === "ALTE" ? "alte-document" : ""
-                }`}
+                className="syllabus-content"
+                style={{
+                  height: "auto",
+                  minHeight: 0,
+                  overflow: "visible",
+                }}
               >
-                {/* ALTE HEADER */}
-
-                {university === "ALTE" && (
-                  <div className="syllabus-header">
-                    <img src={alteLogo} alt="ALTE University" />
-                  </div>
-                )}
-
-                {/* PAGE CONTENT */}
-
-                <div className="syllabus-content">
-                  {page.map((chunk) => {
-                    const section = sections.find(
-                      (s) => s.id === chunk.sectionId,
-                    );
-
-                    if (!section) return null;
-
-                    return renderSection(section, chunk.start, chunk.end);
-                  })}
-                </div>
-
-                {/* ALTE FOOTER */}
-
-                {university === "ALTE" && (
-                  <div className="syllabus-footer">
-                    <span>
-                      COPYRIGHT © LLC ALTE UNIVERSITY. THE MATERIALS GIVEN IN
-                      THIS SYLLABUS ARE INDICATED FOR PERSONAL AND EDUCATIONAL
-                      PURPOSES ONLY. PRIOR WRITTEN PERMISSION MUST BE OBTAINED
-                      FROM LLC ALTE UNIVERSITY FOR USE IN ANY ACADEMIC
-                      PROGRAM(S), TRAINING(S) OR/AND FOR OTHER PURPOSES |
-                      ᲡᲐᲐᲕᲢᲝᲠᲝ ᲣᲤᲚᲔᲑᲐ © ᲨᲞᲡ ᲐᲚᲢᲔ ᲣᲜᲘᲕᲔᲠᲡᲘᲢᲔᲢᲘ - ᲡᲘᲚᲐᲑᲣᲡᲨᲘ
-                      ᲛᲝᲪᲔᲛᲣᲚᲘ ᲛᲐᲡᲐᲚᲔᲑᲘ ᲛᲘᲗᲘᲗᲔᲑᲣᲚᲘᲐ ᲛᲮᲝᲚᲝᲓ ᲞᲘᲠᲐᲓᲘ ᲛᲝᲮᲛᲐᲠᲔᲑᲘᲡᲐ ᲓᲐ
-                      ᲡᲐᲒᲐᲜᲛᲐᲜᲐᲗᲚᲔᲑᲚᲝ ᲛᲘᲖᲐᲜᲘᲡᲗᲕᲘᲡ.
-                    </span>
-                  </div>
-                )}
+                {sections
+                  .filter(
+                    (section) =>
+                      section.type === "custom-layout" ||
+                      section.tableId === "custom-layout" ||
+                      section.cells?.length > 0,
+                  )
+                  .map((section) => renderSection(section))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import "./style.css";
 import alteLogo from "../../assets/alte/altelogo.png";
 
@@ -15,11 +15,34 @@ export default function ProfRightPanel({
 }) {
   const [pages, setPages] = useState(null);
 
+  console.log("University received by ProfRightPanel:", university);
+
+  // ---------------------------------------------------------
+  // SECTION HELPERS
+  // ---------------------------------------------------------
+
+  const isCustomLayout = (section) =>
+    section?.type === "custom-layout" || section?.tableId === "custom-layout";
+
+  const getSectionRowCount = (section) => {
+    if (isCustomLayout(section)) {
+      return 1;
+    }
+
+    return Array.isArray(section?.cells) ? section.cells.length : 0;
+  };
+
+  const hasRenderableContent = (section) => {
+    if (isCustomLayout(section)) {
+      return Array.isArray(section.content) && section.content.length > 0;
+    }
+
+    return Array.isArray(section?.cells) && section.cells.length > 0;
+  };
+
   // ---------------------------------------------------------
   // COLUMN COUNT
   // ---------------------------------------------------------
-
-  console.log("University received by ProfRightPanel:", university);
 
   const getColumnCount = (section) => {
     if (!section?.cells?.length) return 1;
@@ -78,40 +101,111 @@ export default function ProfRightPanel({
     let idx = 0;
 
     for (let i = 0; i < sectionIndex; i++) {
-      idx += sections[i]?.cells?.length || 0;
+      idx += getSectionRowCount(sections[i]);
     }
 
     return idx + rowIndex;
   };
 
   // ---------------------------------------------------------
-  // UPDATE CELL
+  // UPDATE NORMAL TABLE CELL
   // ---------------------------------------------------------
 
   const updateCellValue = (sectionIndex, rowIndex, colIndex, value) => {
-    const updated = sections.map((section) => ({
-      ...section,
-      cells: section.cells.map((row) => row.map((cell) => ({ ...cell }))),
-    }));
+    setSections((previous) =>
+      previous.map((section, currentSectionIndex) => {
+        if (currentSectionIndex !== sectionIndex) return section;
 
-    updated[sectionIndex].cells[rowIndex][colIndex].value = value;
-
-    setSections(updated);
+        return {
+          ...section,
+          cells: section.cells.map((row, currentRowIndex) =>
+            currentRowIndex !== rowIndex
+              ? row
+              : row.map((cell, currentColIndex) =>
+                  currentColIndex !== colIndex ? cell : { ...cell, value },
+                ),
+          ),
+        };
+      }),
+    );
   };
 
   // ---------------------------------------------------------
-  // UPDATE CHECKBOX
+  // UPDATE NORMAL TABLE CHECKBOX
   // ---------------------------------------------------------
 
   const updateCheckbox = (sectionIndex, rowIndex, colIndex, checked) => {
-    const updated = sections.map((section) => ({
-      ...section,
-      cells: section.cells.map((row) => row.map((cell) => ({ ...cell }))),
-    }));
+    setSections((previous) =>
+      previous.map((section, currentSectionIndex) => {
+        if (currentSectionIndex !== sectionIndex) return section;
 
-    updated[sectionIndex].cells[rowIndex][colIndex].checked = checked;
+        return {
+          ...section,
+          cells: section.cells.map((row, currentRowIndex) =>
+            currentRowIndex !== rowIndex
+              ? row
+              : row.map((cell, currentColIndex) =>
+                  currentColIndex !== colIndex ? cell : { ...cell, checked },
+                ),
+          ),
+        };
+      }),
+    );
+  };
 
-    setSections(updated);
+  // ---------------------------------------------------------
+  // UPDATE CUSTOM TEXT BLOCK
+  // ---------------------------------------------------------
+
+  const updateCustomText = (sectionIndex, contentIndex, value) => {
+    setSections((previous) =>
+      previous.map((section, currentSectionIndex) => {
+        if (currentSectionIndex !== sectionIndex) return section;
+
+        return {
+          ...section,
+          content: section.content.map((block, currentIndex) =>
+            currentIndex !== contentIndex ? block : { ...block, value },
+          ),
+        };
+      }),
+    );
+  };
+
+  // ---------------------------------------------------------
+  // UPDATE CUSTOM NESTED TABLE CELL
+  // ---------------------------------------------------------
+
+  const updateCustomTableCell = (
+    sectionIndex,
+    contentIndex,
+    rowIndex,
+    colIndex,
+    value,
+  ) => {
+    setSections((previous) =>
+      previous.map((section, currentSectionIndex) => {
+        if (currentSectionIndex !== sectionIndex) return section;
+
+        return {
+          ...section,
+          content: section.content.map((block, currentContentIndex) => {
+            if (currentContentIndex !== contentIndex) return block;
+
+            return {
+              ...block,
+              rows: block.rows.map((row, currentRowIndex) =>
+                currentRowIndex !== rowIndex
+                  ? row
+                  : row.map((cell, currentColIndex) =>
+                      currentColIndex !== colIndex ? cell : { ...cell, value },
+                    ),
+              ),
+            };
+          }),
+        };
+      }),
+    );
   };
 
   // ---------------------------------------------------------
@@ -135,7 +229,7 @@ export default function ProfRightPanel({
   };
 
   // ---------------------------------------------------------
-  // CALCULATE PAGINATION
+  // PAGINATION
   // ---------------------------------------------------------
 
   useLayoutEffect(() => {
@@ -154,14 +248,15 @@ export default function ProfRightPanel({
 
       if (availableHeight <= 0) return;
 
-      // Collect rows from every currently rendered page.
-      const rows = Array.from(preview.querySelectorAll("tr[data-section-id]"));
+      // Normal table rows and custom-layout section wrappers
+      const rows = Array.from(
+        preview.querySelectorAll("[data-section-id][data-row-index]"),
+      );
 
       const calculatedPages = [[]];
 
       let currentPage = 0;
       let usedHeight = 0;
-      let previousSectionId = null;
 
       rows.forEach((row) => {
         const sectionId = row.dataset.sectionId;
@@ -170,23 +265,18 @@ export default function ProfRightPanel({
 
         if (rowHeight <= 0) return;
 
-        // No extra margin between tables.
-        const sectionGap = 0;
-
         if (
           calculatedPages[currentPage].length > 0 &&
-          usedHeight + sectionGap + rowHeight > availableHeight
+          usedHeight + rowHeight > availableHeight
         ) {
           calculatedPages.push([]);
           currentPage++;
           usedHeight = 0;
-          previousSectionId = null;
         }
 
         const currentEntries = calculatedPages[currentPage];
         const lastEntry = currentEntries[currentEntries.length - 1];
 
-        // Combine consecutive rows from the same section.
         if (
           lastEntry &&
           lastEntry.sectionId === sectionId &&
@@ -202,10 +292,8 @@ export default function ProfRightPanel({
         }
 
         usedHeight += rowHeight;
-        previousSectionId = sectionId;
       });
 
-      // Don't cause unnecessary renders if page breaks are unchanged.
       setPages((currentPages) => {
         if (
           currentPages &&
@@ -237,16 +325,329 @@ export default function ProfRightPanel({
   }, [sections, university]);
 
   // ---------------------------------------------------------
-  // RENDER SECTION CHUNK
+  // RENDER CUSTOM CONTENT BLOCK
+  // ---------------------------------------------------------
+
+  const renderCustomBlock = (block, sectionIndex, contentIndex) => {
+    if (!block) return null;
+
+    // TEXT BLOCK
+    if (block.type === "text") {
+      const isEditing =
+        editingCell?.type === "custom-text" &&
+        editingCell.sectionIndex === sectionIndex &&
+        editingCell.contentIndex === contentIndex;
+
+      const editable = !block.isTitle || isAdmin;
+
+      return (
+        <div
+          key={block.id || contentIndex}
+          className="professor-custom-text"
+          onClick={() => {
+            if (editable) {
+              setEditingCell({
+                type: "custom-text",
+                sectionIndex,
+                contentIndex,
+              });
+            }
+          }}
+          style={{
+            cursor: editable ? "pointer" : "default",
+            whiteSpace: "pre-wrap",
+            overflowWrap: "anywhere",
+            wordBreak: "break-word",
+            minWidth: 0,
+          }}
+        >
+          {isEditing ? (
+            <textarea
+              autoFocus
+              value={block.value || ""}
+              onChange={(e) =>
+                updateCustomText(sectionIndex, contentIndex, e.target.value)
+              }
+              onBlur={handleBlurOrEnter}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && e.ctrlKey) {
+                  e.preventDefault();
+                  handleBlurOrEnter();
+                }
+              }}
+              onInput={(e) => autoResize(e.target)}
+              style={{
+                width: "100%",
+                maxWidth: "100%",
+                minHeight: "40px",
+                padding: "4px 6px",
+                fontSize: "inherit",
+                fontFamily: "inherit",
+                lineHeight: "1.4",
+                border: "1px solid #ccc",
+                borderRadius: 4,
+                resize: "none",
+                overflow: "hidden",
+                boxSizing: "border-box",
+                display: "block",
+              }}
+            />
+          ) : (
+            <span>
+              {block.value || <span className="placeholder-cell"></span>}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    // NESTED TABLE BLOCK
+    if (block.type === "table") {
+      return (
+        <table
+          key={block.id || contentIndex}
+          className="syllabus-table professor-custom-table custom-layout-nested-table"
+          border="1"
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            tableLayout: "fixed",
+          }}
+        >
+          <tbody>
+            {(block.rows || []).map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, colIndex) => {
+                  const isEditing =
+                    editingCell?.type === "custom-table" &&
+                    editingCell.sectionIndex === sectionIndex &&
+                    editingCell.contentIndex === contentIndex &&
+                    editingCell.rowIndex === rowIndex &&
+                    editingCell.colIndex === colIndex;
+
+                  const editable =
+                    cell.isCheckbox ||
+                    !cell.isTitle ||
+                    (cell.isTitle && isAdmin);
+
+                  return (
+                    <td
+                      key={colIndex}
+                      className={`table-cell ${
+                        cell.isTitle ? "title-cell" : ""
+                      } ${cell.isSecondary ? "secondary-cell" : ""}`}
+                      rowSpan={cell.rowSpan}
+                      colSpan={cell.colSpan || 1}
+                      onClick={() => {
+                        if (editable && !cell.isCheckbox) {
+                          setEditingCell({
+                            type: "custom-table",
+                            sectionIndex,
+                            contentIndex,
+                            rowIndex,
+                            colIndex,
+                          });
+                        }
+                      }}
+                      style={{
+                        cursor: editable ? "pointer" : "default",
+                        boxSizing: "border-box",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {cell.isCheckbox ? (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={cell.checked || false}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+
+                              setSections((previous) =>
+                                previous.map((section, currentSectionIndex) => {
+                                  if (currentSectionIndex !== sectionIndex) {
+                                    return section;
+                                  }
+
+                                  return {
+                                    ...section,
+                                    content: section.content.map(
+                                      (currentBlock, currentContentIndex) => {
+                                        if (
+                                          currentContentIndex !== contentIndex
+                                        ) {
+                                          return currentBlock;
+                                        }
+
+                                        return {
+                                          ...currentBlock,
+                                          rows: currentBlock.rows.map(
+                                            (currentRow, currentRowIndex) =>
+                                              currentRowIndex !== rowIndex
+                                                ? currentRow
+                                                : currentRow.map(
+                                                    (
+                                                      currentCell,
+                                                      currentColIndex,
+                                                    ) =>
+                                                      currentColIndex !==
+                                                      colIndex
+                                                        ? currentCell
+                                                        : {
+                                                            ...currentCell,
+                                                            checked,
+                                                          },
+                                                  ),
+                                          ),
+                                        };
+                                      },
+                                    ),
+                                  };
+                                }),
+                              );
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              width: "18px",
+                              height: "18px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+                      ) : isEditing ? (
+                        <textarea
+                          autoFocus
+                          value={cell.value || ""}
+                          onChange={(e) =>
+                            updateCustomTableCell(
+                              sectionIndex,
+                              contentIndex,
+                              rowIndex,
+                              colIndex,
+                              e.target.value,
+                            )
+                          }
+                          onBlur={handleBlurOrEnter}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && e.ctrlKey) {
+                              e.preventDefault();
+                              handleBlurOrEnter();
+                            }
+                          }}
+                          onInput={(e) => autoResize(e.target)}
+                          style={{
+                            width: "100%",
+                            maxWidth: "100%",
+                            padding: "4px 6px",
+                            fontSize: "inherit",
+                            fontFamily: "inherit",
+                            lineHeight: "1.4",
+                            border: "1px solid #ccc",
+                            borderRadius: 4,
+                            resize: "none",
+                            overflow: "hidden",
+                            boxSizing: "border-box",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            display: "block",
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "anywhere",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {cell.value || (
+                            <span className="placeholder-cell"></span>
+                          )}
+                        </span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
+    return null;
+  };
+
+  // ---------------------------------------------------------
+  // RENDER CUSTOM SECTION
+  // ---------------------------------------------------------
+
+  const renderCustomSection = (section, sectionIndex) => {
+    const blocks = section.content || [];
+
+    return (
+      <div
+        key={section.id}
+        className="professor-custom-layout"
+        data-section-id={section.id}
+        data-row-index="0"
+      >
+        <table className="custom-layout-outer-table">
+          <tbody>
+            <tr>
+              {/* LEFT HEADER CELL */}
+              <td className="custom-layout-header-cell">
+                {section.header || ""}
+              </td>
+
+              {/* RIGHT CONTENT CELL */}
+              <td className="custom-layout-content-cell">
+                <div className="custom-layout-content-block">
+                  {blocks.map((block, contentIndex) => (
+                    <div
+                      key={block.id || contentIndex}
+                      className={
+                        block.type === "text"
+                          ? "custom-layout-text-block"
+                          : "custom-layout-table-block"
+                      }
+                    >
+                      {renderCustomBlock(block, sectionIndex, contentIndex)}
+                    </div>
+                  ))}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // ---------------------------------------------------------
+  // RENDER NORMAL SECTION CHUNK
   // ---------------------------------------------------------
 
   const renderSection = (
     section,
     sectionIndex,
     start = 0,
-    end = section.cells.length,
+    end = getSectionRowCount(section),
   ) => {
-    if (!section.cells.length) return null;
+    if (isCustomLayout(section)) {
+      if (start > 0 || end <= 0) return null;
+
+      return renderCustomSection(section, sectionIndex);
+    }
+
+    if (!section.cells?.length) return null;
 
     const columnWidths = getColumnWidths(section);
     const visibleRows = section.cells.slice(start, end);
@@ -288,6 +689,8 @@ export default function ProfRightPanel({
                 >
                   {row.map((cell, colIndex) => {
                     const isEditing =
+                      editingCell?.type !== "custom-text" &&
+                      editingCell?.type !== "custom-table" &&
                       editingCell &&
                       editingCell.sectionIndex === sectionIndex &&
                       editingCell.rowIndex === rowIndex &&
@@ -331,8 +734,6 @@ export default function ProfRightPanel({
                           overflow: "hidden",
                         }}
                       >
-                        {/* CHECKBOX */}
-
                         {cell.isCheckbox ? (
                           <div
                             style={{
@@ -363,8 +764,6 @@ export default function ProfRightPanel({
                             />
                           </div>
                         ) : isEditing ? (
-                          /* EDITING CELL */
-
                           <textarea
                             autoFocus
                             value={cell.value || ""}
@@ -408,8 +807,6 @@ export default function ProfRightPanel({
                             }}
                           />
                         ) : (
-                          /* NORMAL DISPLAY CELL */
-
                           <span
                             style={{
                               display: "block",
@@ -443,13 +840,11 @@ export default function ProfRightPanel({
 
   const pageChunks = isMeasuring
     ? [
-        sections
-          .filter((section) => section.cells.length > 0)
-          .map((section) => ({
-            sectionId: section.id,
-            start: 0,
-            end: section.cells.length,
-          })),
+        sections.filter(hasRenderableContent).map((section) => ({
+          sectionId: section.id,
+          start: 0,
+          end: getSectionRowCount(section),
+        })),
       ]
     : pages;
 

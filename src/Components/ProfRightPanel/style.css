@@ -19,12 +19,10 @@
   right: 20px;
   bottom: 20px;
   z-index: 100;
-
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-
   background-color: #449df6;
   color: #fff;
 }
@@ -45,22 +43,19 @@
   position: relative;
   display: flex;
   flex-direction: column;
-
   width: 100%;
   aspect-ratio: 210 / 297;
-
   flex-shrink: 0;
   box-sizing: border-box;
-
   padding: 5% 6% 4%;
-
   background: white;
   color: black;
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* HEADER */
+/* =========================================
+   HEADER
+========================================= */
 
 .professor-syllabus-page .syllabus-header {
   flex-shrink: 0;
@@ -76,7 +71,13 @@
   object-position: left center;
 }
 
-/* CONTENT */
+.syllabus-header-right img {
+  height: 8rem;
+}
+
+/* =========================================
+   CONTENT
+========================================= */
 
 .professor-syllabus-content {
   flex: 1;
@@ -85,7 +86,9 @@
   overflow: hidden;
 }
 
-/* TABLES */
+/* =========================================
+   NORMAL TABLES
+========================================= */
 
 .professor-section-table {
   position: relative;
@@ -106,7 +109,172 @@
   min-width: 0;
 }
 
-/* FOOTER */
+/* ==========================================
+   CUSTOM TWO-CELL DOCUMENT LAYOUT
+========================================== */
+
+.professor-custom-layout {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .custom-layout-outer-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.professor-custom-layout .custom-layout-outer-table > tbody > tr > td {
+  height: auto;
+  min-width: 0;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .custom-layout-header-cell {
+  width: 30%;
+  padding: 3px 5px;
+}
+
+.professor-custom-layout .custom-layout-content-cell {
+  width: 70%;
+  min-width: 0;
+  max-width: none;
+  padding: 0 !important;
+  overflow: visible;
+}
+
+.professor-custom-layout .custom-layout-content-block,
+.professor-custom-layout .custom-layout-text-block,
+.professor-custom-layout .custom-layout-table-block {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .custom-layout-text-block,
+.professor-custom-layout .custom-layout-table-block {
+  margin-bottom: 8px;
+}
+
+.professor-custom-layout .custom-layout-content-block > :last-child,
+.professor-custom-layout .custom-layout-text-block:last-child,
+.professor-custom-layout .custom-layout-table-block:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================
+   CUSTOM NESTED TABLES
+========================================== */
+
+.professor-custom-layout .custom-layout-nested-table,
+.professor-custom-layout .professor-custom-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto;
+  table-layout: fixed !important;
+  border-collapse: collapse;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .custom-layout-nested-table tbody,
+.professor-custom-layout .custom-layout-nested-table tr,
+.professor-custom-layout .professor-custom-table tbody,
+.professor-custom-layout .professor-custom-table tr {
+  height: auto;
+}
+
+.professor-custom-layout .custom-layout-nested-table td,
+.professor-custom-layout .professor-custom-table td {
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .professor-custom-table td {
+  padding: 3px 5px;
+}
+
+.professor-custom-layout .professor-custom-table .secondary-cell {
+  background-color: #9bd3d9;
+}
+
+/* ==========================================
+   CUSTOM TEXT
+========================================== */
+
+.professor-custom-layout .professor-custom-text {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   CUSTOM EDITING INPUTS
+========================================== */
+
+.professor-custom-layout textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 1.2em;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.3;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .placeholder-cell {
+  display: inline-block;
+  min-height: 1em;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
 
 .professor-syllabus-page .syllabus-footer {
   flex-shrink: 0;
@@ -121,47 +289,126 @@
   display: block;
 }
 
-/* Keep the save button above the preview */
-
-.modal-right-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  height: 100%;
+.syllabus-footer-right {
+  font-size: 0.8rem;
 }
 
-.modal-right {
+/* =========================================
+   PLACEHOLDERS
+========================================= */
+
+.placeholder-cell {
+  display: inline-block;
+  min-height: 1em;
+}
+
+/* =========================================
+   RESPONSIVE SAFETY
+========================================= */
+
+.professor-custom-layout-cell,
+.professor-custom-layout-cell * {
+  max-width: 100%;
+}
+
+/* ==========================================
+   PROFESSOR CUSTOM 2-CELL LAYOUT
+========================================== */
+
+.professor-custom-layout {
+  display: block;
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  padding-left: 10px;
-  padding-bottom: 80px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
-.save-button {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  z-index: 100;
-
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-
-  background-color: #449df6;
-  color: #fff;
+.professor-custom-layout .custom-layout-outer-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border: 1px solid #000;
+  box-sizing: border-box;
 }
 
-/* .syllabus-header-right {
-  height: 5rem;
-} */
-
-.syllabus-header-right img {
-  height: 8rem;
+/* Both outer cells */
+.professor-custom-layout .custom-layout-outer-table > tbody > tr > td {
+  border: 1px solid #000;
+  height: auto;
+  min-width: 0;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
 }
 
-.syllabus-footer-right {
-  font-size: 0.8rem;
+/* Left 30% header cell */
+.professor-custom-layout .custom-layout-header-cell {
+  width: 30%;
+  padding: 3px 5px;
+  border-right: 1px solid #000 !important;
+}
+
+/* Right 70% content cell */
+.professor-custom-layout .custom-layout-content-cell {
+  width: 70%;
+  min-width: 0;
+  max-width: none;
+  padding: 0 !important;
+  overflow: visible;
+}
+
+/* Content blocks */
+.professor-custom-layout .custom-layout-content-block,
+.professor-custom-layout .custom-layout-text-block,
+.professor-custom-layout .custom-layout-table-block {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .custom-layout-text-block,
+.professor-custom-layout .custom-layout-table-block {
+  margin-bottom: 8px;
+}
+
+.professor-custom-layout .custom-layout-content-block > :last-child,
+.professor-custom-layout .custom-layout-text-block:last-child,
+.professor-custom-layout .custom-layout-table-block:last-child {
+  margin-bottom: 0;
+}
+
+/* Nested tables */
+.professor-custom-layout .custom-layout-nested-table,
+.professor-custom-layout .professor-custom-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto;
+  table-layout: fixed !important;
+  border-collapse: collapse;
+  border: 1px solid #000;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.professor-custom-layout .custom-layout-nested-table td,
+.professor-custom-layout .professor-custom-table td {
+  border: 1px solid #000;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  vertical-align: top;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
 }
